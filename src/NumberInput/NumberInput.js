@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import cn from 'classnames';
 import { parseValue } from './numberInputHelpers';
 import { boundNumber } from '../utils/numberUtils';
@@ -10,20 +10,22 @@ const CID = 'number-input';
 
 const NumberInput = ({
   name,
-  placeholder,
   value,
-  onValueChange,
+  onChange,
+  placeholder,
+  step = 1,
+  precision = 0,
   min,
   max,
-  precision,
   currency,
-  schoolGrade,
   ignoreEnterKey,
   blue,
   disabled,
   className,
 }) => {
-  const onChange = e => {
+  const inputRef = useRef();
+
+  const onChangeWrapper = e => {
     const input = e.target;
     const rawValue = input.value;
 
@@ -36,7 +38,9 @@ const NumberInput = ({
     const value = parseValue(rawValue);
     const boundedValue = boundNumber(value, min, max);
 
-    onValueChange(boundedValue);
+    if (onChange) {
+      onChange(boundedValue, inputRef.current);
+    }
   };
 
   const onKeyPress = e => {
@@ -61,15 +65,16 @@ const NumberInput = ({
   return (
     <div className={cn(CID, { blue, disabled }, className)}>
       <input
+        ref={inputRef}
         className={`${CID}__input`}
         type='text'
         name={name}
-        placeholder={placeholder}
         value={value}
-        onChange={onChange}
+        onChange={onChangeWrapper}
         onKeyPress={onKeyPress}
         onBlur={onBlur}
         onInvalid={onInvalid}
+        placeholder={placeholder}
         pattern='[\d,]'
         disabled={disabled}
       />

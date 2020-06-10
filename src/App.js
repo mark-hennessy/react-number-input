@@ -7,8 +7,8 @@ const CID = 'app';
 export default function App() {
   return (
     <div className={CID}>
-      <DemoForm blue />
-      <DemoForm />
+      <DemoForm formName='Form1' blue />
+      <DemoForm formName='Form2' />
     </div>
   );
 }

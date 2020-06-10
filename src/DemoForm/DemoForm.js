@@ -6,46 +6,54 @@ import './DemoForm.scss';
 
 const CID = 'demo-form';
 
-const DemoForm = ({ blue, className }) => {
-  const [value1, setValue1] = useState('');
-  const [value2, setValue2] = useState('12.34');
-  const [value3, setValue3] = useState('12.34');
+const DemoForm = ({ formName, blue, className }) => {
+  const [state, setState] = useState({
+    value1: '',
+    value2: '12.34',
+    value3: '12.34',
+    value4: '',
+  });
+
+  const connectToState = stateKey => {
+    return {
+      name: stateKey,
+      value: state[stateKey],
+      onChange: (value, input) => {
+        setState({ ...state, [input.name]: value });
+      },
+      placeholder: 'value',
+      blue: !blue,
+    };
+  };
+
+  let inputId = 1;
 
   return (
-    <form>
+    <form name={formName}>
       <Panel className={cn(CID, className)} blue={blue}>
+        <NumberInput {...connectToState(`value${inputId++}`)} ignoreEnterKey />
         <NumberInput
-          placeholder='value'
-          value={value1}
-          onValueChange={setValue1}
-          min={0}
-          max={100}
-          ignoreEnterKey
-          blue={!blue}
+          {...connectToState(`value${inputId++}`)}
+          precision={2}
+          currency
         />
         <NumberInput
-          placeholder='value'
-          value={value2}
-          onValueChange={setValue2}
-          min={0}
-          max={100}
-          ignoreEnterKey
-          blue={!blue}
+          {...connectToState(`value${inputId++}`)}
+          placeholder='1,3'
+          step={0.1}
+          precision={1}
+          min={1}
+          max={6}
         />
-        <NumberInput
-          placeholder='value'
-          value={value3}
-          onValueChange={setValue3}
-          min={0}
-          max={100}
-          ignoreEnterKey
-          blue={!blue}
-          disabled
-        />
+        <NumberInput {...connectToState(`value${inputId++}`)} disabled />
+
+        <div className={`${CID}__form-state`}>
+          {JSON.stringify(state, undefined, 2)}
+        </div>
         <button
           className={`${CID}__submit-button`}
           onClick={() => {
-            alert('Form Submitted');
+            alert(`${formName} Submitted`);
           }}
         >
           Submit
