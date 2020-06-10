@@ -11,7 +11,7 @@ const DemoForm = ({ formName, blue, className }) => {
     value1: '',
     value2: '12.34',
     value3: '12.34',
-    value4: '',
+    value4: '12.34',
   });
 
   const connectToState = stateKey => {

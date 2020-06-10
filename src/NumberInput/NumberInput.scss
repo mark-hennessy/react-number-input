@@ -1,8 +1,15 @@
 .number-input {
   display: inline-block;
   position: relative;
+
+  // so opacity can be set on the input when disabled
   background: white;
 
+  &,
+  &__input {
+    border-radius: 4px;
+  }
+  
   &__input {
     width: 100%;
     padding: 0.69rem 1rem;
@@ -11,6 +18,7 @@
     line-height: 1.21428571em;
     font-family: "Nunito", sans-serif;
     color: black;
+    background: white;
 
     &:focus {
       color: #07a9ef;
@@ -19,17 +27,12 @@
     }
   }
 
-  &,
-  &__input {
-    border-radius: 4px;
-  }
-
-  &.blue &__input {
+  &.blue &__input{
     background: #ebf9fd;
   }
 
   &.disabled &__input {
-    color: rgba(0, 0, 0, 0.3);
+    opacity: 0.5;
   }
 
   &__arrow-buttons {
