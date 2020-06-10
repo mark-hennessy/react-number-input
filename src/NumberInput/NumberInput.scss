@@ -1,0 +1,45 @@
+.number-input {
+  display: inline-block;
+  position: relative;
+  background: white;
+
+  &__input {
+    width: 100%;
+    padding: 0.69rem 1rem;
+    border: 0;
+    font-size: 1rem;
+    line-height: 1.21428571em;
+    font-family: "Nunito", sans-serif;
+    color: black;
+
+    &:focus {
+      color: #07a9ef;
+      box-shadow: 0px 2px 20px rgba(0, 0, 0, 0.1);
+      outline: 0;
+    }
+  }
+
+  &,
+  &__input {
+    border-radius: 4px;
+  }
+
+  &.blue &__input {
+    background: #ebf9fd;
+  }
+
+  &.disabled &__input {
+    color: rgba(0, 0, 0, 0.3);
+  }
+
+  &__arrow-buttons {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    bottom: 2px;
+    width: 18px;
+
+    display: flex;
+    flex-direction: column;
+  }
+}

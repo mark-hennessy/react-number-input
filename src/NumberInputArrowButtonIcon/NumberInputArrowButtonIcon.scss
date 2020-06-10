@@ -1,0 +1,16 @@
+.number-input-arrow-button-icon {
+  width: 100%;
+  fill: rgba(0, 0, 0, 0.7);
+
+  &.down {
+    transform: rotate(180deg);
+  }
+
+  &.blue {
+    fill: #2d9cdb;
+  }
+
+  &.disabled {
+    opacity: 0.5;
+  }
+}
