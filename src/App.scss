@@ -1,18 +1,4 @@
-* {
-  box-sizing: border-box;
-}
-
 .app {
-  font-family: sans-serif;
-
-  &__form {
-    display: grid;
-    grid-gap: 1rem;
-
-    // max-width: 15rem;
-  }
-
-  &__submit-button {
-    justify-self: start;
-  }
+  display: grid;
+  grid-gap: 1rem;
 }
