@@ -52,6 +52,7 @@ const DemoForm = ({ formName, blue, className }) => {
         </div>
         <button
           className={`${CID}__submit-button`}
+          type='submit'
           onClick={() => {
             alert(`${formName} Submitted`);
           }}

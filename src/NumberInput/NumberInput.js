@@ -43,6 +43,13 @@ const NumberInput = ({
     }
   };
 
+  const onStep = (e, direction) => {
+    // const input = inputRef.current;
+    // e.preventDefault();
+    // e.stopPropagation();
+    console.log('onStep click');
+  };
+
   const onKeyPress = e => {
     if (ignoreEnterKey && e.key === 'Enter') {
       // prevent forms from submitting on Enter
@@ -57,10 +64,6 @@ const NumberInput = ({
     // the 'pattern' attribute is set on the input
     e.preventDefault();
   };
-
-  const increment = () => {};
-
-  const decrement = () => {};
 
   return (
     <div className={cn(CID, { blue, disabled }, className)}>
@@ -83,13 +86,13 @@ const NumberInput = ({
           direction='up'
           blue={blue}
           disabled={disabled}
-          onClick={increment}
+          onClick={e => onStep(e, 1)}
         />
         <NumberInputArrowButton
           direction='down'
           blue={blue}
           disabled={disabled}
-          onClick={decrement}
+          onClick={e => onStep(e, -1)}
         />
       </div>
     </div>

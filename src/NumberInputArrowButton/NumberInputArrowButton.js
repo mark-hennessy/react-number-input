@@ -14,13 +14,18 @@ const NumberInputArrowButton = ({
   className,
 }) => {
   return (
-    <div className={cn(CID, { disabled }, className)} onClick={onClick}>
+    <button
+      className={cn(CID, { disabled }, className)}
+      type='button'
+      disabled={disabled}
+      onClick={onClick}
+    >
       <NumberInputArrowButtonIcon
         direction={direction}
         blue={blue}
         disabled={disabled}
       />
-    </div>
+    </button>
   );
 };
 
