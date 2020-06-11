@@ -1,44 +1,40 @@
 import {
-  hasNumber,
-  toNumber,
+  containsNumber,
   formatValue,
   germanLocaleFormatter,
 } from './numberInputHelpers';
 
 describe('numberInputHelpers', () => {
-  describe('hasNumber', () => {
+  describe('containsNumber', () => {
     it('returns false for invalid input', () => {
-      expect(hasNumber(undefined)).toBe(false);
-      expect(hasNumber(null)).toBe(false);
-      expect(hasNumber(NaN)).toBe(false);
-      expect(hasNumber(Infinity)).toBe(false);
-      expect(hasNumber(-Infinity)).toBe(false);
-      expect(hasNumber(false)).toBe(false);
-      expect(hasNumber(true)).toBe(false);
-      expect(hasNumber('')).toBe(false);
-      expect(hasNumber('€')).toBe(false);
+      expect(containsNumber(undefined)).toBe(false);
+      expect(containsNumber(null)).toBe(false);
+      expect(containsNumber(NaN)).toBe(false);
+      expect(containsNumber(Infinity)).toBe(false);
+      expect(containsNumber(-Infinity)).toBe(false);
+      expect(containsNumber(false)).toBe(false);
+      expect(containsNumber(true)).toBe(false);
+      expect(containsNumber('')).toBe(false);
+      expect(containsNumber(' ')).toBe(false);
+      expect(containsNumber('€')).toBe(false);
     });
 
     it('returns true for valid input', () => {
-      expect(hasNumber(0)).toBe(true);
-      expect(hasNumber(-12)).toBe(true);
-      expect(hasNumber(12)).toBe(true);
-      expect(hasNumber(12.34)).toBe(true);
+      expect(containsNumber(0)).toBe(true);
+      expect(containsNumber(-12)).toBe(true);
+      expect(containsNumber(12)).toBe(true);
+      expect(containsNumber(12.34)).toBe(true);
 
-      expect(hasNumber('0')).toBe(true);
-      expect(hasNumber('-12')).toBe(true);
-      expect(hasNumber('12')).toBe(true);
-      expect(hasNumber('12.34')).toBe(true);
-      expect(hasNumber(' 12.34 ')).toBe(true);
-      expect(hasNumber('12.34 €')).toBe(true);
+      expect(containsNumber('0')).toBe(true);
+      expect(containsNumber('-12')).toBe(true);
+      expect(containsNumber('12')).toBe(true);
+      expect(containsNumber('12.34')).toBe(true);
+      expect(containsNumber(' 12.34 ')).toBe(true);
+      expect(containsNumber('12.34 €')).toBe(true);
     });
   });
 
   describe('toNumber', () => {
-    it('', () => {
-      // expect(toNumber('0')).toBe(true);
-    });
-
     it('', () => {});
   });
 
@@ -85,7 +81,7 @@ describe('numberInputHelpers', () => {
     });
 
     it('supports custom formatting', () => {
-      expect(formatValue(12.5, 2, v => `${v} €`)).toBe('12.50 €');
+      expect(formatValue(12.5, 2, null, null, v => `${v} €`)).toBe('12.50 €');
     });
   });
 

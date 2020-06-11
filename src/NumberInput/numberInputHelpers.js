@@ -4,7 +4,7 @@ import {
   roundWithPrecision,
 } from '../utils/numberUtils';
 
-export const hasNumber = value => {
+export const containsNumber = value => {
   let number = parseFloat(value);
   return isNumber(number);
 };
@@ -21,12 +21,18 @@ export const toNumber = (value, precision, min, max) => {
   return number;
 };
 
-export const formatValue = (value, precision = 0, customFormatter) => {
-  if (!hasNumber(value)) {
+export const formatValue = (
+  value,
+  precision = 0,
+  min,
+  max,
+  customFormatter,
+) => {
+  if (!containsNumber(value)) {
     return '';
   }
 
-  const number = toNumber(value, precision);
+  const number = toNumber(value, precision, min, max);
 
   let formattedValue =
     precision !== null ? number.toFixed(precision) : `${number}`;
@@ -38,8 +44,8 @@ export const formatValue = (value, precision = 0, customFormatter) => {
   return formattedValue;
 };
 
-export const germanLocaleFormatter = (value, isCurrency) => {
-  let formattedValue = value.replace('.', ',');
+export const germanLocaleFormatter = (stringValue, isCurrency) => {
+  let formattedValue = stringValue.replace('.', ',');
 
   if (isCurrency) {
     formattedValue = `${formattedValue} €`;

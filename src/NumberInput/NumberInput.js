@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import cn from 'classnames';
 import { boundNumber } from '../utils/numberUtils';
-import { formatValue } from './numberInputHelpers';
+import { formatValue, germanLocaleFormatter } from './numberInputHelpers';
 import NumberInputArrowButton from '../NumberInputArrowButton/NumberInputArrowButton';
 
 import './NumberInput.scss';
@@ -75,7 +75,11 @@ const NumberInput = ({
     e.preventDefault();
   };
 
-  const suffix = currency ? ' €' : null;
+  const customFormatter = v => {
+    return germanLocaleFormatter(v, currency);
+  }
+
+  const formattedValue = formatValue(value, precision, min, max, customFormatter);
 
   return (
     <div className={cn(CID, { blue, disabled }, className)}>
@@ -84,7 +88,7 @@ const NumberInput = ({
         className={`${CID}__input`}
         type='text'
         name={name}
-        value={formatValue(value, precision, suffix)}
+        value={formattedValue}
         onChange={onChangeWrapper}
         onKeyPress={onKeyPress}
         onBlur={onBlur}
