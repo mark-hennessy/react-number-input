@@ -96,7 +96,7 @@ describe('numberInputHelpers', () => {
   });
 
   describe('formatValue', () => {
-    it('formats invalid values', () => {
+    it('formats invalid values to empty string', () => {
       expect(formatValue(undefined)).toBe('');
       expect(formatValue(null)).toBe('');
       expect(formatValue(NaN)).toBe('');
