@@ -34,18 +34,23 @@ const DemoForm = ({ formName, blue, className }) => {
         <NumberInput {...connectToState(`value${inputId++}`)} ignoreEnterKey />
         <NumberInput
           {...connectToState(`value${inputId++}`)}
-          precision={2}
-          currency
-        />
-        <NumberInput
-          {...connectToState(`value${inputId++}`)}
           placeholder='1,3'
           step={0.1}
           precision={1}
           min={1}
           max={6}
         />
-        <NumberInput {...connectToState(`value${inputId++}`)} disabled />
+        <NumberInput
+          {...connectToState(`value${inputId++}`)}
+          precision={2}
+          currency
+        />
+        <NumberInput
+          {...connectToState(`value${inputId++}`)}
+          precision={2}
+          currency
+          disabled
+        />
 
         <div className={`${CID}__form-state`}>
           {JSON.stringify(state, undefined, 2)}

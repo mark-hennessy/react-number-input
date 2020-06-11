@@ -2,20 +2,25 @@ export const isNumber = value => {
   return typeof value === 'number' && isFinite(value);
 };
 
-export const boundNumber = (value, min, max) => {
-  if (!isNumber(value)) {
-    return value;
+export const boundNumber = (number, min, max) => {
+  if (!isNumber(number)) {
+    return null;
   }
 
-  let result = value;
+  let boundNumber = number;
 
   if (isNumber(min)) {
-    result = Math.max(result, min);
+    boundNumber = Math.max(boundNumber, min);
   }
 
   if (isNumber(max)) {
-    result = Math.min(result, max);
+    boundNumber = Math.min(boundNumber, max);
   }
 
-  return result;
+  return boundNumber;
+};
+
+export const roundWithPrecision = (number, precision) => {
+  const precisionMultiplier = 10 ** precision;
+  return Math.round(number * precisionMultiplier) / precisionMultiplier;
 };

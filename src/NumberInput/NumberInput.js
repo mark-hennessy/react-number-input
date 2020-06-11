@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import cn from 'classnames';
-import { parseValue } from './numberInputHelpers';
 import { boundNumber } from '../utils/numberUtils';
+import { formatValue } from './numberInputHelpers';
 import NumberInputArrowButton from '../NumberInputArrowButton/NumberInputArrowButton';
 
 import './NumberInput.scss';
@@ -26,22 +26,30 @@ const NumberInput = ({
 }) => {
   const inputRef = useRef();
 
+  const internalValueRef = useRef();
+
   const onChangeWrapper = e => {
     const input = e.target;
-    const rawValue = input.value;
+    const { value } = input;
 
     // allow the input to be cleared
-    // if (!rawValue) {
+    // if (!value) {
     //   onValueChange("");
     //   return;
     // }
 
-    // const value = parseValue(rawValue);
-    // const boundedValue = boundNumber(value, min, max);
-    const boundedValue = rawValue;
+    const sanitizedValue = value.replace(/[^\d,]/g, '').replace(/,/g, '.');
+    internalValueRef.current = sanitizedValue;
+
+    console.log('strippedValue', sanitizedValue);
+
+    const number = parseFloat(sanitizedValue);
+    const boundedNumber = boundNumber(number, min, max);
+
+    console.log('boundedNumber', boundedNumber);
 
     if (onChange) {
-      onChange(boundedValue, inputRef.current);
+      onChange(boundedNumber, inputRef.current);
     }
   };
 
@@ -67,6 +75,8 @@ const NumberInput = ({
     e.preventDefault();
   };
 
+  const suffix = currency ? ' €' : null;
+
   return (
     <div className={cn(CID, { blue, disabled }, className)}>
       <input
@@ -74,7 +84,7 @@ const NumberInput = ({
         className={`${CID}__input`}
         type='text'
         name={name}
-        value={value}
+        value={formatValue(value, precision, suffix)}
         onChange={onChangeWrapper}
         onKeyPress={onKeyPress}
         onBlur={onBlur}

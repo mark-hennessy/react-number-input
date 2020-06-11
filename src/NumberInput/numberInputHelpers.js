@@ -1,6 +1,19 @@
-import { isNumber } from '../utils/numberUtils';
+import { isNumber, roundWithPrecision } from '../utils/numberUtils';
 
-export const parseValue = value => {
-  const number = parseFloat(value);
-  return isNumber(number) ? number : '';
+export const formatValue = (value, precision = 0, suffix) => {
+  let number = parseFloat(value);
+  if (!isNumber(number)) {
+    return '';
+  }
+
+  number = roundWithPrecision(number, precision === null ? 10 : precision);
+
+  let formattedValue = `${number}`;
+  formattedValue = formattedValue.replace('.', ',');
+
+  if (suffix) {
+    formattedValue = `${formattedValue}${suffix}`;
+  }
+
+  return formattedValue;
 };
