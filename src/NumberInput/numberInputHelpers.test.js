@@ -8,7 +8,47 @@ import {
 
 describe('numberInputHelpers', () => {
   describe('parseValue', () => {
-    it('', () => {});
+    it('parses invalid values to 0', () => {
+      expect(parseValue(undefined)).toBe(0);
+      expect(parseValue(null)).toBe(0);
+      expect(parseValue('')).toBe(0);
+      expect(parseValue(' ')).toBe(0);
+      expect(parseValue('blah')).toBe(0);
+      expect(parseValue('€')).toBe(0);
+    });
+
+    it('parses string values', () => {
+      expect(parseValue('1234', null)).toBe(1234);
+      expect(parseValue('12.34', null)).toBe(12.34);
+      expect(parseValue('12.5', null)).toBe(12.5);
+    });
+
+    it('supports precision', () => {
+      expect(parseValue('1234', 0)).toBe(1234);
+      expect(parseValue('1234', 1)).toBe(1234);
+      expect(parseValue('1234', 2)).toBe(1234);
+
+      expect(parseValue('12.34', 0)).toBe(12);
+      expect(parseValue('12.34', 1)).toBe(12.3);
+      expect(parseValue('12.34', 2)).toBe(12.34);
+
+      expect(parseValue('12.5', 0)).toBe(13);
+      expect(parseValue('12.5', 1)).toBe(12.5);
+      expect(parseValue('12.5', 2)).toBe(12.5);
+
+      expect(parseValue('12.0123456789', undefined)).toBe(12);
+      expect(parseValue('12.0123456789', null)).toBe(12.0123456789);
+      expect(parseValue('12.0123456789', 11)).toBe(12.0123456789);
+    });
+
+    it('supports min/max', () => {
+      expect(parseValue('-1.5', 0, null, 100)).toBe(-1);
+      expect(parseValue('-1.5', 0, 0, 100)).toBe(0);
+      expect(parseValue('0', 0, 0, 100)).toBe(0);
+      expect(parseValue('100', 0, 0, 100)).toBe(100);
+      expect(parseValue('100.5', 0, 0, 100)).toBe(100);
+      expect(parseValue('100.5', 0, 0, null)).toBe(101);
+    });
 
     it('supports pre parsing', () => {
       expect(parseValue('12,5', 0, null, null, v => v.replace(',', '.'))).toBe(
@@ -27,7 +67,7 @@ describe('numberInputHelpers', () => {
   });
 
   describe('containsNumber', () => {
-    it('returns false for invalid input', () => {
+    it('returns false when there are no numbers', () => {
       expect(containsNumber(undefined)).toBe(false);
       expect(containsNumber(null)).toBe(false);
       expect(containsNumber(NaN)).toBe(false);
@@ -40,7 +80,7 @@ describe('numberInputHelpers', () => {
       expect(containsNumber('€')).toBe(false);
     });
 
-    it('returns true for valid input', () => {
+    it('returns true when there are numbers', () => {
       expect(containsNumber(0)).toBe(true);
       expect(containsNumber(-12)).toBe(true);
       expect(containsNumber(12)).toBe(true);
@@ -56,7 +96,7 @@ describe('numberInputHelpers', () => {
   });
 
   describe('formatValue', () => {
-    it('returns empty string for invalid input', () => {
+    it('formats invalid values', () => {
       expect(formatValue(undefined)).toBe('');
       expect(formatValue(null)).toBe('');
       expect(formatValue(NaN)).toBe('');
@@ -67,21 +107,22 @@ describe('numberInputHelpers', () => {
       expect(formatValue('')).toBe('');
     });
 
-    it('supports string value', () => {
-      expect(formatValue('1234')).toBe('1234');
-      expect(formatValue('12.34')).toBe('12');
-      expect(formatValue('12.5')).toBe('13');
+    it('formats string values (just in case)', () => {
+      expect(formatValue('1234', null)).toBe('1234');
+      expect(formatValue('12.34', null)).toBe('12.34');
+      expect(formatValue('12.5', null)).toBe('12.5');
     });
 
-    it('supports number value', () => {
-      expect(formatValue(1234)).toBe('1234');
-      expect(formatValue(12.34)).toBe('12');
-      expect(formatValue(12.5)).toBe('13');
+    it('formats number values', () => {
+      expect(formatValue(1234, null)).toBe('1234');
+      expect(formatValue(12.34, null)).toBe('12.34');
+      expect(formatValue(12.5, null)).toBe('12.5');
     });
 
     it('supports precision', () => {
       expect(formatValue(1234, 0)).toBe('1234');
       expect(formatValue(1234, 1)).toBe('1234.0');
+      expect(formatValue(1234, 2)).toBe('1234.00');
 
       expect(formatValue(12.34, 0)).toBe('12');
       expect(formatValue(12.34, 1)).toBe('12.3');
@@ -90,11 +131,19 @@ describe('numberInputHelpers', () => {
       expect(formatValue(12.5, 0)).toBe('13');
       expect(formatValue(12.5, 1)).toBe('12.5');
       expect(formatValue(12.5, 2)).toBe('12.50');
-    });
 
-    it('supports unbound precision', () => {
+      expect(formatValue(12.0123456789, undefined)).toBe('12');
       expect(formatValue(12.0123456789, null)).toBe('12.0123456789');
       expect(formatValue(12.0123456789, 11)).toBe('12.01234567890');
+    });
+
+    it('supports min/max', () => {
+      expect(formatValue(-1.5, 0, null, 100)).toBe('-1');
+      expect(formatValue(-1.5, 0, 0, 100)).toBe('0');
+      expect(formatValue(0, 0, 0, 100)).toBe('0');
+      expect(formatValue(100, 0, 0, 100)).toBe('100');
+      expect(formatValue(100.5, 0, 0, 100)).toBe('100');
+      expect(formatValue(100.5, 0, 0, null)).toBe('101');
     });
 
     it('supports post formatting', () => {

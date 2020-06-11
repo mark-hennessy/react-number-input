@@ -4,34 +4,29 @@ import {
   roundWithPrecision,
 } from '../utils/numberUtils';
 
-export const parseValue = (value, precision, min, max, preParser) => {
+export const parseValue = (value, precision = 0, min, max, preParser) => {
   const valueToParse = preParser ? preParser(value) : value;
   let number = parseFloat(valueToParse);
   if (!isNumber(number)) {
     number = 0;
   }
 
-  number = roundWithPrecision(number, precision !== null ? precision : 10);
+  number = roundWithPrecision(number, isNumber(precision) ? precision : 10);
   number = boundNumber(number, min, max);
+
   return number;
 };
 
 export const germanLocalePreParser = value => {
   return value.replace(',', '.');
-}
+};
 
 export const containsNumber = value => {
   let number = parseFloat(value);
   return isNumber(number);
 };
 
-export const formatValue = (
-  value,
-  precision = 0,
-  min,
-  max,
-  postFormatter,
-) => {
+export const formatValue = (value, precision = 0, min, max, postFormatter) => {
   if (!containsNumber(value)) {
     return '';
   }
