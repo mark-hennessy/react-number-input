@@ -8,10 +8,10 @@ const CID = 'demo-form';
 
 const DemoForm = ({ formName, blue, className }) => {
   const [state, setState] = useState({
-    value1: '',
-    value2: '12.34',
-    value3: '12.34',
-    value4: '12.34',
+    value1: null,
+    value2: 12.34,
+    value3: 12.34,
+    value4: 12.34,
   });
 
   const connectToState = stateKey => {
