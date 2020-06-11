@@ -13,7 +13,6 @@ export const parseValue = (value, precision = 0, min, max, preParser) => {
 
   number = roundWithPrecision(number, isNumber(precision) ? precision : 10);
   number = boundNumber(number, min, max);
-
   return number;
 };
 
@@ -22,7 +21,7 @@ export const germanLocalePreParser = value => {
 };
 
 export const containsNumber = value => {
-  let number = parseFloat(value);
+  const number = parseFloat(value);
   return isNumber(number);
 };
 
