@@ -4,21 +4,25 @@ import {
   roundWithPrecision,
 } from '../utils/numberUtils';
 
-export const containsNumber = value => {
-  let number = parseFloat(value);
-  return isNumber(number);
-};
-
-export const toNumber = (value, precision, min, max) => {
-  let number = parseFloat(value);
+export const parseValue = (value, precision, min, max, preParser) => {
+  const valueToParse = preParser ? preParser(value) : value;
+  let number = parseFloat(valueToParse);
   if (!isNumber(number)) {
     number = 0;
   }
 
   number = roundWithPrecision(number, precision !== null ? precision : 10);
   number = boundNumber(number, min, max);
-
   return number;
+};
+
+export const germanLocalePreParser = value => {
+  return value.replace(',', '.');
+}
+
+export const containsNumber = value => {
+  let number = parseFloat(value);
+  return isNumber(number);
 };
 
 export const formatValue = (
@@ -26,25 +30,25 @@ export const formatValue = (
   precision = 0,
   min,
   max,
-  customFormatter,
+  postFormatter,
 ) => {
   if (!containsNumber(value)) {
     return '';
   }
 
-  const number = toNumber(value, precision, min, max);
+  const number = parseValue(value, precision, min, max);
 
   let formattedValue =
     precision !== null ? number.toFixed(precision) : `${number}`;
 
-  if (customFormatter) {
-    formattedValue = customFormatter(formattedValue);
+  if (postFormatter) {
+    formattedValue = postFormatter(formattedValue);
   }
 
   return formattedValue;
 };
 
-export const germanLocaleFormatter = (stringValue, isCurrency) => {
+export const germanLocalePostFormatter = (stringValue, isCurrency) => {
   let formattedValue = stringValue.replace('.', ',');
 
   if (isCurrency) {

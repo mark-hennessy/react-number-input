@@ -1,10 +1,31 @@
 import {
+  parseValue,
+  germanLocalePreParser,
   containsNumber,
   formatValue,
-  germanLocaleFormatter,
+  germanLocalePostFormatter,
 } from './numberInputHelpers';
 
 describe('numberInputHelpers', () => {
+  describe('parseValue', () => {
+    it('', () => {});
+
+    it('supports pre parsing', () => {
+      expect(parseValue('12,5', 0, null, null, v => v.replace(',', '.'))).toBe(
+        13,
+      );
+    });
+  });
+
+  describe('germanLocalePreParser', () => {
+    it('replaces comma with period', () => {
+      expect(germanLocalePreParser('1234')).toBe('1234');
+      expect(germanLocalePreParser('12,34')).toBe('12.34');
+      expect(germanLocalePreParser('12,5')).toBe('12.5');
+      expect(germanLocalePreParser('12,50')).toBe('12.50');
+    });
+  });
+
   describe('containsNumber', () => {
     it('returns false for invalid input', () => {
       expect(containsNumber(undefined)).toBe(false);
@@ -32,10 +53,6 @@ describe('numberInputHelpers', () => {
       expect(containsNumber(' 12.34 ')).toBe(true);
       expect(containsNumber('12.34 €')).toBe(true);
     });
-  });
-
-  describe('toNumber', () => {
-    it('', () => {});
   });
 
   describe('formatValue', () => {
@@ -80,24 +97,24 @@ describe('numberInputHelpers', () => {
       expect(formatValue(12.0123456789, 11)).toBe('12.01234567890');
     });
 
-    it('supports custom formatting', () => {
+    it('supports post formatting', () => {
       expect(formatValue(12.5, 2, null, null, v => `${v} €`)).toBe('12.50 €');
     });
   });
 
-  describe('germanLocaleFormatter', () => {
+  describe('germanLocalePostFormatter', () => {
     it('formats numbers', () => {
-      expect(germanLocaleFormatter('1234', false)).toBe('1234');
-      expect(germanLocaleFormatter('12.34', false)).toBe('12,34');
-      expect(germanLocaleFormatter('12.5', false)).toBe('12,5');
-      expect(germanLocaleFormatter('12.50', false)).toBe('12,50');
+      expect(germanLocalePostFormatter('1234', false)).toBe('1234');
+      expect(germanLocalePostFormatter('12.34', false)).toBe('12,34');
+      expect(germanLocalePostFormatter('12.5', false)).toBe('12,5');
+      expect(germanLocalePostFormatter('12.50', false)).toBe('12,50');
     });
 
     it('formats currency', () => {
-      expect(germanLocaleFormatter('1234', true)).toBe('1234 €');
-      expect(germanLocaleFormatter('12.34', true)).toBe('12,34 €');
-      expect(germanLocaleFormatter('12.5', true)).toBe('12,5 €');
-      expect(germanLocaleFormatter('12.50', true)).toBe('12,50 €');
+      expect(germanLocalePostFormatter('1234', true)).toBe('1234 €');
+      expect(germanLocalePostFormatter('12.34', true)).toBe('12,34 €');
+      expect(germanLocalePostFormatter('12.5', true)).toBe('12,5 €');
+      expect(germanLocalePostFormatter('12.50', true)).toBe('12,50 €');
     });
   });
 });
