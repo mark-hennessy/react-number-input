@@ -21,6 +21,7 @@ const NumberInput = ({
   ignoreEnterKey,
   blue,
   disabled,
+  title,
   className,
 }) => {
   const inputRef = useRef();
@@ -35,8 +36,9 @@ const NumberInput = ({
     //   return;
     // }
 
-    const value = parseValue(rawValue);
-    const boundedValue = boundNumber(value, min, max);
+    // const value = parseValue(rawValue);
+    // const boundedValue = boundNumber(value, min, max);
+    const boundedValue = rawValue;
 
     if (onChange) {
       onChange(boundedValue, inputRef.current);
@@ -78,8 +80,8 @@ const NumberInput = ({
         onBlur={onBlur}
         onInvalid={onInvalid}
         placeholder={placeholder}
-        pattern='[\d,]'
         disabled={disabled}
+        title={title}
       />
       <div className={`${CID}__arrow-buttons`}>
         <NumberInputArrowButton

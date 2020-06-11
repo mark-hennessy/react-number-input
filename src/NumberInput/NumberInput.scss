@@ -18,6 +18,8 @@
     line-height: 1.21428571em;
     font-family: "Nunito", sans-serif;
     color: black;
+
+    // also applies to disabled background color
     background: white;
 
     &:focus {
@@ -28,6 +30,7 @@
   }
 
   &.blue &__input {
+    // also applies to disabled background color
     background: #ebf9fd;
   }
 

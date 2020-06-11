@@ -19,6 +19,7 @@ const NumberInputArrowButton = ({
       type='button'
       disabled={disabled}
       onClick={onClick}
+      tabIndex={-1}
     >
       <NumberInputArrowButtonIcon
         direction={direction}
