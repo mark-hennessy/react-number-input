@@ -1,4 +1,9 @@
-import { hasNumber, toNumber, formatValue } from './numberInputHelpers';
+import {
+  hasNumber,
+  toNumber,
+  formatValue,
+  germanLocaleFormatter,
+} from './numberInputHelpers';
 
 describe('numberInputHelpers', () => {
   describe('hasNumber', () => {
@@ -63,33 +68,40 @@ describe('numberInputHelpers', () => {
 
     it('supports precision', () => {
       expect(formatValue(1234, 0)).toBe('1234');
-      expect(formatValue(1234, 1)).toBe('1234');
+      expect(formatValue(1234, 1)).toBe('1234.0');
 
       expect(formatValue(12.34, 0)).toBe('12');
-      expect(formatValue(12.34, 1)).toBe('12,3');
-      expect(formatValue(12.34, 2)).toBe('12,34');
+      expect(formatValue(12.34, 1)).toBe('12.3');
+      expect(formatValue(12.34, 2)).toBe('12.34');
 
       expect(formatValue(12.5, 0)).toBe('13');
-      expect(formatValue(12.5, 1)).toBe('12,5');
-      expect(formatValue(12.5, 2)).toBe('12,5');
-
-      expect(formatValue(12.5, 0)).toBe('13');
-      expect(formatValue(12.5, 1)).toBe('12,5');
-      expect(formatValue(12.5, 2)).toBe('12,5');
+      expect(formatValue(12.5, 1)).toBe('12.5');
+      expect(formatValue(12.5, 2)).toBe('12.50');
     });
 
-    it('supports unbound precision (null)', () => {
-      expect(formatValue(12.01234567891)).toBe('12');
-      expect(formatValue(12.01234567891, 0)).toBe('12');
-      expect(formatValue(12.01234567891, null)).toBe('12,0123456789');
-      expect(formatValue(12.01234567891, 11)).toBe('12,01234567891');
+    it('supports unbound precision', () => {
+      expect(formatValue(12.0123456789, null)).toBe('12.0123456789');
+      expect(formatValue(12.0123456789, 11)).toBe('12.01234567890');
     });
 
-    it('supports a suffix', () => {
-      expect(formatValue(1234, 2, ' €')).toBe('1234 €');
-      expect(formatValue(12.34, 2, ' €')).toBe('12,34 €');
-      expect(formatValue(12.5, 2, ' €')).toBe('12,5 €');
-      expect(formatValue(12.5, 2, ' €')).toBe('12,5 €');
+    it('supports custom formatting', () => {
+      expect(formatValue(12.5, 2, v => `${v} €`)).toBe('12.50 €');
+    });
+  });
+
+  describe('germanLocaleFormatter', () => {
+    it('formats numbers', () => {
+      expect(germanLocaleFormatter('1234', false)).toBe('1234');
+      expect(germanLocaleFormatter('12.34', false)).toBe('12,34');
+      expect(germanLocaleFormatter('12.5', false)).toBe('12,5');
+      expect(germanLocaleFormatter('12.50', false)).toBe('12,50');
+    });
+
+    it('formats currency', () => {
+      expect(germanLocaleFormatter('1234', true)).toBe('1234 €');
+      expect(germanLocaleFormatter('12.34', true)).toBe('12,34 €');
+      expect(germanLocaleFormatter('12.5', true)).toBe('12,5 €');
+      expect(germanLocaleFormatter('12.50', true)).toBe('12,50 €');
     });
   });
 });

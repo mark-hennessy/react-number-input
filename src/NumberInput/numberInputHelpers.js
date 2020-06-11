@@ -15,24 +15,34 @@ export const toNumber = (value, precision, min, max) => {
     number = 0;
   }
 
-  number = roundWithPrecision(number, precision === null ? 10 : precision);
+  number = roundWithPrecision(number, precision !== null ? precision : 10);
   number = boundNumber(number, min, max);
 
   return number;
 };
 
-export const formatValue = (value, precision = 0, suffix) => {
+export const formatValue = (value, precision = 0, customFormatter) => {
   if (!hasNumber(value)) {
     return '';
   }
 
   const number = toNumber(value, precision);
 
-  let formattedValue = `${number}`;
-  formattedValue = formattedValue.replace('.', ',');
+  let formattedValue =
+    precision !== null ? number.toFixed(precision) : `${number}`;
 
-  if (suffix) {
-    formattedValue = `${formattedValue}${suffix}`;
+  if (customFormatter) {
+    formattedValue = customFormatter(formattedValue);
+  }
+
+  return formattedValue;
+};
+
+export const germanLocaleFormatter = (value, isCurrency) => {
+  let formattedValue = value.replace('.', ',');
+
+  if (isCurrency) {
+    formattedValue = `${formattedValue} €`;
   }
 
   return formattedValue;
