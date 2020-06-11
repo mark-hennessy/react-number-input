@@ -12,16 +12,16 @@ const NumberInput = ({
   name,
   value,
   onChange,
-  placeholder,
-  step = 1,
   precision = 0,
+  step = 1,
   min,
   max,
-  currency,
-  ignoreEnterKey,
-  blue,
-  disabled,
+  placeholder,
   title,
+  blue,
+  currency,
+  disabled,
+  ignoreEnterKey,
   className,
 }) => {
   const inputRef = useRef();
@@ -90,8 +90,8 @@ const NumberInput = ({
         onBlur={onBlur}
         onInvalid={onInvalid}
         placeholder={placeholder}
-        disabled={disabled}
         title={title}
+        disabled={disabled}
       />
       <div className={`${CID}__arrow-buttons`}>
         <NumberInputArrowButton
