@@ -2,22 +2,16 @@ export const isNumber = value => {
   return typeof value === 'number' && isFinite(value);
 };
 
-export const boundNumber = (number, min, max) => {
+export const boundNumber = (
+  number,
+  min = Number.MIN_SAFE_INTEGER,
+  max = Number.MAX_SAFE_INTEGER,
+) => {
   if (!isNumber(number)) {
     return null;
   }
 
-  let boundNumber = number;
-
-  if (isNumber(min)) {
-    boundNumber = Math.max(boundNumber, min);
-  }
-
-  if (isNumber(max)) {
-    boundNumber = Math.min(boundNumber, max);
-  }
-
-  return boundNumber;
+  return Math.min(Math.max(number, min), max);
 };
 
 export const roundWithPrecision = (number, precision) => {

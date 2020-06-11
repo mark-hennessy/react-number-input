@@ -41,33 +41,57 @@ describe('numberUtils', () => {
     });
 
     it('works without min', () => {
+      expect(boundNumber(Number.MIN_SAFE_INTEGER - 1, undefined, 100)).toBe(
+        Number.MIN_SAFE_INTEGER,
+      );
       expect(boundNumber(-1, undefined, 100)).toBe(-1);
+      expect(boundNumber(0, undefined, 100)).toBe(0);
       expect(boundNumber(12, undefined, 100)).toBe(12);
       expect(boundNumber(12.34, undefined, 100)).toBe(12.34);
+      expect(boundNumber(100, undefined, 100)).toBe(100);
       expect(boundNumber(101, undefined, 100)).toBe(100);
+      expect(boundNumber(Number.MAX_SAFE_INTEGER + 1, undefined, 100)).toBe(
+        100,
+      );
     });
 
     it('works without max', () => {
+      expect(boundNumber(Number.MIN_SAFE_INTEGER - 1, 0, undefined)).toBe(0);
       expect(boundNumber(-1, 0, undefined)).toBe(0);
+      expect(boundNumber(0, 0, undefined)).toBe(0);
       expect(boundNumber(12, 0, undefined)).toBe(12);
       expect(boundNumber(12.34, 0, undefined)).toBe(12.34);
+      expect(boundNumber(100, 0, undefined)).toBe(100);
       expect(boundNumber(101, 0, undefined)).toBe(101);
+      expect(boundNumber(Number.MAX_SAFE_INTEGER + 1, 0, undefined)).toBe(
+        Number.MAX_SAFE_INTEGER,
+      );
     });
 
     it('works without min and max', () => {
+      expect(
+        boundNumber(Number.MIN_SAFE_INTEGER - 1, undefined, undefined),
+      ).toBe(Number.MIN_SAFE_INTEGER);
       expect(boundNumber(-1, undefined, undefined)).toBe(-1);
+      expect(boundNumber(0, undefined, undefined)).toBe(0);
       expect(boundNumber(12, undefined, undefined)).toBe(12);
       expect(boundNumber(12.34, undefined, undefined)).toBe(12.34);
+      expect(boundNumber(100, undefined, undefined)).toBe(100);
       expect(boundNumber(101, undefined, undefined)).toBe(101);
+      expect(
+        boundNumber(Number.MAX_SAFE_INTEGER + 1, undefined, undefined),
+      ).toBe(Number.MAX_SAFE_INTEGER);
     });
 
     it('works with min and max', () => {
+      expect(boundNumber(Number.MIN_SAFE_INTEGER - 1, 0, 100)).toBe(0);
       expect(boundNumber(-1, 0, 100)).toBe(0);
       expect(boundNumber(0, 0, 100)).toBe(0);
       expect(boundNumber(12, 0, 100)).toBe(12);
       expect(boundNumber(12.34, 0, 100)).toBe(12.34);
       expect(boundNumber(100, 0, 100)).toBe(100);
       expect(boundNumber(101, 0, 100)).toBe(100);
+      expect(boundNumber(Number.MAX_SAFE_INTEGER + 1, 0, 100)).toBe(100);
     });
   });
 
