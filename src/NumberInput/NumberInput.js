@@ -36,7 +36,7 @@ const NumberInput = ({
   const inputRef = useRef();
 
   const hasFocusRef = useRef();
-  const selectionStateRef = useRef({});
+  const selectionStateRef = useRef([]);
 
   const getInput = () => {
     return inputRef.current;
@@ -62,14 +62,11 @@ const NumberInput = ({
 
   const saveSelectionState = () => {
     const input = getInput();
-    const { selectionStart, selectionEnd, selectionDirection } = input;
-
-    selectionStateRef.current = {
-      ...selectionStateRef.current,
-      selectionStart,
-      selectionEnd,
-      selectionDirection,
-    };
+    selectionStateRef.current = [
+      input.selectionStart,
+      input.selectionEnd,
+      input.selectionDirection,
+    ];
   };
 
   const setValue = number => {
@@ -138,7 +135,6 @@ const NumberInput = ({
 
   const onBlurWrapper = e => {
     hasFocusRef.current = false;
-    console.log('onBlur');
 
     if (onBlur) {
       onBlur(e);
@@ -154,12 +150,7 @@ const NumberInput = ({
       // will be ignored if the input already has focus
       input.focus();
 
-      const selectionState = selectionStateRef.current;
-      input.setSelectionRange(
-        selectionState.selectionStart,
-        selectionState.selectionEnd,
-        selectionState.selectionDirection,
-      );
+      input.setSelectionRange(...selectionStateRef.current);
     }
   });
 
