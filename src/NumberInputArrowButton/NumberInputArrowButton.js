@@ -26,18 +26,21 @@ const NumberInputArrowButton = ({
       className={cn(CID, { disabled }, className)}
       type='button'
       disabled={disabled}
-      onMouseDown={() => {
+      onMouseDown={e => {
+        // needed because this React synthetic event is reused in the timer callbacks
+        e.persist();
+
         // register timers before handling the click to
         // ensure consistent time intervals
         initialTimerIdRef.current = setTimeout(() => {
           repeatTimerIdRef.current = setInterval(() => {
-            onClick();
+            onClick(e);
           }, 33);
 
-          onClick();
+          onClick(e);
         }, 500);
 
-        onClick();
+        onClick(e);
       }}
       onMouseUp={clearTimers}
       // for when the mouse leaves the button while pressed down

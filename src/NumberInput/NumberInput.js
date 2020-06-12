@@ -62,16 +62,15 @@ const NumberInput = ({
     setValue(number);
   };
 
-  const onStep = delta => {
-    setValue(parse(getInputNumberValue() + delta));
+  const calculateStepMultiplier = e => {
+    if (e.ctrlKey || e.metaKey) return 0.1;
+    if (e.shiftKey) return 10;
+    return 1;
   };
 
-  const onStepUp = () => {
-    onStep(step);
-  };
-
-  const onStepDown = () => {
-    onStep(-step);
+  const onStep = (e, direction) => {
+    const multiplier = calculateStepMultiplier(e);
+    setValue(parse(getInputNumberValue() + direction * step * multiplier));
   };
 
   const onKeyDown = e => {
@@ -81,9 +80,12 @@ const NumberInput = ({
     // console.log(key);
 
     if (key === 'ArrowUp') {
-      onStepUp();
+      e.preventDefault();
+      onStep(e, 1);
     } else if (key === 'ArrowDown') {
-      onStepDown();
+      // TODO: check if preventDefault is needed
+      e.preventDefault();
+      onStep(e, -1);
     } else if (key === 'Enter' && ignoreEnterKey) {
       // prevent forms from submitting on Enter
       e.preventDefault();
@@ -118,13 +120,17 @@ const NumberInput = ({
           direction='up'
           blue={blue}
           disabled={disabled}
-          onClick={onStepUp}
+          onClick={e => {
+            onStep(e, 1);
+          }}
         />
         <NumberInputArrowButton
           direction='down'
           blue={blue}
           disabled={disabled}
-          onClick={onStepDown}
+          onClick={e => {
+            onStep(e, -1);
+          }}
         />
       </div>
     </div>
