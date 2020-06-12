@@ -67,6 +67,13 @@ const NumberInput = ({
     ];
   };
 
+  const restoreSelectionState = () => {
+    const selectionState = selectionStateRef.current;
+    if (selectionState.length) {
+      getInput().setSelectionRange(...selectionState);
+    }
+  };
+
   const setValue = number => {
     saveSelectionState();
     onChange(number, getInput());
@@ -144,12 +151,8 @@ const NumberInput = ({
   // useLayoutEffect avoids flashing because it runs before the browser has a chance to paint
   useLayoutEffect(() => {
     if (hasFocusRef.current) {
-      const input = getInput();
-
-      // will be ignored if the input already has focus
-      input.focus();
-
-      input.setSelectionRange(...selectionStateRef.current);
+      getInput().focus();
+      restoreSelectionState();
     }
   });
 
@@ -176,7 +179,6 @@ const NumberInput = ({
         onKeyDown={onKeyDownWrapper}
         onFocus={onFocusWrapper}
         onBlur={onBlurWrapper}
-        onInput={saveSelectionState}
         onSelect={saveSelectionState}
       />
       <div className={`${CID}__arrow-buttons`}>
