@@ -1,6 +1,7 @@
 import React from 'react';
 import cn from 'classnames';
 import NumberInputArrowButtonIcon from '../NumberInputArrowButtonIcon/NumberInputArrowButtonIcon';
+import useLogDeltaTime from '../utils/useLogDeltaTime';
 
 import './NumberInputArrowButton.scss';
 
@@ -13,12 +14,18 @@ const NumberInputArrowButton = ({
   onClick,
   className,
 }) => {
+  const logDeltaTime = useLogDeltaTime();
+
   return (
     <button
       className={cn(CID, { disabled }, className)}
       type='button'
       disabled={disabled}
       onClick={onClick}
+      onMouseDown={() => {
+        logDeltaTime();
+        console.log('mouseDown');
+      }}
       tabIndex={-1}
     >
       <NumberInputArrowButtonIcon

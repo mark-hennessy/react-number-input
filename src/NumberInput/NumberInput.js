@@ -7,6 +7,7 @@ import {
   germanLocalePostFormatter,
 } from './numberInputHelpers';
 import NumberInputArrowButton from '../NumberInputArrowButton/NumberInputArrowButton';
+import useLogDeltaTime from '../utils/useLogDeltaTime';
 
 import './NumberInput.scss';
 
@@ -28,6 +29,8 @@ const NumberInput = ({
   onBlur,
   className,
 }) => {
+  const logDeltaTime = useLogDeltaTime();
+
   const inputRef = useRef();
 
   const getInputValue = () => {
@@ -72,6 +75,8 @@ const NumberInput = ({
   };
 
   const onKeyDown = e => {
+    logDeltaTime();
+
     const { key } = e;
     // console.log(key);
 
