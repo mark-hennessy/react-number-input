@@ -39,8 +39,11 @@ const NumberInputArrowButton = ({
       type='button'
       disabled={disabled}
       onMouseDown={e => {
-        // needed because this React synthetic event is reused in the timer callbacks
+        // needed because this React synthetic event is reused in timeout callbacks
         e.persist();
+
+        // prevents the button from stealing focus from the input
+        e.preventDefault();
 
         clickAndRepeat(e);
       }}
