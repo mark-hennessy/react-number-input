@@ -21,6 +21,7 @@ describe('numberInputHelpers', () => {
       expect(parseValue('1234', null)).toBe(1234);
       expect(parseValue('12.34', null)).toBe(12.34);
       expect(parseValue('12.5', null)).toBe(12.5);
+      expect(parseValue('12.5 €', null)).toBe(12.5);
     });
 
     it('supports precision', () => {
@@ -111,6 +112,7 @@ describe('numberInputHelpers', () => {
       expect(formatValue('1234', null)).toBe('1234');
       expect(formatValue('12.34', null)).toBe('12.34');
       expect(formatValue('12.5', null)).toBe('12.5');
+      expect(formatValue('12.5 €', null)).toBe('12.5');
     });
 
     it('formats number values', () => {

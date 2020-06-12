@@ -17,6 +17,7 @@ export const parseValue = (value, precision = 0, min, max, preParser) => {
 };
 
 export const germanLocalePreParser = value => {
+  // The € symbol will get parsed out by parseFloat
   return value.replace(',', '.');
 };
 
