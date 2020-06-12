@@ -21,11 +21,11 @@ const NumberInput = ({
   min,
   max,
   placeholder,
-  title,
   blue,
   currency,
   disabled,
   ignoreEnterKey,
+  onBlur,
   className,
 }) => {
   const inputRef = useRef();
@@ -34,25 +34,28 @@ const NumberInput = ({
     return inputRef.current.value;
   };
 
+  const getInputNumberValue = () => {
+    return parseValue(
+      getInputValue(),
+      precision,
+      min,
+      max,
+      germanLocalePreParser,
+    );
+  };
+
   const setValue = value => {
     onChange(value, inputRef.current);
   };
 
   const onChangeWrapper = () => {
-    const inputValue = getInputValue();
-
     // if inputValue is "", then set the value to null so "" does not get converted to 0
-    const parsedValue = inputValue
-      ? parseValue(inputValue, precision, min, max, germanLocalePreParser)
-      : null;
+    const parsedValue = getInputValue() ? getInputNumberValue() : null;
 
     setValue(parsedValue);
   };
 
-  const onStep = (e, direction) => {
-    // const input = inputRef.current;
-    // e.preventDefault();
-    // e.stopPropagation();
+  const onStep = direction => {
     console.log('onStep click');
   };
 
@@ -68,14 +71,6 @@ const NumberInput = ({
       // prevent forms from submitting on Enter
       e.preventDefault();
     }
-  };
-
-  const onBlur = e => {};
-
-  const onInvalid = e => {
-    // prevent the HTML 5 form validation popup from opening even though
-    // the 'pattern' attribute is set on the input
-    e.preventDefault();
   };
 
   const formattedValue = formatValue(
@@ -98,9 +93,7 @@ const NumberInput = ({
         onChange={onChangeWrapper}
         onKeyDown={onKeyDown}
         onBlur={onBlur}
-        onInvalid={onInvalid}
         placeholder={placeholder}
-        title={title}
         disabled={disabled}
       />
       <div className={`${CID}__arrow-buttons`}>
