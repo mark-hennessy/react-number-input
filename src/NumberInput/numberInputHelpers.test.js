@@ -7,6 +7,35 @@ import {
 } from './numberInputHelpers';
 
 describe('numberInputHelpers', () => {
+  describe('containsNumber', () => {
+    it('returns false when there are no numbers', () => {
+      expect(containsNumber(undefined)).toBe(false);
+      expect(containsNumber(null)).toBe(false);
+      expect(containsNumber(NaN)).toBe(false);
+      expect(containsNumber(Infinity)).toBe(false);
+      expect(containsNumber(-Infinity)).toBe(false);
+      expect(containsNumber(false)).toBe(false);
+      expect(containsNumber(true)).toBe(false);
+      expect(containsNumber('')).toBe(false);
+      expect(containsNumber(' ')).toBe(false);
+      expect(containsNumber('€')).toBe(false);
+    });
+
+    it('returns true when there are numbers', () => {
+      expect(containsNumber(0)).toBe(true);
+      expect(containsNumber(-12)).toBe(true);
+      expect(containsNumber(12)).toBe(true);
+      expect(containsNumber(12.34)).toBe(true);
+
+      expect(containsNumber('0')).toBe(true);
+      expect(containsNumber('-12')).toBe(true);
+      expect(containsNumber('12')).toBe(true);
+      expect(containsNumber('12.34')).toBe(true);
+      expect(containsNumber(' 12.34 ')).toBe(true);
+      expect(containsNumber('12.34 €')).toBe(true);
+    });
+  });
+
   describe('parseValue', () => {
     it('parses invalid values', () => {
       expect(parseValue(undefined)).toBe(0);
@@ -67,35 +96,6 @@ describe('numberInputHelpers', () => {
       expect(germanLocalePreParser('12,34')).toBe('12.34');
       expect(germanLocalePreParser('12,5')).toBe('12.5');
       expect(germanLocalePreParser('12,50')).toBe('12.50');
-    });
-  });
-
-  describe('containsNumber', () => {
-    it('returns false when there are no numbers', () => {
-      expect(containsNumber(undefined)).toBe(false);
-      expect(containsNumber(null)).toBe(false);
-      expect(containsNumber(NaN)).toBe(false);
-      expect(containsNumber(Infinity)).toBe(false);
-      expect(containsNumber(-Infinity)).toBe(false);
-      expect(containsNumber(false)).toBe(false);
-      expect(containsNumber(true)).toBe(false);
-      expect(containsNumber('')).toBe(false);
-      expect(containsNumber(' ')).toBe(false);
-      expect(containsNumber('€')).toBe(false);
-    });
-
-    it('returns true when there are numbers', () => {
-      expect(containsNumber(0)).toBe(true);
-      expect(containsNumber(-12)).toBe(true);
-      expect(containsNumber(12)).toBe(true);
-      expect(containsNumber(12.34)).toBe(true);
-
-      expect(containsNumber('0')).toBe(true);
-      expect(containsNumber('-12')).toBe(true);
-      expect(containsNumber('12')).toBe(true);
-      expect(containsNumber('12.34')).toBe(true);
-      expect(containsNumber(' 12.34 ')).toBe(true);
-      expect(containsNumber('12.34 €')).toBe(true);
     });
   });
 

@@ -4,6 +4,11 @@ import {
   roundWithPrecision,
 } from '../utils/numberUtils';
 
+export const containsNumber = numberOrString => {
+  const number = parseFloat(numberOrString);
+  return isNumber(number);
+};
+
 export const parseValue = (
   numberOrString,
   precision = 0,
@@ -26,11 +31,6 @@ export const parseValue = (
 export const germanLocalePreParser = string => {
   // The € symbol will get parsed out by parseFloat
   return string.replace(',', '.');
-};
-
-export const containsNumber = numberOrString => {
-  const number = parseFloat(numberOrString);
-  return isNumber(number);
 };
 
 export const formatValue = (

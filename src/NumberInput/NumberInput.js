@@ -1,6 +1,7 @@
 import React, { useRef, useLayoutEffect } from 'react';
 import cn from 'classnames';
 import {
+  containsNumber,
   parseValue,
   germanLocalePreParser,
   formatValue,
@@ -8,7 +9,6 @@ import {
 } from './numberInputHelpers';
 import NumberInputArrowButton from '../NumberInputArrowButton/NumberInputArrowButton';
 import useLogDeltaTime from '../utils/useLogDeltaTime';
-import { containsNumber } from '../utils/numberUtils';
 
 import './NumberInput.scss';
 
