@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import cn from 'classnames';
 import NumberInputArrowButtonIcon from '../NumberInputArrowButtonIcon/NumberInputArrowButtonIcon';
-import useLogDeltaTime from '../utils/useLogDeltaTime';
 
 import './NumberInputArrowButton.scss';
 
@@ -14,18 +13,35 @@ const NumberInputArrowButton = ({
   onClick,
   className,
 }) => {
-  const logDeltaTime = useLogDeltaTime();
+  const initialTimerIdRef = useRef();
+  const repeatTimerIdRef = useRef();
+
+  const clearTimers = () => {
+    clearTimeout(initialTimerIdRef.current);
+    clearInterval(repeatTimerIdRef.current);
+  };
 
   return (
     <button
       className={cn(CID, { disabled }, className)}
       type='button'
       disabled={disabled}
-      onClick={onClick}
       onMouseDown={() => {
-        logDeltaTime();
-        console.log('mouseDown');
+        // register timers before handling the click to
+        // ensure consistent time intervals
+        initialTimerIdRef.current = setTimeout(() => {
+          repeatTimerIdRef.current = setInterval(() => {
+            onClick();
+          }, 33);
+
+          onClick();
+        }, 500);
+
+        onClick();
       }}
+      onMouseUp={clearTimers}
+      // for when the mouse leaves the button while pressed down
+      onMouseLeave={clearTimers}
       tabIndex={-1}
     >
       <NumberInputArrowButtonIcon
