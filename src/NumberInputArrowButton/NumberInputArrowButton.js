@@ -35,7 +35,7 @@ const NumberInputArrowButton = ({
         initialTimerIdRef.current = setTimeout(() => {
           repeatTimerIdRef.current = setInterval(() => {
             onClick(e);
-          }, 33);
+          }, 50);
 
           onClick(e);
         }, 500);
