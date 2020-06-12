@@ -1,7 +1,11 @@
 import React, { useRef } from 'react';
 import cn from 'classnames';
-import { boundNumber } from '../utils/numberUtils';
-import { formatValue, germanLocalePostFormatter } from './numberInputHelpers';
+import {
+  parseValue,
+  germanLocalePreParser,
+  formatValue,
+  germanLocalePostFormatter,
+} from './numberInputHelpers';
 import NumberInputArrowButton from '../NumberInputArrowButton/NumberInputArrowButton';
 
 import './NumberInput.scss';
@@ -26,31 +30,23 @@ const NumberInput = ({
 }) => {
   const inputRef = useRef();
 
-  const internalValueRef = useRef();
+  const getInputValue = () => {
+    return inputRef.current.value;
+  };
 
-  const onChangeWrapper = e => {
-    const input = e.target;
-    const { value } = input;
+  const setValue = value => {
+    onChange(value, inputRef.current);
+  };
 
-    // allow the input to be cleared
-    // if (!value) {
-    //   onValueChange("");
-    //   return;
-    // }
+  const onChangeWrapper = () => {
+    const inputValue = getInputValue();
 
-    const sanitizedValue = value.replace(/[^\d,]/g, '').replace(/,/g, '.');
-    internalValueRef.current = sanitizedValue;
+    // if inputValue is "", then set the value to null so "" does not get converted to 0
+    const parsedValue = inputValue
+      ? parseValue(inputValue, precision, min, max, germanLocalePreParser)
+      : null;
 
-    console.log('strippedValue', sanitizedValue);
-
-    const number = parseFloat(sanitizedValue);
-    const boundedNumber = boundNumber(number, min, max);
-
-    console.log('boundedNumber', boundedNumber);
-
-    if (onChange) {
-      onChange(boundedNumber, inputRef.current);
-    }
+    setValue(parsedValue);
   };
 
   const onStep = (e, direction) => {
@@ -60,8 +56,15 @@ const NumberInput = ({
     console.log('onStep click');
   };
 
-  const onKeyPress = e => {
-    if (ignoreEnterKey && e.key === 'Enter') {
+  const onKeyDown = e => {
+    const { key } = e;
+    console.log(key);
+
+    if (key === 'ArrowUp') {
+      console.log('ArrowUp');
+    } else if (key === 'ArrowDown') {
+      console.log('ArrowDown');
+    } else if (key === 'Enter' && ignoreEnterKey) {
       // prevent forms from submitting on Enter
       e.preventDefault();
     }
@@ -75,11 +78,14 @@ const NumberInput = ({
     e.preventDefault();
   };
 
-  const postFormatter = v => {
-    return germanLocalePostFormatter(v, currency);
-  }
-
-  const formattedValue = formatValue(value, precision, min, max, postFormatter);
+  const formattedValue = formatValue(
+    value,
+    precision,
+    min,
+    max,
+    currency,
+    germanLocalePostFormatter,
+  );
 
   return (
     <div className={cn(CID, { blue, disabled }, className)}>
@@ -90,7 +96,7 @@ const NumberInput = ({
         name={name}
         value={formattedValue}
         onChange={onChangeWrapper}
-        onKeyPress={onKeyPress}
+        onKeyDown={onKeyDown}
         onBlur={onBlur}
         onInvalid={onInvalid}
         placeholder={placeholder}

@@ -26,7 +26,7 @@ export const containsNumber = value => {
   return isNumber(number);
 };
 
-export const formatValue = (value, precision = 0, min, max, postFormatter) => {
+export const formatValue = (value, precision = 0, min, max, isCurrency, postFormatter) => {
   if (!containsNumber(value)) {
     return '';
   }
@@ -37,7 +37,7 @@ export const formatValue = (value, precision = 0, min, max, postFormatter) => {
     precision !== null ? number.toFixed(precision) : `${number}`;
 
   if (postFormatter) {
-    formattedValue = postFormatter(formattedValue);
+    formattedValue = postFormatter(formattedValue, isCurrency);
   }
 
   return formattedValue;

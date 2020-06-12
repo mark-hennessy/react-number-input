@@ -8,13 +8,16 @@ import {
 
 describe('numberInputHelpers', () => {
   describe('parseValue', () => {
-    it('parses invalid values to 0', () => {
+    it('parses invalid values', () => {
       expect(parseValue(undefined)).toBe(0);
       expect(parseValue(null)).toBe(0);
       expect(parseValue('')).toBe(0);
       expect(parseValue(' ')).toBe(0);
       expect(parseValue('blah')).toBe(0);
       expect(parseValue('€')).toBe(0);
+
+      expect(parseValue('', null, 100, null)).toBe(100);
+      expect(parseValue('', null, null, -100)).toBe(-100);
     });
 
     it('parses string values', () => {
@@ -149,7 +152,17 @@ describe('numberInputHelpers', () => {
     });
 
     it('supports post formatting', () => {
-      expect(formatValue(12.5, 2, null, null, v => `${v} €`)).toBe('12.50 €');
+      const postFormatter = (v, isCurrency) => {
+        return isCurrency ? `${v} €` : `${v}`;
+      };
+
+      expect(formatValue(12.5, 2, null, null, false, postFormatter)).toBe(
+        '12.50',
+      );
+
+      expect(formatValue(12.5, 2, null, null, true, postFormatter)).toBe(
+        '12.50 €',
+      );
     });
   });
 
