@@ -13,12 +13,24 @@ const NumberInputArrowButton = ({
   onClick,
   className,
 }) => {
-  const initialTimerIdRef = useRef();
-  const repeatTimerIdRef = useRef();
+  const timeoutRef = useRef();
 
-  const clearTimers = () => {
-    clearTimeout(initialTimerIdRef.current);
-    clearInterval(repeatTimerIdRef.current);
+  const clearCurrentTimeout = () => {
+    clearTimeout(timeoutRef.current);
+  };
+
+  const clickAndRepeat = (e, isRecursiveCall) => {
+    clearCurrentTimeout();
+
+    // register the timeout before handling the click to ensure consistent timing
+    timeoutRef.current = setTimeout(
+      () => {
+        clickAndRepeat(e, true);
+      },
+      isRecursiveCall ? 50 : 500,
+    );
+
+    onClick(e);
   };
 
   return (
@@ -30,21 +42,11 @@ const NumberInputArrowButton = ({
         // needed because this React synthetic event is reused in the timer callbacks
         e.persist();
 
-        // register timers before handling the click to
-        // ensure consistent time intervals
-        initialTimerIdRef.current = setTimeout(() => {
-          repeatTimerIdRef.current = setInterval(() => {
-            onClick(e);
-          }, 50);
-
-          onClick(e);
-        }, 500);
-
-        onClick(e);
+        clickAndRepeat(e);
       }}
-      onMouseUp={clearTimers}
+      onMouseUp={clearCurrentTimeout}
       // for when the mouse leaves the button while pressed down
-      onMouseLeave={clearTimers}
+      onMouseLeave={clearCurrentTimeout}
       tabIndex={-1}
     >
       <NumberInputArrowButtonIcon
