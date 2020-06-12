@@ -8,6 +8,7 @@ import {
 } from './numberInputHelpers';
 import NumberInputArrowButton from '../NumberInputArrowButton/NumberInputArrowButton';
 import useLogDeltaTime from '../utils/useLogDeltaTime';
+import { containsNumber } from '../utils/numberUtils';
 
 import './NumberInput.scss';
 
@@ -75,8 +76,11 @@ const NumberInput = ({
   };
 
   const onChangeWrapper = () => {
-    // if inputValue is "", then set the value to null so "" does not get converted to 0
-    const number = getInputValue() ? getInputNumberValue() : null;
+    // if inputValue is not parsable to a number, then set it to null so it doesn't get
+    // converted to 0. The input wouldn't be clearable otherwise.
+    const number = containsNumber(getInputValue())
+      ? getInputNumberValue()
+      : null;
 
     setValue(number);
   };
