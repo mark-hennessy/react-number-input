@@ -34,9 +34,9 @@ const NumberInput = ({
     return inputRef.current.value;
   };
 
-  const getInputNumberValue = () => {
+  const parse = numberOrString => {
     return parseValue(
-      getInputValue(),
+      numberOrString,
       precision,
       min,
       max,
@@ -44,29 +44,41 @@ const NumberInput = ({
     );
   };
 
-  const setValue = value => {
-    onChange(value, inputRef.current);
+  const getInputNumberValue = () => {
+    return parse(getInputValue());
+  };
+
+  const setValue = number => {
+    onChange(number, inputRef.current);
   };
 
   const onChangeWrapper = () => {
     // if inputValue is "", then set the value to null so "" does not get converted to 0
-    const parsedValue = getInputValue() ? getInputNumberValue() : null;
+    const number = getInputValue() ? getInputNumberValue() : null;
 
-    setValue(parsedValue);
+    setValue(number);
   };
 
-  const onStep = direction => {
-    console.log('onStep click');
+  const onStep = delta => {
+    setValue(parse(getInputNumberValue() + delta));
+  };
+
+  const onStepUp = () => {
+    onStep(step);
+  };
+
+  const onStepDown = () => {
+    onStep(-step);
   };
 
   const onKeyDown = e => {
     const { key } = e;
-    console.log(key);
+    // console.log(key);
 
     if (key === 'ArrowUp') {
-      console.log('ArrowUp');
+      onStepUp();
     } else if (key === 'ArrowDown') {
-      console.log('ArrowDown');
+      onStepDown();
     } else if (key === 'Enter' && ignoreEnterKey) {
       // prevent forms from submitting on Enter
       e.preventDefault();
@@ -101,13 +113,13 @@ const NumberInput = ({
           direction='up'
           blue={blue}
           disabled={disabled}
-          onClick={e => onStep(e, 1)}
+          onClick={onStepUp}
         />
         <NumberInputArrowButton
           direction='down'
           blue={blue}
           disabled={disabled}
-          onClick={e => onStep(e, -1)}
+          onClick={onStepDown}
         />
       </div>
     </div>

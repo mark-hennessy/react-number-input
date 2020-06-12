@@ -4,9 +4,16 @@ import {
   roundWithPrecision,
 } from '../utils/numberUtils';
 
-export const parseValue = (value, precision = 0, min, max, preParser) => {
-  const valueToParse = preParser ? preParser(value) : value;
-  let number = parseFloat(valueToParse);
+export const parseValue = (
+  numberOrString,
+  precision = 0,
+  min,
+  max,
+  preParser,
+) => {
+  const string = `${numberOrString}`;
+  const preParsedString = preParser ? preParser(string) : string;
+  let number = parseFloat(preParsedString);
   if (!isNumber(number)) {
     number = 0;
   }
@@ -16,39 +23,46 @@ export const parseValue = (value, precision = 0, min, max, preParser) => {
   return number;
 };
 
-export const germanLocalePreParser = value => {
+export const germanLocalePreParser = string => {
   // The € symbol will get parsed out by parseFloat
-  return value.replace(',', '.');
+  return string.replace(',', '.');
 };
 
-export const containsNumber = value => {
-  const number = parseFloat(value);
+export const containsNumber = numberOrString => {
+  const number = parseFloat(numberOrString);
   return isNumber(number);
 };
 
-export const formatValue = (value, precision = 0, min, max, isCurrency, postFormatter) => {
-  if (!containsNumber(value)) {
+export const formatValue = (
+  numberOrString,
+  precision = 0,
+  min,
+  max,
+  isCurrency,
+  postFormatter,
+) => {
+  if (!containsNumber(numberOrString)) {
     return '';
   }
 
-  const number = parseValue(value, precision, min, max);
+  const number = parseValue(numberOrString, precision, min, max);
 
-  let formattedValue =
+  let formattedString =
     precision !== null ? number.toFixed(precision) : `${number}`;
 
   if (postFormatter) {
-    formattedValue = postFormatter(formattedValue, isCurrency);
+    formattedString = postFormatter(formattedString, isCurrency);
   }
 
-  return formattedValue;
+  return formattedString;
 };
 
-export const germanLocalePostFormatter = (stringValue, isCurrency) => {
-  let formattedValue = stringValue.replace('.', ',');
+export const germanLocalePostFormatter = (string, isCurrency) => {
+  let formattedString = string.replace('.', ',');
 
   if (isCurrency) {
-    formattedValue = `${formattedValue} €`;
+    formattedString = `${formattedString} €`;
   }
 
-  return formattedValue;
+  return formattedString;
 };
