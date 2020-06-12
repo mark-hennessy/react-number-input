@@ -73,6 +73,14 @@ const NumberInput = ({
     setValue(parse(getInputNumberValue() + direction * step * multiplier));
   };
 
+  const onStepUp = e => {
+    onStep(e, 1);
+  };
+
+  const onStepDown = e => {
+    onStep(e, -1);
+  };
+
   const onKeyDown = e => {
     logDeltaTime();
 
@@ -81,11 +89,11 @@ const NumberInput = ({
 
     if (key === 'ArrowUp') {
       e.preventDefault();
-      onStep(e, 1);
+      onStepUp(e);
     } else if (key === 'ArrowDown') {
       // TODO: check if preventDefault is needed
       e.preventDefault();
-      onStep(e, -1);
+      onStepDown(e);
     } else if (key === 'Enter' && ignoreEnterKey) {
       // prevent forms from submitting on Enter
       e.preventDefault();
@@ -120,17 +128,13 @@ const NumberInput = ({
           direction='up'
           blue={blue}
           disabled={disabled}
-          onClick={e => {
-            onStep(e, 1);
-          }}
+          onClick={onStepUp}
         />
         <NumberInputArrowButton
           direction='down'
           blue={blue}
           disabled={disabled}
-          onClick={e => {
-            onStep(e, -1);
-          }}
+          onClick={onStepDown}
         />
       </div>
     </div>
