@@ -9,7 +9,7 @@ import {
 } from './numberInputHelpers';
 import NumberInputArrowButton from '../NumberInputArrowButton/NumberInputArrowButton';
 import { createInstanceLogger } from '../utils/debugUtils';
-
+import { buildDataCyString } from '../utils/cypressUtils';
 import './NumberInput.scss';
 
 const CID = 'number-input';
@@ -90,7 +90,11 @@ const NumberInput = ({
       ? getInputNumberValue()
       : null;
 
+    // if (number !== value) {
     setValue(number);
+    // } else {
+    //   log('Skipping setValue');
+    // }
   };
 
   const calculateStepMultiplier = e => {
@@ -174,6 +178,7 @@ const NumberInput = ({
       <input
         ref={inputRef}
         className={`${CID}__input`}
+        data-cy={buildDataCyString(`${name}-number-input`)}
         type='text'
         name={name}
         value={formattedValue}
