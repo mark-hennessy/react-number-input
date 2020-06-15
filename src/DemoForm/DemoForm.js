@@ -7,17 +7,21 @@ import './DemoForm.scss';
 const CID = 'demo-form';
 
 const DemoForm = ({ formName, blue, className }) => {
+  const getInputName = inputNum => {
+    return `${formName}_v${inputNum}`;
+  };
+
   const [state, setState] = useState({
-    value1: null,
-    value2: 12.34,
-    value3: 12.34,
-    value4: 12.34,
+    [getInputName(1)]: null,
+    [getInputName(2)]: 12.34,
+    [getInputName(3)]: 12.34,
+    [getInputName(4)]: 12.34,
   });
 
-  const connectToState = stateKey => {
+  const connectToState = inputName => {
     return {
-      name: stateKey,
-      value: state[stateKey],
+      name: inputName,
+      value: state[inputName],
       onChange: (value, input) => {
         setState({ ...state, [input.name]: value });
       },
@@ -26,14 +30,14 @@ const DemoForm = ({ formName, blue, className }) => {
     };
   };
 
-  let inputId = 1;
+  let inputCounter = 1;
 
   return (
     <form name={formName}>
       <Panel className={cn(CID, className)} blue={blue}>
-        <NumberInput {...connectToState(`value${inputId++}`)} ignoreEnterKey />
+        <NumberInput {...connectToState(getInputName(inputCounter++))} ignoreEnterKey />
         <NumberInput
-          {...connectToState(`value${inputId++}`)}
+          {...connectToState(getInputName(inputCounter++))}
           placeholder='1,3'
           step={0.1}
           precision={1}
@@ -41,12 +45,12 @@ const DemoForm = ({ formName, blue, className }) => {
           max={6}
         />
         <NumberInput
-          {...connectToState(`value${inputId++}`)}
+          {...connectToState(getInputName(inputCounter++))}
           precision={2}
           currency
         />
         <NumberInput
-          {...connectToState(`value${inputId++}`)}
+          {...connectToState(getInputName(inputCounter++))}
           precision={2}
           currency
           disabled

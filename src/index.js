@@ -5,8 +5,6 @@ import './index.scss';
 
 const rootElement = document.getElementById('root');
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <App />,
   rootElement,
 );

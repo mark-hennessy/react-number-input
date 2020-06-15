@@ -32,7 +32,8 @@ const NumberInput = ({
   onBlur,
   className,
 }) => {
-  const log = createInstanceLogger(name, 'value1');
+  const log = createInstanceLogger(name, 'f1_v1');
+  log('render');
 
   const inputRef = useRef(null);
 
@@ -82,7 +83,6 @@ const NumberInput = ({
     onChange(number, getInput());
   };
 
-  log('render');
   const onChangeWrapper = () => {
     // if inputValue is not parsable to a number, then set it to null so it doesn't get
     // converted to 0. The input wouldn't be clearable otherwise.
