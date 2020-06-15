@@ -200,6 +200,7 @@ const NumberInput = ({
         onFocus={onFocusWrapper}
         onBlur={onBlurWrapper}
         onSelect={saveSelectionState}
+        autoComplete='off'
       />
       <div className={`${CID}__arrow-buttons`}>
         <NumberInputArrowButton
