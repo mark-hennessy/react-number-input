@@ -8,6 +8,7 @@ import {
   parseValue,
 } from './numberInputHelpers';
 import NumberInputArrowButton from '../NumberInputArrowButton/NumberInputArrowButton';
+import { createInstanceLogger } from '../utils/debugUtils';
 
 import './NumberInput.scss';
 
@@ -31,9 +32,11 @@ const NumberInput = ({
   onBlur,
   className,
 }) => {
-  const inputRef = useRef();
+  const log = createInstanceLogger(name, 'value1');
 
-  const hasFocusRef = useRef();
+  const inputRef = useRef(null);
+
+  const hasFocusRef = useRef(false);
   const selectionStateRef = useRef([]);
 
   const getInput = () => {
@@ -79,6 +82,7 @@ const NumberInput = ({
     onChange(number, getInput());
   };
 
+  log('render');
   const onChangeWrapper = () => {
     // if inputValue is not parsable to a number, then set it to null so it doesn't get
     // converted to 0. The input wouldn't be clearable otherwise.
@@ -113,7 +117,7 @@ const NumberInput = ({
 
   const onKeyDownWrapper = e => {
     const { key } = e;
-    // console.log(key);
+    // log(key);
 
     if (key === 'ArrowUp') {
       e.preventDefault();
