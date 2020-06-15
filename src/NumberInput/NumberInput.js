@@ -98,7 +98,7 @@ const NumberInput = ({
     }
   };
 
-  const onChangeWrapper = () => {
+  const forceInputValueToNumber = () => {
     // if inputValue is not parsable to a number, then set it to null so it doesn't get
     // converted to 0. The input wouldn't be clearable otherwise.
     const number = containsNumber(getInputValue())
@@ -106,6 +106,11 @@ const NumberInput = ({
       : null;
 
     setValue(number);
+  };
+
+  const onChangeWrapper = () => {
+    // TODO: use regex to check for "1," and "1,0" etc.
+    forceInputValueToNumber();
   };
 
   const calculateStepMultiplier = e => {
@@ -160,6 +165,8 @@ const NumberInput = ({
 
   const onBlurWrapper = e => {
     hasFocusRef.current = false;
+
+    forceInputValueToNumber();
 
     if (onBlur) {
       onBlur(e);
