@@ -1,11 +1,11 @@
-import React, { useRef, useLayoutEffect } from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import cn from 'classnames';
 import {
   containsNumber,
-  parseValue,
-  germanLocalePreParser,
   formatValue,
   germanLocalePostFormatter,
+  germanLocalePreParser,
+  parseValue,
 } from './numberInputHelpers';
 import NumberInputArrowButton from '../NumberInputArrowButton/NumberInputArrowButton';
 

@@ -1,8 +1,4 @@
-import {
-  isNumber,
-  boundNumber,
-  roundWithPrecision,
-} from '../utils/numberUtils';
+import { boundNumber, isNumber, roundWithPrecision } from '../utils/numberUtils';
 
 export const containsNumber = numberOrString => {
   const number = parseFloat(numberOrString);

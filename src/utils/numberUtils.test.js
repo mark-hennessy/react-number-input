@@ -1,4 +1,4 @@
-import { isNumber, boundNumber, roundWithPrecision } from './numberUtils';
+import { boundNumber, isNumber, roundWithPrecision } from './numberUtils';
 
 describe('numberUtils', () => {
   describe('isNumber', () => {

@@ -1,9 +1,9 @@
 import {
-  parseValue,
-  germanLocalePreParser,
   containsNumber,
   formatValue,
   germanLocalePostFormatter,
+  germanLocalePreParser,
+  parseValue,
 } from './numberInputHelpers';
 
 describe('numberInputHelpers', () => {
