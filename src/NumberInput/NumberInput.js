@@ -9,6 +9,7 @@ import {
 } from './numberInputHelpers';
 import NumberInputArrowButton from '../NumberInputArrowButton/NumberInputArrowButton';
 import { createInstanceLogger } from '../utils/debugUtils';
+import useForceRender from '../utils/useForceRender';
 import { buildDataCyString } from '../utils/cypressUtils';
 import './NumberInput.scss';
 
@@ -39,6 +40,8 @@ const NumberInput = ({
 
   const hasFocusRef = useRef(false);
   const selectionStateRef = useRef([]);
+
+  const forceRender = useForceRender();
 
   const getInput = () => {
     return inputRef.current;
@@ -89,6 +92,9 @@ const NumberInput = ({
       onChange(number, getInput());
     } else {
       log('number did not change', number, value);
+      // Ignoring the value resets the controlled input's cursor position.
+      // A render is needed so a useLayoutEffect can restoreSelectionState.
+      forceRender();
     }
   };
 
@@ -193,7 +199,7 @@ const NumberInput = ({
         onKeyDown={onKeyDownWrapper}
         onFocus={onFocusWrapper}
         onBlur={onBlurWrapper}
-        // onSelect={saveSelectionState}
+        onSelect={saveSelectionState}
       />
       <div className={`${CID}__arrow-buttons`}>
         <NumberInputArrowButton
