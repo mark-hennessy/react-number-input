@@ -32,7 +32,7 @@ const NumberInput = ({
   onBlur,
   className,
 }) => {
-  const log = createInstanceLogger(name, 'f1_v1');
+  const log = createInstanceLogger(name, 'f1_v3');
   log('render');
 
   const inputRef = useRef(null);
@@ -69,10 +69,13 @@ const NumberInput = ({
       input.selectionEnd,
       input.selectionDirection,
     ];
+
+    log('saveSelectionState', selectionStateRef.current);
   };
 
   const restoreSelectionState = () => {
     const selectionState = selectionStateRef.current;
+    log('restoreSelectionState', selectionState);
     if (selectionState.length) {
       getInput().setSelectionRange(...selectionState);
     }
@@ -80,7 +83,13 @@ const NumberInput = ({
 
   const setValue = number => {
     saveSelectionState();
-    onChange(number, getInput());
+
+    if (number !== value) {
+      log('number changed', number, value);
+      onChange(number, getInput());
+    } else {
+      log('number did not change', number, value);
+    }
   };
 
   const onChangeWrapper = () => {
@@ -90,11 +99,7 @@ const NumberInput = ({
       ? getInputNumberValue()
       : null;
 
-    // if (number !== value) {
     setValue(number);
-    // } else {
-    //   log('Skipping setValue');
-    // }
   };
 
   const calculateStepMultiplier = e => {
@@ -188,7 +193,7 @@ const NumberInput = ({
         onKeyDown={onKeyDownWrapper}
         onFocus={onFocusWrapper}
         onBlur={onBlurWrapper}
-        onSelect={saveSelectionState}
+        // onSelect={saveSelectionState}
       />
       <div className={`${CID}__arrow-buttons`}>
         <NumberInputArrowButton
