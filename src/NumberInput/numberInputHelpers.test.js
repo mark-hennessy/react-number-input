@@ -3,10 +3,62 @@ import {
   formatValue,
   germanLocalePostFormatter,
   germanLocalePreParser,
+  parseToNumber,
   parseValue,
 } from './numberInputHelpers';
 
 describe('numberInputHelpers', () => {
+  const mockPreParser = string => {
+    // The currency symbol will get parsed out by parseFloat
+    return string.replace(',', '.');
+  };
+
+  describe('parseToNumber', () => {
+    it('works without a preParser', () => {
+      expect(parseToNumber(undefined, null)).toBe(NaN);
+      expect(parseToNumber(null, null)).toBe(NaN);
+
+      expect(parseToNumber(0, null)).toBe(0);
+      expect(parseToNumber(12, null)).toBe(12);
+      expect(parseToNumber(-12, null)).toBe(-12);
+      expect(parseToNumber(12.34, null)).toBe(12.34);
+
+      expect(parseToNumber('0', null)).toBe(0);
+      expect(parseToNumber('12', null)).toBe(12);
+      expect(parseToNumber(' 12 ', null)).toBe(12);
+      expect(parseToNumber('-12', null)).toBe(-12);
+      expect(parseToNumber('12 €', null)).toBe(12);
+
+      expect(parseToNumber('12.', null)).toBe(12);
+      expect(parseToNumber('12.0', null)).toBe(12);
+      expect(parseToNumber('.12', null)).toBe(0.12);
+      expect(parseToNumber('0.12', null)).toBe(0.12);
+      expect(parseToNumber('12.34', null)).toBe(12.34);
+    });
+
+    it('works with a preParser', () => {
+      expect(parseToNumber(undefined, null)).toBe(NaN);
+      expect(parseToNumber(null, null)).toBe(NaN);
+
+      expect(parseToNumber(0, mockPreParser)).toBe(0);
+      expect(parseToNumber(12, mockPreParser)).toBe(12);
+      expect(parseToNumber(-12, mockPreParser)).toBe(-12);
+      expect(parseToNumber(12.34, mockPreParser)).toBe(12.34);
+
+      expect(parseToNumber('0', mockPreParser)).toBe(0);
+      expect(parseToNumber('12', mockPreParser)).toBe(12);
+      expect(parseToNumber(' 12 ', mockPreParser)).toBe(12);
+      expect(parseToNumber('-12', mockPreParser)).toBe(-12);
+      expect(parseToNumber('12 €', mockPreParser)).toBe(12);
+
+      expect(parseToNumber('12,', mockPreParser)).toBe(12);
+      expect(parseToNumber('12,0', mockPreParser)).toBe(12);
+      expect(parseToNumber(',12', mockPreParser)).toBe(0.12);
+      expect(parseToNumber('0,12', mockPreParser)).toBe(0.12);
+      expect(parseToNumber('12,34', mockPreParser)).toBe(12.34);
+    });
+  });
+
   describe('containsNumber', () => {
     it('returns false when there are no numbers', () => {
       expect(containsNumber(undefined)).toBe(false);
@@ -18,21 +70,37 @@ describe('numberInputHelpers', () => {
       expect(containsNumber(true)).toBe(false);
       expect(containsNumber('')).toBe(false);
       expect(containsNumber(' ')).toBe(false);
+      expect(containsNumber('-')).toBe(false);
       expect(containsNumber('€')).toBe(false);
     });
 
-    it('returns true when there are numbers', () => {
+    it('supports number input', () => {
       expect(containsNumber(0)).toBe(true);
-      expect(containsNumber(-12)).toBe(true);
       expect(containsNumber(12)).toBe(true);
+      expect(containsNumber(-12)).toBe(true);
       expect(containsNumber(12.34)).toBe(true);
+    });
 
+    it('supports string input', () => {
       expect(containsNumber('0')).toBe(true);
-      expect(containsNumber('-12')).toBe(true);
       expect(containsNumber('12')).toBe(true);
+      expect(containsNumber(' 12 ')).toBe(true);
+      expect(containsNumber('-12')).toBe(true);
+      expect(containsNumber('12 €')).toBe(true);
+
+      expect(containsNumber('12.')).toBe(true);
+      expect(containsNumber('12.0')).toBe(true);
+      expect(containsNumber('.12')).toBe(true);
+      expect(containsNumber('0.12')).toBe(true);
       expect(containsNumber('12.34')).toBe(true);
-      expect(containsNumber(' 12.34 ')).toBe(true);
-      expect(containsNumber('12.34 €')).toBe(true);
+    });
+
+    it('supports fancy string input with preParser', () => {
+      expect(containsNumber('12,', mockPreParser)).toBe(true);
+      expect(containsNumber('12,0', mockPreParser)).toBe(true);
+      expect(containsNumber(',12', mockPreParser)).toBe(true);
+      expect(containsNumber('0,12', mockPreParser)).toBe(true);
+      expect(containsNumber('12,34', mockPreParser)).toBe(true);
     });
   });
 

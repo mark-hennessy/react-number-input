@@ -1,7 +1,17 @@
-import { boundNumber, isNumber, roundWithPrecision } from '../utils/numberUtils';
+import {
+  boundNumber,
+  isNumber,
+  roundWithPrecision,
+} from '../utils/numberUtils';
 
-export const containsNumber = numberOrString => {
-  const number = parseFloat(numberOrString);
+export const parseToNumber = (numberOrString, preParser) => {
+  const string = `${numberOrString}`;
+  const preParsedValue = preParser ? preParser(string) : string;
+  return parseFloat(preParsedValue);
+};
+
+export const containsNumber = (numberOrString, preParser) => {
+  const number = parseToNumber(numberOrString, preParser);
   return isNumber(number);
 };
 
@@ -12,9 +22,7 @@ export const parseValue = (
   max,
   preParser,
 ) => {
-  const string = `${numberOrString}`;
-  const preParsedString = preParser ? preParser(string) : string;
-  let number = parseFloat(preParsedString);
+  let number = parseToNumber(numberOrString, preParser);
   if (!isNumber(number)) {
     number = 0;
   }
@@ -25,7 +33,7 @@ export const parseValue = (
 };
 
 export const germanLocalePreParser = string => {
-  // The € symbol will get parsed out by parseFloat
+  // The currency symbol will get parsed out by parseFloat
   return string.replace(',', '.');
 };
 

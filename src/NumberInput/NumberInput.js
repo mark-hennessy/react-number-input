@@ -31,6 +31,8 @@ const NumberInput = ({
   onKeyDown,
   onFocus,
   onBlur,
+  localePreParser = germanLocalePreParser,
+  localePostFormatter = germanLocalePostFormatter,
   className,
 }) => {
   const log = createInstanceLogger(name, 'f1_v3');
@@ -52,13 +54,7 @@ const NumberInput = ({
   };
 
   const parse = numberOrString => {
-    return parseValue(
-      numberOrString,
-      precision,
-      min,
-      max,
-      germanLocalePreParser,
-    );
+    return parseValue(numberOrString, precision, min, max, localePreParser);
   };
 
   const getInputNumberValue = () => {
@@ -105,7 +101,7 @@ const NumberInput = ({
   const forceInputValueToNumber = () => {
     // if inputValue is not parsable to a number, then set it to null so it doesn't get
     // converted to 0. The input wouldn't be clearable otherwise.
-    const number = containsNumber(getInputValue())
+    const number = containsNumber(getInputValue(), localePreParser)
       ? getInputNumberValue()
       : null;
 
@@ -237,7 +233,7 @@ const NumberInput = ({
     min,
     max,
     currency,
-    germanLocalePostFormatter,
+    localePostFormatter,
   );
 
   return (
