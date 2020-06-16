@@ -188,23 +188,23 @@ const NumberInput = ({
   const checkForBackspaceOrDeleteKey = e => {
     const { key } = e;
 
-    const [selectionStart, selectionEnd] = getSelectionState();
+    const [cursorPosition] = getSelectionState();
     const inputValue = getInputValue();
 
     if (
       key === 'Backspace' &&
       !isRangeSelected() &&
-      isDecimalSymbol(inputValue.charAt(selectionEnd - 1))
+      isDecimalSymbol(inputValue.charAt(cursorPosition - 1))
     ) {
       e.preventDefault();
-      setSelectionState(selectionStart - 1);
+      setSelectionState(cursorPosition - 1);
     } else if (
       key === 'Delete' &&
       !isRangeSelected() &&
-      isDecimalSymbol(inputValue.charAt(selectionEnd))
+      isDecimalSymbol(inputValue.charAt(cursorPosition))
     ) {
       e.preventDefault();
-      setSelectionState(selectionStart + 1);
+      setSelectionState(cursorPosition + 1);
     }
   };
 
@@ -224,8 +224,7 @@ const NumberInput = ({
       key === '0'
     ) {
       e.preventDefault();
-      const newValue = format(0);
-      setInputValue(newValue);
+      setInputValue(format(0));
       setSelectionState(1);
     }
   };
@@ -233,11 +232,11 @@ const NumberInput = ({
   const checkForSpaceKey = e => {
     const { key } = e;
 
-    const [selectionStart, selectionEnd] = getSelectionState();
+    const [cursorPosition] = getSelectionState();
 
     if (key === ' ' && !isRangeSelected()) {
       e.preventDefault();
-      setSelectionState(selectionStart + 1);
+      setSelectionState(cursorPosition + 1);
     }
   };
 
