@@ -180,24 +180,22 @@ const NumberInput = ({
     const isRangeSelection = selectionStart !== selectionEnd;
     const inputValue = getInputValue();
 
-    if (key === 'Backspace') {
-      if (
-        !isRangeSelection &&
-        isDecimalSymbol(inputValue.charAt(selectionEnd - 1))
-      ) {
-        e.preventDefault();
-        const newCursorPosition = selectionEnd - 1;
-        setSelectionState([newCursorPosition, newCursorPosition]);
-      }
-    } else if (key === 'Delete') {
-      if (
-        !isRangeSelection &&
-        isDecimalSymbol(inputValue.charAt(selectionEnd))
-      ) {
-        e.preventDefault();
-        const newCursorPosition = selectionEnd + 1;
-        setSelectionState([newCursorPosition, newCursorPosition]);
-      }
+    if (
+      key === 'Backspace' &&
+      !isRangeSelection &&
+      isDecimalSymbol(inputValue.charAt(selectionEnd - 1))
+    ) {
+      e.preventDefault();
+      const newCursorPosition = selectionStart - 1;
+      setSelectionState([newCursorPosition, newCursorPosition]);
+    } else if (
+      key === 'Delete' &&
+      !isRangeSelection &&
+      isDecimalSymbol(inputValue.charAt(selectionEnd))
+    ) {
+      e.preventDefault();
+      const newCursorPosition = selectionStart + 1;
+      setSelectionState([newCursorPosition, newCursorPosition]);
     }
   };
 
@@ -224,11 +222,25 @@ const NumberInput = ({
     }
   };
 
+  const checkForSpaceKey = e => {
+    const { key } = e;
+
+    const [selectionStart, selectionEnd] = getSelectionState();
+    const isRangeSelection = selectionStart !== selectionEnd;
+
+    if (key === ' ' && !isRangeSelection) {
+      e.preventDefault();
+      const newCursorPosition = selectionStart + 1;
+      setSelectionState([newCursorPosition, newCursorPosition]);
+    }
+  };
+
   const onKeyDownWrapper = e => {
     checkForUpDownArrowKey(e);
     checkForEnterKey(e);
     checkForBackspaceOrDeleteKey(e);
     checkForMinusKey(e);
+    checkForSpaceKey(e);
 
     if (onKeyDown) {
       onKeyDown(e);
