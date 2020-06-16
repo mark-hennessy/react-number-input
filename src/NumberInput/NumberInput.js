@@ -39,7 +39,7 @@ const NumberInput = ({
   const inputRef = useRef(null);
 
   const hasFocusRef = useRef(false);
-  const selectionStateRef = useRef([]);
+  const selectionStateSnapshotRef = useRef([]);
 
   const forceRender = useForceRender();
 
@@ -65,37 +65,41 @@ const NumberInput = ({
     return parse(getInputValue());
   };
 
-  const saveSelectionState = () => {
+  const getSelectionState = () => {
     const input = getInput();
-    selectionStateRef.current = [
-      input.selectionStart,
-      input.selectionEnd,
-      input.selectionDirection,
-    ];
-
-    log('saveSelectionState', selectionStateRef.current);
+    return [input.selectionStart, input.selectionEnd, input.selectionDirection];
   };
 
-  const restoreSelectionState = () => {
-    const selectionState = selectionStateRef.current;
-    log('restoreSelectionState', selectionState);
-    if (selectionState.length) {
+  const snapshotSelectionState = () => {
+    selectionStateSnapshotRef.current = getSelectionState();
+    log('saveSelectionState', selectionStateSnapshotRef.current);
+  };
+
+  const setSelectionState = selectionState => {
+    if (selectionState && selectionState.length >= 2) {
       getInput().setSelectionRange(...selectionState);
     }
   };
 
-  const setValue = number => {
-    saveSelectionState();
+  const restoreSelectionState = () => {
+    const selectionStateSnapshot = selectionStateSnapshotRef.current;
+    setSelectionState(selectionStateSnapshot);
+    log('restoreSelectionState', selectionStateSnapshot);
+  };
 
-    if (number !== value) {
-      log('number changed', number, value);
-      onChange(number, getInput());
-    } else {
-      log('number did not change', number, value);
-      // Ignoring the value resets the controlled input's cursor position.
-      // A render is needed so a useLayoutEffect can restoreSelectionState.
-      forceRender();
-    }
+  const setValue = number => {
+    snapshotSelectionState();
+    onChange(number, getInput());
+
+    // if (number !== value) {
+    //   log('number changed', number, value);
+    //   onChange(number, getInput());
+    // } else {
+    //   log('number did not change', number, value);
+    //   // Ignoring the value resets the controlled input's cursor position.
+    //   // A render is needed so a useLayoutEffect can restoreSelectionState.
+    //   forceRender();
+    // }
   };
 
   const forceInputValueToNumber = () => {
@@ -109,7 +113,6 @@ const NumberInput = ({
   };
 
   const onChangeWrapper = () => {
-    // TODO: use regex to check for "1," and "1,0" etc.
     forceInputValueToNumber();
   };
 
@@ -135,9 +138,8 @@ const NumberInput = ({
     onStep(e, -1);
   };
 
-  const onKeyDownWrapper = e => {
+  const checkForUpDownArrowKey = e => {
     const { key } = e;
-    // log(key);
 
     if (key === 'ArrowUp') {
       e.preventDefault();
@@ -145,10 +147,57 @@ const NumberInput = ({
     } else if (key === 'ArrowDown') {
       e.preventDefault();
       onStepDown(e);
-    } else if (key === 'Enter' && ignoreEnterKey) {
+    }
+  };
+
+  const checkForEnterKey = e => {
+    const { key } = e;
+
+    if (key === 'Enter' && ignoreEnterKey) {
       // prevent forms from submitting on Enter
       e.preventDefault();
     }
+  };
+
+  const checkForBackspaceOrDeleteKey = e => {
+    const { key } = e;
+
+    const [selectionStart, selectionEnd] = getSelectionState();
+    const isRangeSelection = selectionStart !== selectionEnd;
+    const inputValue = getInputValue();
+
+    const isDecimalSymbol = char => {
+      // It's safe to check both '.' and ',' because the the thousands
+      // separator is not supported. Depending on the locale formatter,
+      // '.' or ',' will get formatted to the other.
+      return char === '.' || char === ',';
+    };
+
+    if (key === 'Backspace') {
+      if (
+        !isRangeSelection &&
+        isDecimalSymbol(inputValue.charAt(selectionEnd - 1))
+      ) {
+        e.preventDefault();
+        const cursorPosition = selectionEnd - 1;
+        setSelectionState([cursorPosition, cursorPosition]);
+      }
+    } else if (key === 'Delete') {
+      if (
+        !isRangeSelection &&
+        isDecimalSymbol(inputValue.charAt(selectionEnd))
+      ) {
+        e.preventDefault();
+        const cursorPosition = selectionEnd + 1;
+        setSelectionState([cursorPosition, cursorPosition]);
+      }
+    }
+  };
+
+  const onKeyDownWrapper = e => {
+    checkForUpDownArrowKey(e);
+    checkForEnterKey(e);
+    checkForBackspaceOrDeleteKey(e);
 
     if (onKeyDown) {
       onKeyDown(e);
@@ -206,7 +255,7 @@ const NumberInput = ({
         onKeyDown={onKeyDownWrapper}
         onFocus={onFocusWrapper}
         onBlur={onBlurWrapper}
-        onSelect={saveSelectionState}
+        onSelect={snapshotSelectionState}
       />
       <div className={`${CID}__arrow-buttons`}>
         <NumberInputArrowButton
