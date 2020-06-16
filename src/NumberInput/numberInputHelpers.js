@@ -4,14 +4,17 @@ import {
   roundWithPrecision,
 } from '../utils/numberUtils';
 
-export const parseToNumber = (numberOrString, preParser) => {
-  const string = `${numberOrString}`;
-  const preParsedValue = preParser ? preParser(string) : string;
-  return parseFloat(preParsedValue);
+export const parseToNumber = (numberOrString, decimalSeparator) => {
+  let string = `${numberOrString}`;
+  if (decimalSeparator) {
+    string = string.replace(decimalSeparator, '.');
+  }
+
+  return parseFloat(string);
 };
 
-export const containsNumber = (numberOrString, preParser) => {
-  const number = parseToNumber(numberOrString, preParser);
+export const containsNumber = (numberOrString, decimalSeparator) => {
+  const number = parseToNumber(numberOrString, decimalSeparator);
   return isNumber(number);
 };
 
@@ -20,9 +23,9 @@ export const parseValue = (
   precision = 0,
   min,
   max,
-  preParser,
+  decimalSeparator,
 ) => {
-  let number = parseToNumber(numberOrString, preParser);
+  let number = parseToNumber(numberOrString, decimalSeparator);
   if (!isNumber(number)) {
     number = 0;
   }
@@ -32,17 +35,13 @@ export const parseValue = (
   return number;
 };
 
-export const germanLocalePreParser = string => {
-  // The currency symbol will get parsed out by parseFloat
-  return string.replace(',', '.');
-};
-
 export const formatValue = (
   numberOrString,
   precision = 0,
   min,
   max,
   isCurrency,
+  decimalSeparator,
   postFormatter,
 ) => {
   if (!containsNumber(numberOrString)) {
@@ -54,6 +53,10 @@ export const formatValue = (
   let formattedString =
     precision !== null ? number.toFixed(precision) : `${number}`;
 
+  if (decimalSeparator) {
+    formattedString = formattedString.replace('.', decimalSeparator);
+  }
+
   if (postFormatter) {
     formattedString = postFormatter(formattedString, isCurrency);
   }
@@ -62,7 +65,7 @@ export const formatValue = (
 };
 
 export const germanLocalePostFormatter = (string, isCurrency) => {
-  let formattedString = string.replace('.', ',');
+  let formattedString = string;
 
   if (isCurrency) {
     formattedString = `${formattedString} €`;

@@ -4,7 +4,6 @@ import {
   containsNumber,
   formatValue,
   germanLocalePostFormatter,
-  germanLocalePreParser,
   parseValue,
 } from './numberInputHelpers';
 import NumberInputArrowButton from '../NumberInputArrowButton/NumberInputArrowButton';
@@ -31,7 +30,7 @@ const NumberInput = ({
   onKeyDown,
   onFocus,
   onBlur,
-  preParser = germanLocalePreParser,
+  decimalSeparator = ',',
   postFormatter = germanLocalePostFormatter,
   className,
 }) => {
@@ -55,7 +54,7 @@ const NumberInput = ({
   };
 
   const parse = numberOrString => {
-    return parseValue(numberOrString, precision, min, max, preParser);
+    return parseValue(numberOrString, precision, min, max, decimalSeparator);
   };
 
   const format = numberOrString => {
@@ -65,6 +64,7 @@ const NumberInput = ({
       min,
       max,
       currency,
+      decimalSeparator,
       postFormatter,
     );
   };
@@ -114,7 +114,7 @@ const NumberInput = ({
   const forceInputValueToNumber = () => {
     // if inputValue is not parsable to a number, then set it to null so it doesn't get
     // converted to 0. The input wouldn't be clearable otherwise.
-    const number = containsNumber(getInputValue(), preParser)
+    const number = containsNumber(getInputValue(), decimalSeparator)
       ? getInputNumberValue()
       : null;
 

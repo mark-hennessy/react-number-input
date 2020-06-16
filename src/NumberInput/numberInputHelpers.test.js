@@ -2,19 +2,13 @@ import {
   containsNumber,
   formatValue,
   germanLocalePostFormatter,
-  germanLocalePreParser,
   parseToNumber,
   parseValue,
 } from './numberInputHelpers';
 
 describe('numberInputHelpers', () => {
-  const mockPreParser = string => {
-    // The currency symbol will get parsed out by parseFloat
-    return string.replace(',', '.');
-  };
-
   describe('parseToNumber', () => {
-    it('works without a preParser', () => {
+    it('works with numbers and strings', () => {
       expect(parseToNumber(undefined, null)).toBe(NaN);
       expect(parseToNumber(null, null)).toBe(NaN);
 
@@ -36,26 +30,26 @@ describe('numberInputHelpers', () => {
       expect(parseToNumber('12.34', null)).toBe(12.34);
     });
 
-    it('works with a preParser', () => {
-      expect(parseToNumber(undefined, null)).toBe(NaN);
-      expect(parseToNumber(null, null)).toBe(NaN);
+    it('works with a custom decimal separator', () => {
+      expect(parseToNumber(undefined, ',')).toBe(NaN);
+      expect(parseToNumber(null, ',')).toBe(NaN);
 
-      expect(parseToNumber(0, mockPreParser)).toBe(0);
-      expect(parseToNumber(12, mockPreParser)).toBe(12);
-      expect(parseToNumber(-12, mockPreParser)).toBe(-12);
-      expect(parseToNumber(12.34, mockPreParser)).toBe(12.34);
+      expect(parseToNumber(0, ',')).toBe(0);
+      expect(parseToNumber(12, ',')).toBe(12);
+      expect(parseToNumber(-12, ',')).toBe(-12);
+      expect(parseToNumber(12.34, ',')).toBe(12.34);
 
-      expect(parseToNumber('0', mockPreParser)).toBe(0);
-      expect(parseToNumber('12', mockPreParser)).toBe(12);
-      expect(parseToNumber(' 12 ', mockPreParser)).toBe(12);
-      expect(parseToNumber('-12', mockPreParser)).toBe(-12);
-      expect(parseToNumber('12 €', mockPreParser)).toBe(12);
+      expect(parseToNumber('0', ',')).toBe(0);
+      expect(parseToNumber('12', ',')).toBe(12);
+      expect(parseToNumber(' 12 ', ',')).toBe(12);
+      expect(parseToNumber('-12', ',')).toBe(-12);
+      expect(parseToNumber('12 €', ',')).toBe(12);
 
-      expect(parseToNumber('12,', mockPreParser)).toBe(12);
-      expect(parseToNumber('12,0', mockPreParser)).toBe(12);
-      expect(parseToNumber(',12', mockPreParser)).toBe(0.12);
-      expect(parseToNumber('0,12', mockPreParser)).toBe(0.12);
-      expect(parseToNumber('12,34', mockPreParser)).toBe(12.34);
+      expect(parseToNumber('12,', ',')).toBe(12);
+      expect(parseToNumber('12,0', ',')).toBe(12);
+      expect(parseToNumber(',12', ',')).toBe(0.12);
+      expect(parseToNumber('0,12', ',')).toBe(0.12);
+      expect(parseToNumber('12,34', ',')).toBe(12.34);
     });
   });
 
@@ -95,12 +89,12 @@ describe('numberInputHelpers', () => {
       expect(containsNumber('12.34')).toBe(true);
     });
 
-    it('supports fancy string input with preParser', () => {
-      expect(containsNumber('12,', mockPreParser)).toBe(true);
-      expect(containsNumber('12,0', mockPreParser)).toBe(true);
-      expect(containsNumber(',12', mockPreParser)).toBe(true);
-      expect(containsNumber('0,12', mockPreParser)).toBe(true);
-      expect(containsNumber('12,34', mockPreParser)).toBe(true);
+    it('supports string input with custom decimal separator', () => {
+      expect(containsNumber('12,', ',')).toBe(true);
+      expect(containsNumber('12,0', ',')).toBe(true);
+      expect(containsNumber(',12', ',')).toBe(true);
+      expect(containsNumber('0,12', ',')).toBe(true);
+      expect(containsNumber('12,34', ',')).toBe(true);
     });
   });
 
@@ -152,18 +146,7 @@ describe('numberInputHelpers', () => {
     });
 
     it('supports pre parsing', () => {
-      expect(parseValue('12,5', 0, null, null, v => v.replace(',', '.'))).toBe(
-        13,
-      );
-    });
-  });
-
-  describe('germanLocalePreParser', () => {
-    it('replaces comma with period', () => {
-      expect(germanLocalePreParser('1234')).toBe('1234');
-      expect(germanLocalePreParser('12,34')).toBe('12.34');
-      expect(germanLocalePreParser('12,5')).toBe('12.5');
-      expect(germanLocalePreParser('12,50')).toBe('12.50');
+      expect(parseValue('12,5', 0, null, null, ',')).toBe(13);
     });
   });
 
@@ -219,17 +202,21 @@ describe('numberInputHelpers', () => {
       expect(formatValue(100.5, 0, 0, null)).toBe('101');
     });
 
+    it('supports a custom decimal separator', () => {
+      expect(formatValue(12.5, 2, null, null, false, ',')).toBe('12,50');
+    });
+
     it('supports post formatting', () => {
       const postFormatter = (v, isCurrency) => {
         return isCurrency ? `${v} €` : `${v}`;
       };
 
-      expect(formatValue(12.5, 2, null, null, false, postFormatter)).toBe(
-        '12.50',
+      expect(formatValue(12.5, 2, null, null, false, ',', postFormatter)).toBe(
+        '12,50',
       );
 
-      expect(formatValue(12.5, 2, null, null, true, postFormatter)).toBe(
-        '12.50 €',
+      expect(formatValue(12.5, 2, null, null, true, ',', postFormatter)).toBe(
+        '12,50 €',
       );
     });
   });
