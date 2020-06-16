@@ -109,16 +109,6 @@ const NumberInput = ({
   const setValue = number => {
     snapshotSelectionState();
     onChange(number, getInput());
-
-    // if (number !== value) {
-    //   log('number changed', number, value);
-    //   onChange(number, getInput());
-    // } else {
-    //   log('number did not change', number, value);
-    //   // Ignoring the value resets the controlled input's cursor position.
-    //   // A render is needed so a useLayoutEffect can restoreSelectionState.
-    //   forceRender();
-    // }
   };
 
   const forceInputValueToNumber = () => {
