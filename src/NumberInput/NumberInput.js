@@ -145,8 +145,10 @@ const NumberInput = ({
     // to focus the input after arrow buttons are clicked
     hasFocusRef.current = true;
 
-    const multiplier = calculateStepMultiplier(e);
-    setValue(parse(getInputNumberValue() + direction * step * multiplier));
+    const stepMultiplier = calculateStepMultiplier(e);
+    const minStepSize = precision > 0 ? precision / 10 : 1;
+    const stepSize = Math.max(step * stepMultiplier, minStepSize);
+    setValue(parse(getInputNumberValue() + direction * stepSize));
   };
 
   const onStepUp = e => {
