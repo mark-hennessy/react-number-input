@@ -188,20 +188,23 @@ const NumberInput = ({
   const checkForBackspaceOrDeleteKey = e => {
     const { key } = e;
 
-    const [cursorPosition] = getSelectionState();
     const inputValue = getInputValue();
+    const [cursorPosition] = getSelectionState();
+    const charLeftOfCursor = inputValue.charAt(cursorPosition - 1);
+    const charRightOfCursor = inputValue.charAt(cursorPosition);
 
     if (
       key === 'Backspace' &&
       !isRangeSelected() &&
-      isDecimalSymbol(inputValue.charAt(cursorPosition - 1))
+      isDecimalSymbol(charLeftOfCursor)
     ) {
       e.preventDefault();
       setSelectionState(cursorPosition - 1);
     } else if (
       key === 'Delete' &&
       !isRangeSelected() &&
-      isDecimalSymbol(inputValue.charAt(cursorPosition))
+      (isDecimalSymbol(charRightOfCursor) ||
+        (cursorPosition === 0 && charRightOfCursor === '0'))
     ) {
       e.preventDefault();
       setSelectionState(cursorPosition + 1);
