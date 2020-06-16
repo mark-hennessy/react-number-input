@@ -11,6 +11,7 @@ import NumberInputArrowButton from '../NumberInputArrowButton/NumberInputArrowBu
 import { createInstanceLogger } from '../utils/debugUtils';
 import { buildDataCyString } from '../utils/cypressUtils';
 import './NumberInput.scss';
+import { isNumber } from '../utils/numberUtils';
 
 const CID = 'number-input';
 
@@ -77,13 +78,24 @@ const NumberInput = ({
     return [input.selectionStart, input.selectionEnd, input.selectionDirection];
   };
 
+  const isRangeSelected = () => {
+    const [selectionStart, selectionEnd] = getSelectionState();
+    return selectionStart !== selectionEnd;
+  };
+
   const snapshotSelectionState = () => {
     selectionStateSnapshotRef.current = getSelectionState();
     log('saveSelectionState', selectionStateSnapshotRef.current);
   };
 
   const setSelectionState = selectionState => {
-    if (selectionState && selectionState.length >= 2) {
+    if (!selectionState) {
+      return;
+    }
+
+    if (isNumber(selectionState)) {
+      getInput().setSelectionRange(selectionState, selectionState);
+    } else if (selectionState.length >= 2) {
       getInput().setSelectionRange(...selectionState);
     }
   };
@@ -177,25 +189,22 @@ const NumberInput = ({
     const { key } = e;
 
     const [selectionStart, selectionEnd] = getSelectionState();
-    const isRangeSelection = selectionStart !== selectionEnd;
     const inputValue = getInputValue();
 
     if (
       key === 'Backspace' &&
-      !isRangeSelection &&
+      !isRangeSelected() &&
       isDecimalSymbol(inputValue.charAt(selectionEnd - 1))
     ) {
       e.preventDefault();
-      const newCursorPosition = selectionStart - 1;
-      setSelectionState([newCursorPosition, newCursorPosition]);
+      setSelectionState(selectionStart - 1);
     } else if (
       key === 'Delete' &&
-      !isRangeSelection &&
+      !isRangeSelected() &&
       isDecimalSymbol(inputValue.charAt(selectionEnd))
     ) {
       e.preventDefault();
-      const newCursorPosition = selectionStart + 1;
-      setSelectionState([newCursorPosition, newCursorPosition]);
+      setSelectionState(selectionStart + 1);
     }
   };
 
@@ -217,8 +226,7 @@ const NumberInput = ({
       e.preventDefault();
       const newValue = format(0);
       setInputValue(newValue);
-      const newCursorPosition = 1;
-      setSelectionState([newCursorPosition, newCursorPosition]);
+      setSelectionState(1);
     }
   };
 
@@ -226,12 +234,10 @@ const NumberInput = ({
     const { key } = e;
 
     const [selectionStart, selectionEnd] = getSelectionState();
-    const isRangeSelection = selectionStart !== selectionEnd;
 
-    if (key === ' ' && !isRangeSelection) {
+    if (key === ' ' && !isRangeSelected()) {
       e.preventDefault();
-      const newCursorPosition = selectionStart + 1;
-      setSelectionState([newCursorPosition, newCursorPosition]);
+      setSelectionState(selectionStart + 1);
     }
   };
 
