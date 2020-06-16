@@ -30,8 +30,8 @@ const NumberInput = ({
   onKeyDown,
   onFocus,
   onBlur,
-  localePreParser = germanLocalePreParser,
-  localePostFormatter = germanLocalePostFormatter,
+  preParser = germanLocalePreParser,
+  postFormatter = germanLocalePostFormatter,
   className,
 }) => {
   const log = createInstanceLogger(name, 'f1_v3');
@@ -54,7 +54,7 @@ const NumberInput = ({
   };
 
   const parse = numberOrString => {
-    return parseValue(numberOrString, precision, min, max, localePreParser);
+    return parseValue(numberOrString, precision, min, max, preParser);
   };
 
   const format = numberOrString => {
@@ -64,7 +64,7 @@ const NumberInput = ({
       min,
       max,
       currency,
-      localePostFormatter,
+      postFormatter,
     );
   };
 
@@ -112,7 +112,7 @@ const NumberInput = ({
   const forceInputValueToNumber = () => {
     // if inputValue is not parsable to a number, then set it to null so it doesn't get
     // converted to 0. The input wouldn't be clearable otherwise.
-    const number = containsNumber(getInputValue(), localePreParser)
+    const number = containsNumber(getInputValue(), preParser)
       ? getInputNumberValue()
       : null;
 
@@ -167,7 +167,7 @@ const NumberInput = ({
   };
 
   const isDecimalSymbol = char => {
-    // It's safe to check both '.' and ',' because the the thousands
+    // It's safe to check both '.' or ',' because the the thousands
     // separator is not supported. Depending on the locale formatter,
     // '.' or ',' will get formatted to the other.
     return char === '.' || char === ',';
