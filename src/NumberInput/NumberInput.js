@@ -9,7 +9,6 @@ import {
 } from './numberInputHelpers';
 import NumberInputArrowButton from '../NumberInputArrowButton/NumberInputArrowButton';
 import { createInstanceLogger } from '../utils/debugUtils';
-import useForceRender from '../utils/useForceRender';
 import { buildDataCyString } from '../utils/cypressUtils';
 import './NumberInput.scss';
 
@@ -39,11 +38,8 @@ const NumberInput = ({
   log('render');
 
   const inputRef = useRef(null);
-
   const hasFocusRef = useRef(false);
   const selectionStateSnapshotRef = useRef([]);
-
-  const forceRender = useForceRender();
 
   const getInput = () => {
     return inputRef.current;
@@ -53,8 +49,23 @@ const NumberInput = ({
     return getInput().value;
   };
 
+  const setInputValue = value => {
+    getInput().value = value;
+  };
+
   const parse = numberOrString => {
     return parseValue(numberOrString, precision, min, max, localePreParser);
+  };
+
+  const format = numberOrString => {
+    return formatValue(
+      numberOrString,
+      precision,
+      min,
+      max,
+      currency,
+      localePostFormatter,
+    );
   };
 
   const getInputNumberValue = () => {
@@ -155,6 +166,13 @@ const NumberInput = ({
     }
   };
 
+  const isDecimalSymbol = char => {
+    // It's safe to check both '.' and ',' because the the thousands
+    // separator is not supported. Depending on the locale formatter,
+    // '.' or ',' will get formatted to the other.
+    return char === '.' || char === ',';
+  };
+
   const checkForBackspaceOrDeleteKey = e => {
     const { key } = e;
 
@@ -162,21 +180,14 @@ const NumberInput = ({
     const isRangeSelection = selectionStart !== selectionEnd;
     const inputValue = getInputValue();
 
-    const isDecimalSymbol = char => {
-      // It's safe to check both '.' and ',' because the the thousands
-      // separator is not supported. Depending on the locale formatter,
-      // '.' or ',' will get formatted to the other.
-      return char === '.' || char === ',';
-    };
-
     if (key === 'Backspace') {
       if (
         !isRangeSelection &&
         isDecimalSymbol(inputValue.charAt(selectionEnd - 1))
       ) {
         e.preventDefault();
-        const cursorPosition = selectionEnd - 1;
-        setSelectionState([cursorPosition, cursorPosition]);
+        const newCursorPosition = selectionEnd - 1;
+        setSelectionState([newCursorPosition, newCursorPosition]);
       }
     } else if (key === 'Delete') {
       if (
@@ -184,9 +195,32 @@ const NumberInput = ({
         isDecimalSymbol(inputValue.charAt(selectionEnd))
       ) {
         e.preventDefault();
-        const cursorPosition = selectionEnd + 1;
-        setSelectionState([cursorPosition, cursorPosition]);
+        const newCursorPosition = selectionEnd + 1;
+        setSelectionState([newCursorPosition, newCursorPosition]);
       }
+    }
+  };
+
+  const checkForMinusKey = e => {
+    const { key } = e;
+    const inputValue = getInputValue();
+
+    // allow the user to type '-' into an empty input
+    if (key === '-' && !inputValue.length) {
+      e.preventDefault();
+      setInputValue('-');
+    }
+    // convert -0 to 0 or 0,00 € depending on formatting
+    else if (
+      inputValue.startsWith('-') &&
+      inputValue.length === 1 &&
+      key === '0'
+    ) {
+      e.preventDefault();
+      const newValue = format(0);
+      setInputValue(newValue);
+      const newCursorPosition = 1;
+      setSelectionState([newCursorPosition, newCursorPosition]);
     }
   };
 
@@ -194,6 +228,7 @@ const NumberInput = ({
     checkForUpDownArrowKey(e);
     checkForEnterKey(e);
     checkForBackspaceOrDeleteKey(e);
+    checkForMinusKey(e);
 
     if (onKeyDown) {
       onKeyDown(e);
@@ -227,15 +262,6 @@ const NumberInput = ({
     }
   });
 
-  const formattedValue = formatValue(
-    value,
-    precision,
-    min,
-    max,
-    currency,
-    localePostFormatter,
-  );
-
   return (
     <div className={cn(CID, { blue, disabled }, className)}>
       <input
@@ -244,7 +270,7 @@ const NumberInput = ({
         data-cy={buildDataCyString(`${name}-number-input`)}
         type='text'
         name={name}
-        value={formattedValue}
+        value={format(value)}
         placeholder={placeholder}
         disabled={disabled}
         onChange={onChangeWrapper}
