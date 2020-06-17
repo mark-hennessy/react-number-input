@@ -11,7 +11,7 @@ export default function App() {
       <Label large>Form 1, White Inputs</Label>
       <DemoForm formName='f1' blue />
       <Label large>
-        Form 2, Blue Inputs, Duplicate Of Form 1 (no need to test)
+        Form 2, Blue Inputs, Duplicate of Form 1 (no need to test)
       </Label>
       <DemoForm formName='f2' />
     </div>
