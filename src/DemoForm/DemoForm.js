@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import cn from 'classnames';
 import Panel from '../Panel/Panel';
 import NumberInput from '../NumberInput/NumberInput';
+import Label from '../Label/Label';
 import './DemoForm.scss';
 
 const CID = 'demo-form';
@@ -15,7 +16,7 @@ const DemoForm = ({ formName, blue, className }) => {
 
   const [state, setState] = useState({
     [getInputName(inputCounter++)]: null,
-    [getInputName(inputCounter++)]: 150,
+    [getInputName(inputCounter++)]: 100,
     [getInputName(inputCounter++)]: 12.34,
     [getInputName(inputCounter++)]: 12.34,
     [getInputName(inputCounter++)]: 12.34,
@@ -38,15 +39,18 @@ const DemoForm = ({ formName, blue, className }) => {
   return (
     <form name={formName}>
       <Panel className={cn(CID, className)} blue={blue}>
+        <Label>Whole Number</Label>
         <NumberInput
           {...connectToState(getInputName(inputCounter++))}
           ignoreEnterKey
         />
+        <Label>Whole Number, 100 min, 200 max</Label>
         <NumberInput
           {...connectToState(getInputName(inputCounter++))}
           min={100}
           max={200}
         />
+        <Label>German School Grade</Label>
         <NumberInput
           {...connectToState(getInputName(inputCounter++))}
           placeholder='1,3'
@@ -55,11 +59,13 @@ const DemoForm = ({ formName, blue, className }) => {
           min={1}
           max={6}
         />
+        <Label>Decimal Number, Currency</Label>
         <NumberInput
           {...connectToState(getInputName(inputCounter++))}
           precision={2}
           currency
         />
+        <Label>Decimal Number, Currency, Disabled</Label>
         <NumberInput
           {...connectToState(getInputName(inputCounter++))}
           precision={2}
