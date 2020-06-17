@@ -2,7 +2,6 @@ import React, { useLayoutEffect, useRef } from 'react';
 import cn from 'classnames';
 import { containsNumber, formatValue, parseValue } from './numberInputHelpers';
 import NumberInputArrowButton from '../NumberInputArrowButton/NumberInputArrowButton';
-import { createInstanceLogger } from '../utils/debugUtils';
 import { buildDataCyString } from '../utils/cypressUtils';
 import './NumberInput.scss';
 import { isNumber } from '../utils/numberUtils';
@@ -29,9 +28,6 @@ const NumberInput = ({
   onBlur,
   className,
 }) => {
-  const log = createInstanceLogger(name, 'f1_v3');
-  log('render');
-
   const inputRef = useRef(null);
   const hasFocusRef = useRef(false);
   const selectionStateSnapshotRef = useRef([]);
@@ -81,7 +77,6 @@ const NumberInput = ({
 
   const snapshotSelectionState = () => {
     selectionStateSnapshotRef.current = getSelectionState();
-    log('saveSelectionState', selectionStateSnapshotRef.current);
   };
 
   const setSelectionState = selectionState => {
@@ -99,7 +94,6 @@ const NumberInput = ({
   const restoreSelectionState = () => {
     const selectionStateSnapshot = selectionStateSnapshotRef.current;
     setSelectionState(selectionStateSnapshot);
-    log('restoreSelectionState', selectionStateSnapshot);
   };
 
   const setValue = number => {
