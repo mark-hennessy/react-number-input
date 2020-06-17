@@ -339,6 +339,7 @@ const NumberInput = ({
         placeholder={placeholder}
         disabled={disabled}
         onChange={onChangeWrapper}
+        onInput={onChangeWrapper}
         onKeyDown={onKeyDownWrapper}
         onFocus={onFocusWrapper}
         onBlur={onBlurWrapper}
