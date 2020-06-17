@@ -132,16 +132,18 @@ const NumberInput = ({
     const stepMultiplier = calculateStepMultiplier(e);
     const minStepSize = precision > 0 ? precision / 10 : 1;
     const stepSize = Math.max(step * stepMultiplier, minStepSize);
-    const newNumberValue = getInputNumberValue(true) + stepSize * direction;
-    const newBoundNumberValue = parse(newNumberValue, true);
+    const newUnboundNumberValue =
+      getInputNumberValue(true) + stepSize * direction;
+
+    const newNumberValue = parse(newUnboundNumberValue, true);
+    const newInputValue = format(newNumberValue);
 
     // move the cursor to the end
-    const predictedValue = format(newBoundNumberValue);
-    setInputValueWithoutTriggeringOnChange(predictedValue);
-    setCursorPosition(predictedValue.replace(suffix, '').length);
+    setInputValueWithoutTriggeringOnChange(newInputValue);
+    setCursorPosition(newInputValue.replace(suffix, '').length);
 
     // to trigger onChange
-    setValue(newBoundNumberValue);
+    setValue(newNumberValue);
   };
 
   const onStepUp = e => {
@@ -167,8 +169,8 @@ const NumberInput = ({
   const checkForEnterKey = e => {
     const { key } = e;
 
+    // Enter should not submit the form if ignoreEnterKey is specified
     if (key === 'Enter' && ignoreEnterKey) {
-      // prevent forms from submitting on Enter
       e.preventDefault();
     }
   };
@@ -181,7 +183,7 @@ const NumberInput = ({
     const charLeftOfCursor = inputValue.charAt(cursorPosition - 1);
     const charRightOfCursor = inputValue.charAt(cursorPosition);
 
-    // logic to jump over the decimalSeparator
+    // Backspace should skip the decimal separator
     if (
       key === 'Backspace' &&
       !isRangeSelected() &&
@@ -189,16 +191,51 @@ const NumberInput = ({
     ) {
       e.preventDefault();
       setCursorPosition(cursorPosition - 1);
-    } else if (
+    }
+    // Delete should skip the decimal separator
+    else if (
       key === 'Delete' &&
       !isRangeSelected() &&
-      (charRightOfCursor === decimalSeparator ||
-        (cursorPosition === 0 && charRightOfCursor === '0'))
+      charRightOfCursor === decimalSeparator
     ) {
       e.preventDefault();
       setCursorPosition(cursorPosition + 1);
     }
-    // logic to clear the input without needing to select a range
+    // Delete should delete the character to the right of the cursor or move
+    // the cursor to the right if a character can't be deleted
+    else if (
+      key === 'Delete' &&
+      !isRangeSelected() &&
+      charRightOfCursor !== decimalSeparator
+    ) {
+      e.preventDefault();
+      const textAfterDelete =
+        inputValue.slice(0, cursorPosition) +
+        inputValue.slice(cursorPosition + 1);
+
+      const newNumberValue = parse(textAfterDelete, false);
+      const newInputValue = format(newNumberValue);
+
+      setInputValueWithoutTriggeringOnChange(newInputValue);
+      if (
+        // Delete from "{cursor}0,12" should move the cursor to the right
+        (cursorPosition < inputValue.indexOf(decimalSeparator) &&
+          // the value will change, but length should not
+          newInputValue.length === inputValue.length) ||
+        // Delete from "0,{cursor}00" should move the cursor to the right
+        (cursorPosition > inputValue.indexOf(decimalSeparator) &&
+          // the value and length should be the same
+          newInputValue === inputValue)
+      ) {
+        setCursorPosition(cursorPosition + 1);
+      } else {
+        setCursorPosition(cursorPosition);
+      }
+
+      // to trigger onChange
+      setValue(newNumberValue);
+    }
+    // Backspace from "0{cursor},00" should clear the input
     else if (
       key === 'Backspace' &&
       !isRangeSelected() &&
@@ -214,12 +251,12 @@ const NumberInput = ({
     const { key } = e;
     const inputValue = getInputValue();
 
-    // allow the user to type '-' into an empty input
+    // '-' should be valid in an empty input
     if (key === '-' && (!inputValue.length || isAllTextSelected())) {
       e.preventDefault();
       setInputValueWithoutTriggeringOnChange('-');
     }
-    // convert -0 to 0 or 0,00 € depending on formatting
+    // -0 should be converted to 0 or 0,00 € depending on formatting
     else if (
       inputValue.startsWith('-') &&
       inputValue.length === 1 &&
@@ -236,6 +273,7 @@ const NumberInput = ({
 
     const [cursorPosition] = getSelectionState();
 
+    // Space should be ignored but move the cursor forward
     if (key === ' ' && !isRangeSelected()) {
       e.preventDefault();
       setCursorPosition(cursorPosition + 1);
@@ -265,6 +303,8 @@ const NumberInput = ({
   const onBlurWrapper = e => {
     hasFocusRef.current = false;
 
+    // this is needed to clear invalid values such as '-' without a number
+    // after it, and to bound valid values to min/max if specified
     forceInputValueToNumber(true);
 
     if (onBlur) {
