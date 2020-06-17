@@ -33,11 +33,15 @@ describe('numberUtils', () => {
       expect(boundNumber(NaN, 0, 100)).toBeNull();
       expect(boundNumber(Infinity, 0, 100)).toBeNull();
       expect(boundNumber(-Infinity, 0, 100)).toBeNull();
-      expect(boundNumber(false)).toBeNull();
-      expect(boundNumber(true)).toBeNull();
-      expect(boundNumber('')).toBeNull();
-      expect(boundNumber('1234')).toBeNull();
-      expect(boundNumber('12.34')).toBeNull();
+      expect(boundNumber(false, 0, 100)).toBeNull();
+      expect(boundNumber(true, 0, 100)).toBeNull();
+      expect(boundNumber('', 0, 100)).toBeNull();
+      expect(boundNumber(' ', 0, 100)).toBeNull();
+      expect(boundNumber('-', 0, 100)).toBeNull();
+      expect(boundNumber('€', 0, 100)).toBeNull();
+      expect(boundNumber('text', 0, 100)).toBeNull();
+      expect(boundNumber('1234', 0, 100)).toBeNull();
+      expect(boundNumber('12.34', 0, 100)).toBeNull();
     });
 
     it('works without min', () => {
@@ -50,9 +54,7 @@ describe('numberUtils', () => {
       expect(boundNumber(12.34, null, 100)).toBe(12.34);
       expect(boundNumber(100, null, 100)).toBe(100);
       expect(boundNumber(101, null, 100)).toBe(100);
-      expect(boundNumber(Number.MAX_SAFE_INTEGER + 1, null, 100)).toBe(
-        100,
-      );
+      expect(boundNumber(Number.MAX_SAFE_INTEGER + 1, null, 100)).toBe(100);
     });
 
     it('works without max', () => {
@@ -69,18 +71,18 @@ describe('numberUtils', () => {
     });
 
     it('works without min and max', () => {
-      expect(
-        boundNumber(Number.MIN_SAFE_INTEGER - 1, null, null),
-      ).toBe(Number.MIN_SAFE_INTEGER);
+      expect(boundNumber(Number.MIN_SAFE_INTEGER - 1, null, null)).toBe(
+        Number.MIN_SAFE_INTEGER,
+      );
       expect(boundNumber(-1, null, null)).toBe(-1);
       expect(boundNumber(0, null, null)).toBe(0);
       expect(boundNumber(12, null, null)).toBe(12);
       expect(boundNumber(12.34, null, null)).toBe(12.34);
       expect(boundNumber(100, null, null)).toBe(100);
       expect(boundNumber(101, null, null)).toBe(101);
-      expect(
-        boundNumber(Number.MAX_SAFE_INTEGER + 1, null, null),
-      ).toBe(Number.MAX_SAFE_INTEGER);
+      expect(boundNumber(Number.MAX_SAFE_INTEGER + 1, null, null)).toBe(
+        Number.MAX_SAFE_INTEGER,
+      );
     });
 
     it('works with min and max', () => {
