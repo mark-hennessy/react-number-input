@@ -196,22 +196,15 @@ const NumberInput = ({
       e.preventDefault();
       setInputValue('-');
     }
-    // convert -0 to 0 or 0,00 € or 100,00 € depending on formatting and
-    // min/max value
+    // convert -0 to 0 or 0,00 € depending on formatting
     else if (
       inputValue.startsWith('-') &&
       inputValue.length === 1 &&
       key === '0'
     ) {
       e.preventDefault();
-      const newValue = format(0);
-      setInputValue(newValue);
-      if (newValue.includes(decimalSeparator)) {
-        setCursorPosition(newValue.indexOf(decimalSeparator));
-      } else {
-        const newValueWithoutSuffix = newValue.replace(suffix, '');
-        setCursorPosition(newValueWithoutSuffix.length);
-      }
+      setInputValue(format(0));
+      setCursorPosition(1);
     }
   };
 
