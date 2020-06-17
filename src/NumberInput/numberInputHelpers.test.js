@@ -1,50 +1,49 @@
 import {
   containsNumber,
   formatValue,
-  germanLocalePostFormatter,
   parseToNumber,
   parseValue,
 } from './numberInputHelpers';
 
 describe('numberInputHelpers', () => {
   describe('parseToNumber', () => {
-    it('works with numbers and strings', () => {
-      expect(parseToNumber(undefined, null)).toBe(NaN);
-      expect(parseToNumber(null, null)).toBe(NaN);
+    it('handles invalid input', () => {
+      expect(parseToNumber(undefined)).toBe(NaN);
+      expect(parseToNumber(null)).toBe(NaN);
+      expect(parseToNumber(NaN)).toBe(NaN);
+      expect(parseToNumber(Infinity)).toBe(Infinity);
+      expect(parseToNumber(-Infinity)).toBe(-Infinity);
+      expect(parseToNumber(false)).toBe(NaN);
+      expect(parseToNumber(true)).toBe(NaN);
+      expect(parseToNumber('')).toBe(NaN);
+      expect(parseToNumber(' ')).toBe(NaN);
+      expect(parseToNumber('-')).toBe(NaN);
+      expect(parseToNumber('€')).toBe(NaN);
+      expect(parseToNumber('text')).toBe(NaN);
+    });
 
+    it('supports number input', () => {
       expect(parseToNumber(0, null)).toBe(0);
       expect(parseToNumber(12, null)).toBe(12);
       expect(parseToNumber(-12, null)).toBe(-12);
       expect(parseToNumber(12.34, null)).toBe(12.34);
-
-      expect(parseToNumber('0', null)).toBe(0);
-      expect(parseToNumber('12', null)).toBe(12);
-      expect(parseToNumber(' 12 ', null)).toBe(12);
-      expect(parseToNumber('-12', null)).toBe(-12);
-      expect(parseToNumber('12 €', null)).toBe(12);
-
-      expect(parseToNumber('12.', null)).toBe(12);
-      expect(parseToNumber('12.0', null)).toBe(12);
-      expect(parseToNumber('.12', null)).toBe(0.12);
-      expect(parseToNumber('0.12', null)).toBe(0.12);
-      expect(parseToNumber('12.34', null)).toBe(12.34);
     });
 
-    it('works with a custom decimal separator', () => {
-      expect(parseToNumber(undefined, ',')).toBe(NaN);
-      expect(parseToNumber(null, ',')).toBe(NaN);
+    it('supports string input', () => {
+      expect(parseToNumber('0')).toBe(0);
+      expect(parseToNumber('12')).toBe(12);
+      expect(parseToNumber(' 12 ')).toBe(12);
+      expect(parseToNumber('-12')).toBe(-12);
+      expect(parseToNumber('12 €')).toBe(12);
 
-      expect(parseToNumber(0, ',')).toBe(0);
-      expect(parseToNumber(12, ',')).toBe(12);
-      expect(parseToNumber(-12, ',')).toBe(-12);
-      expect(parseToNumber(12.34, ',')).toBe(12.34);
+      expect(parseToNumber('12.')).toBe(12);
+      expect(parseToNumber('12.0')).toBe(12);
+      expect(parseToNumber('.12')).toBe(0.12);
+      expect(parseToNumber('0.12')).toBe(0.12);
+      expect(parseToNumber('12.34')).toBe(12.34);
+    });
 
-      expect(parseToNumber('0', ',')).toBe(0);
-      expect(parseToNumber('12', ',')).toBe(12);
-      expect(parseToNumber(' 12 ', ',')).toBe(12);
-      expect(parseToNumber('-12', ',')).toBe(-12);
-      expect(parseToNumber('12 €', ',')).toBe(12);
-
+    it('supports custom decimal separator', () => {
       expect(parseToNumber('12,', ',')).toBe(12);
       expect(parseToNumber('12,0', ',')).toBe(12);
       expect(parseToNumber(',12', ',')).toBe(0.12);
@@ -54,7 +53,7 @@ describe('numberInputHelpers', () => {
   });
 
   describe('containsNumber', () => {
-    it('returns false when there are no numbers', () => {
+    it('handles invalid input', () => {
       expect(containsNumber(undefined)).toBe(false);
       expect(containsNumber(null)).toBe(false);
       expect(containsNumber(NaN)).toBe(false);
@@ -66,6 +65,7 @@ describe('numberInputHelpers', () => {
       expect(containsNumber(' ')).toBe(false);
       expect(containsNumber('-')).toBe(false);
       expect(containsNumber('€')).toBe(false);
+      expect(containsNumber('text')).toBe(false);
     });
 
     it('supports number input', () => {
@@ -89,7 +89,7 @@ describe('numberInputHelpers', () => {
       expect(containsNumber('12.34')).toBe(true);
     });
 
-    it('supports string input with custom decimal separator', () => {
+    it('supports custom decimal separator', () => {
       expect(containsNumber('12,', ',')).toBe(true);
       expect(containsNumber('12,0', ',')).toBe(true);
       expect(containsNumber(',12', ',')).toBe(true);
@@ -99,19 +99,27 @@ describe('numberInputHelpers', () => {
   });
 
   describe('parseValue', () => {
-    it('parses invalid values', () => {
+    it('handles invalid input', () => {
       expect(parseValue(undefined)).toBe(0);
       expect(parseValue(null)).toBe(0);
+      expect(parseValue(NaN)).toBe(0);
+      expect(parseValue(Infinity)).toBe(0);
+      expect(parseValue(-Infinity)).toBe(0);
+      expect(parseValue(false)).toBe(0);
+      expect(parseValue(true)).toBe(0);
       expect(parseValue('')).toBe(0);
       expect(parseValue(' ')).toBe(0);
-      expect(parseValue('blah')).toBe(0);
+      expect(parseValue('-')).toBe(0);
       expect(parseValue('€')).toBe(0);
+      expect(parseValue('text')).toBe(0);
+    });
 
+    it('handles invalid input according to min/max', () => {
       expect(parseValue('', null, 100, null)).toBe(100);
       expect(parseValue('', null, null, -100)).toBe(-100);
     });
 
-    it('parses string values', () => {
+    it('supports string input', () => {
       expect(parseValue('1234', null)).toBe(1234);
       expect(parseValue('12.34', null)).toBe(12.34);
       expect(parseValue('12.5', null)).toBe(12.5);
@@ -145,13 +153,14 @@ describe('numberInputHelpers', () => {
       expect(parseValue('100.5', 0, 0, null)).toBe(101);
     });
 
-    it('supports pre parsing', () => {
+    it('supports custom decimal separator', () => {
       expect(parseValue('12,5', 0, null, null, ',')).toBe(13);
+      expect(parseValue('12,5', 1, null, null, ',')).toBe(12.5);
     });
   });
 
   describe('formatValue', () => {
-    it('formats invalid values to empty string', () => {
+    it('handles invalid input', () => {
       expect(formatValue(undefined)).toBe('');
       expect(formatValue(null)).toBe('');
       expect(formatValue(NaN)).toBe('');
@@ -160,16 +169,20 @@ describe('numberInputHelpers', () => {
       expect(formatValue(false)).toBe('');
       expect(formatValue(true)).toBe('');
       expect(formatValue('')).toBe('');
+      expect(formatValue(' ')).toBe('');
+      expect(formatValue('-')).toBe('');
+      expect(formatValue('€')).toBe('');
+      expect(formatValue('text')).toBe('');
     });
 
-    it('formats string values (just in case)', () => {
+    it('supports string input (just in case)', () => {
       expect(formatValue('1234', null)).toBe('1234');
       expect(formatValue('12.34', null)).toBe('12.34');
       expect(formatValue('12.5', null)).toBe('12.5');
       expect(formatValue('12.5 €', null)).toBe('12.5');
     });
 
-    it('formats number values', () => {
+    it('supports number input', () => {
       expect(formatValue(1234, null)).toBe('1234');
       expect(formatValue(12.34, null)).toBe('12.34');
       expect(formatValue(12.5, null)).toBe('12.5');
@@ -202,38 +215,12 @@ describe('numberInputHelpers', () => {
       expect(formatValue(100.5, 0, 0, null)).toBe('101');
     });
 
-    it('supports a custom decimal separator', () => {
-      expect(formatValue(12.5, 2, null, null, false, ',')).toBe('12,50');
+    it('supports custom decimal separator', () => {
+      expect(formatValue(12.5, 2, null, null, ',')).toBe('12,50');
     });
 
-    it('supports post formatting', () => {
-      const postFormatter = (v, isCurrency) => {
-        return isCurrency ? `${v} €` : `${v}`;
-      };
-
-      expect(formatValue(12.5, 2, null, null, false, ',', postFormatter)).toBe(
-        '12,50',
-      );
-
-      expect(formatValue(12.5, 2, null, null, true, ',', postFormatter)).toBe(
-        '12,50 €',
-      );
-    });
-  });
-
-  describe('germanLocalePostFormatter', () => {
-    it('formats numbers', () => {
-      expect(germanLocalePostFormatter('1234', false)).toBe('1234');
-      expect(germanLocalePostFormatter('12.34', false)).toBe('12,34');
-      expect(germanLocalePostFormatter('12.5', false)).toBe('12,5');
-      expect(germanLocalePostFormatter('12.50', false)).toBe('12,50');
-    });
-
-    it('formats currency', () => {
-      expect(germanLocalePostFormatter('1234', true)).toBe('1234 €');
-      expect(germanLocalePostFormatter('12.34', true)).toBe('12,34 €');
-      expect(germanLocalePostFormatter('12.5', true)).toBe('12,5 €');
-      expect(germanLocalePostFormatter('12.50', true)).toBe('12,50 €');
+    it('supports suffix', () => {
+      expect(formatValue(12.5, 2, null, null, ',', ' €')).toBe('12,50 €');
     });
   });
 });

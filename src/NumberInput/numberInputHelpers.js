@@ -40,9 +40,8 @@ export const formatValue = (
   precision = 0,
   min,
   max,
-  isCurrency,
   decimalSeparator,
-  postFormatter,
+  suffix,
 ) => {
   if (!containsNumber(numberOrString)) {
     return '';
@@ -50,25 +49,16 @@ export const formatValue = (
 
   const number = parseValue(numberOrString, precision, min, max);
 
-  let formattedString =
-    precision !== null ? number.toFixed(precision) : `${number}`;
+  let formattedString = isNumber(precision)
+    ? number.toFixed(precision)
+    : `${number}`;
 
   if (decimalSeparator) {
     formattedString = formattedString.replace('.', decimalSeparator);
   }
 
-  if (postFormatter) {
-    formattedString = postFormatter(formattedString, isCurrency);
-  }
-
-  return formattedString;
-};
-
-export const germanLocalePostFormatter = (string, isCurrency) => {
-  let formattedString = string;
-
-  if (isCurrency) {
-    formattedString = `${formattedString} €`;
+  if (suffix) {
+    formattedString = `${formattedString}${suffix}`;
   }
 
   return formattedString;

@@ -1,11 +1,6 @@
 import React, { useLayoutEffect, useRef } from 'react';
 import cn from 'classnames';
-import {
-  containsNumber,
-  formatValue,
-  germanLocalePostFormatter,
-  parseValue,
-} from './numberInputHelpers';
+import { containsNumber, formatValue, parseValue } from './numberInputHelpers';
 import NumberInputArrowButton from '../NumberInputArrowButton/NumberInputArrowButton';
 import { createInstanceLogger } from '../utils/debugUtils';
 import { buildDataCyString } from '../utils/cypressUtils';
@@ -23,15 +18,15 @@ const NumberInput = ({
   min,
   max,
   blue,
+  decimalSeparator = ',',
   currency,
+  currencySymbol = '€',
   disabled,
   ignoreEnterKey,
   onChange,
   onKeyDown,
   onFocus,
   onBlur,
-  decimalSeparator = ',',
-  postFormatter = germanLocalePostFormatter,
   className,
 }) => {
   const log = createInstanceLogger(name, 'f1_v3');
@@ -40,6 +35,8 @@ const NumberInput = ({
   const inputRef = useRef(null);
   const hasFocusRef = useRef(false);
   const selectionStateSnapshotRef = useRef([]);
+
+  const suffix = currency ? ` ${currencySymbol}` : '';
 
   const getInput = () => {
     return inputRef.current;
@@ -63,9 +60,8 @@ const NumberInput = ({
       precision,
       min,
       max,
-      currency,
       decimalSeparator,
-      postFormatter,
+      suffix,
     );
   };
 
