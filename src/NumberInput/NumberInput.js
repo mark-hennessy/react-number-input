@@ -27,6 +27,9 @@ const NumberInput = ({
   onBlur,
   className,
 }) => {
+  const eRef = useRef(null);
+  const e = eRef.current;
+
   const inputRef = useRef(null);
   const hasFocusRef = useRef(false);
   const selectionStateSnapshotRef = useRef([]);
@@ -281,6 +284,9 @@ const NumberInput = ({
   };
 
   const onKeyDownWrapper = e => {
+    e.persist();
+    eRef.current = e;
+
     checkForUpDownArrowKey(e);
     checkForEnterKey(e);
     checkForBackspaceOrDeleteKey(e);
@@ -352,6 +358,14 @@ const NumberInput = ({
           onClick={onStepDown}
         />
       </div>
+      {name === 'f1_v1' && e && (
+        <>
+          <div>Debug Info:</div>
+          <div>
+            key: {e.key} keyCode: {e.keyCode} which: {e.which}
+          </div>
+        </>
+      )}
     </div>
   );
 };
