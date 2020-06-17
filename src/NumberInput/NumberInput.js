@@ -170,13 +170,6 @@ const NumberInput = ({
     }
   };
 
-  const isDecimalSymbol = char => {
-    // It's safe to check both '.' or ',' because the the thousands
-    // separator is not supported. Depending on the locale formatter,
-    // '.' or ',' will get formatted to the other.
-    return char === '.' || char === ',';
-  };
-
   const checkForBackspaceOrDeleteKey = e => {
     const { key } = e;
 
@@ -188,14 +181,14 @@ const NumberInput = ({
     if (
       key === 'Backspace' &&
       !isRangeSelected() &&
-      isDecimalSymbol(charLeftOfCursor)
+      charLeftOfCursor === decimalSeparator
     ) {
       e.preventDefault();
       setSelectionState(cursorPosition - 1);
     } else if (
       key === 'Delete' &&
       !isRangeSelected() &&
-      (isDecimalSymbol(charRightOfCursor) ||
+      (charRightOfCursor === decimalSeparator ||
         (cursorPosition === 0 && charRightOfCursor === '0'))
     ) {
       e.preventDefault();
