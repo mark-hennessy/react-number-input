@@ -27,6 +27,13 @@
       box-shadow: 0px 2px 20px rgba(0, 0, 0, 0.1);
       outline: 0;
     }
+
+    &::placeholder {
+      color: #a9a9a9;
+
+      // Firefox uses a lower opacity by default. Set it to 1 for cross browser consistency.
+      opacity: 1;
+    }
   }
 
   &.blue &__input {
