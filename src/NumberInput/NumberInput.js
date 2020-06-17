@@ -202,7 +202,7 @@ const NumberInput = ({
       setCursorPosition(cursorPosition + 1);
     }
     // Delete should delete the character to the right of the cursor or move
-    // the cursor to the right if a character can't be deleted
+    // the cursor to the right if the character can't be deleted
     else if (
       key === 'Delete' &&
       !isRangeSelected() &&
@@ -218,11 +218,11 @@ const NumberInput = ({
 
       setInputValueWithoutTriggeringOnChange(newInputValue);
       if (
-        // Delete from "{cursor}0,12" should move the cursor to the right
+        // Delete from "|0,12" should move the cursor to the right
         (cursorPosition < inputValue.indexOf(decimalSeparator) &&
           // the value will change, but length should not
           newInputValue.length === inputValue.length) ||
-        // Delete from "0,{cursor}00" should move the cursor to the right
+        // Delete from "0,|00" should move the cursor to the right
         (cursorPosition > inputValue.indexOf(decimalSeparator) &&
           // the value and length should be the same
           newInputValue === inputValue)
@@ -235,7 +235,7 @@ const NumberInput = ({
       // to trigger onChange
       setValue(newNumberValue);
     }
-    // Backspace from "0{cursor},00" should clear the input
+    // Backspace from "0|,00" should clear the input
     else if (
       key === 'Backspace' &&
       !isRangeSelected() &&
