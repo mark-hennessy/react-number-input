@@ -11,11 +11,14 @@ const DemoForm = ({ formName, blue, className }) => {
     return `${formName}_v${inputNum}`;
   };
 
+  let inputCounter = 1;
+
   const [state, setState] = useState({
-    [getInputName(1)]: null,
-    [getInputName(2)]: 12.34,
-    [getInputName(3)]: 12.34,
-    [getInputName(4)]: 12.34,
+    [getInputName(inputCounter++)]: null,
+    [getInputName(inputCounter++)]: 150,
+    [getInputName(inputCounter++)]: 12.34,
+    [getInputName(inputCounter++)]: 12.34,
+    [getInputName(inputCounter++)]: 12.34,
   });
 
   const connectToState = inputName => {
@@ -30,12 +33,20 @@ const DemoForm = ({ formName, blue, className }) => {
     };
   };
 
-  let inputCounter = 1;
+  inputCounter = 1;
 
   return (
     <form name={formName}>
       <Panel className={cn(CID, className)} blue={blue}>
-        <NumberInput {...connectToState(getInputName(inputCounter++))} ignoreEnterKey />
+        <NumberInput
+          {...connectToState(getInputName(inputCounter++))}
+          ignoreEnterKey
+        />
+        <NumberInput
+          {...connectToState(getInputName(inputCounter++))}
+          min={100}
+          max={200}
+        />
         <NumberInput
           {...connectToState(getInputName(inputCounter++))}
           placeholder='1,3'

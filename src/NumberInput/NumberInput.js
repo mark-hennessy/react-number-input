@@ -4,7 +4,6 @@ import { containsNumber, formatValue, parseValue } from './numberInputHelpers';
 import NumberInputArrowButton from '../NumberInputArrowButton/NumberInputArrowButton';
 import { buildDataCyString } from '../utils/cypressUtils';
 import './NumberInput.scss';
-import { isNumber } from '../utils/numberUtils';
 
 const CID = 'number-input';
 
@@ -70,30 +69,32 @@ const NumberInput = ({
     return [input.selectionStart, input.selectionEnd, input.selectionDirection];
   };
 
+  const snapshotSelectionState = () => {
+    selectionStateSnapshotRef.current = getSelectionState();
+  };
+
+  const setCursorPosition = position => {
+    getInput().setSelectionRange(position, position);
+  };
+
+  const restoreSelectionState = () => {
+    const selectionState = selectionStateSnapshotRef.current;
+    if (!selectionState || selectionState.length < 2) {
+      return;
+    }
+
+    getInput().setSelectionRange(...selectionState);
+  };
+
   const isRangeSelected = () => {
     const [selectionStart, selectionEnd] = getSelectionState();
     return selectionStart !== selectionEnd;
   };
 
-  const snapshotSelectionState = () => {
-    selectionStateSnapshotRef.current = getSelectionState();
-  };
-
-  const setSelectionState = selectionState => {
-    if (!selectionState) {
-      return;
-    }
-
-    if (isNumber(selectionState)) {
-      getInput().setSelectionRange(selectionState, selectionState);
-    } else if (selectionState.length >= 2) {
-      getInput().setSelectionRange(...selectionState);
-    }
-  };
-
-  const restoreSelectionState = () => {
-    const selectionStateSnapshot = selectionStateSnapshotRef.current;
-    setSelectionState(selectionStateSnapshot);
+  const isAllTextSelected = () => {
+    const [selectionStart, selectionEnd] = getSelectionState();
+    const selectionLength = selectionEnd - selectionStart;
+    return selectionLength === getInputValue().length;
   };
 
   const setValue = number => {
@@ -174,7 +175,7 @@ const NumberInput = ({
       charLeftOfCursor === decimalSeparator
     ) {
       e.preventDefault();
-      setSelectionState(cursorPosition - 1);
+      setCursorPosition(cursorPosition - 1);
     } else if (
       key === 'Delete' &&
       !isRangeSelected() &&
@@ -182,7 +183,7 @@ const NumberInput = ({
         (cursorPosition === 0 && charRightOfCursor === '0'))
     ) {
       e.preventDefault();
-      setSelectionState(cursorPosition + 1);
+      setCursorPosition(cursorPosition + 1);
     }
   };
 
@@ -191,19 +192,26 @@ const NumberInput = ({
     const inputValue = getInputValue();
 
     // allow the user to type '-' into an empty input
-    if (key === '-' && !inputValue.length) {
+    if (key === '-' && (!inputValue.length || isAllTextSelected())) {
       e.preventDefault();
       setInputValue('-');
     }
-    // convert -0 to 0 or 0,00 € depending on formatting
+    // convert -0 to 0 or 0,00 € or 100,00 € depending on formatting and
+    // min/max value
     else if (
       inputValue.startsWith('-') &&
       inputValue.length === 1 &&
       key === '0'
     ) {
       e.preventDefault();
-      setInputValue(format(0));
-      setSelectionState(1);
+      const newValue = format(0);
+      setInputValue(newValue);
+      if (newValue.includes(decimalSeparator)) {
+        setCursorPosition(newValue.indexOf(decimalSeparator));
+      } else {
+        const newValueWithoutSuffix = newValue.replace(suffix, '');
+        setCursorPosition(newValueWithoutSuffix.length);
+      }
     }
   };
 
@@ -214,7 +222,7 @@ const NumberInput = ({
 
     if (key === ' ' && !isRangeSelected()) {
       e.preventDefault();
-      setSelectionState(cursorPosition + 1);
+      setCursorPosition(cursorPosition + 1);
     }
   };
 
