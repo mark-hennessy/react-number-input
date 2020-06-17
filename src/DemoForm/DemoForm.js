@@ -17,7 +17,7 @@ const DemoForm = ({ formName, blue, className }) => {
   const [state, setState] = useState({
     [getInputName(inputCounter++)]: null,
     [getInputName(inputCounter++)]: 100,
-    [getInputName(inputCounter++)]: 12.34,
+    [getInputName(inputCounter++)]: 1.6,
     [getInputName(inputCounter++)]: 12.34,
     [getInputName(inputCounter++)]: 12.34,
   });
