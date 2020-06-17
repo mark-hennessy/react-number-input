@@ -181,6 +181,7 @@ const NumberInput = ({
     const charLeftOfCursor = inputValue.charAt(cursorPosition - 1);
     const charRightOfCursor = inputValue.charAt(cursorPosition);
 
+    // logic to jump over the decimalSeparator
     if (
       key === 'Backspace' &&
       !isRangeSelected() &&
@@ -196,6 +197,16 @@ const NumberInput = ({
     ) {
       e.preventDefault();
       setCursorPosition(cursorPosition + 1);
+    }
+    // logic to clear the input without needing to select a range
+    else if (
+      key === 'Backspace' &&
+      !isRangeSelected() &&
+      cursorPosition === 1 &&
+      parse(inputValue.substring(1, inputValue.length), false) === 0
+    ) {
+      e.preventDefault();
+      setValue(null);
     }
   };
 
