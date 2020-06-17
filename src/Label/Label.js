@@ -5,8 +5,8 @@ import './Label.scss';
 
 const CID = 'label';
 
-const Label = ({ className, children }) => {
-  return <div className={cn(CID, className)}>{children}</div>;
+const Label = ({ large, className, children }) => {
+  return <div className={cn(CID, { large }, className)}>{children}</div>;
 };
 
 export default Label;
