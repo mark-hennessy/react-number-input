@@ -31,8 +31,13 @@
     &::placeholder {
       color: #a9a9a9;
 
-      // Firefox uses a lower opacity by default. Set it to 1 for cross browser consistency.
+      // prevent Firefox from setting a lower opacity
       opacity: 1;
+    }
+
+    &::-ms-clear {
+      // prevent Edge from showing an 'x' clear button
+      display: none;
     }
   }
 
