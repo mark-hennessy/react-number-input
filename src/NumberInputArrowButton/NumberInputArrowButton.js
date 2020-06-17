@@ -33,23 +33,37 @@ const NumberInputArrowButton = ({
     onClick(e);
   };
 
+  const handleInteractionStart = e => {
+    // needed because this React synthetic event is reused in timeout callbacks
+    e.persist();
+
+    // prevents the button from stealing focus from the input and prevents
+    // mobile devices from creating a virtual onMouseDown after onTouchStart
+    e.preventDefault();
+
+    clickAndRepeat(e);
+  };
+
+  const handleInteractionEnd = e => {
+    // prevents mobile devices from creating a virtual onMouseUp after onTouchEnd
+    e.preventDefault();
+
+    clearCurrentTimeout();
+  };
+
   return (
     <button
       className={cn(CID, { disabled }, className)}
       type='button'
       disabled={disabled}
-      onMouseDown={e => {
-        // needed because this React synthetic event is reused in timeout callbacks
-        e.persist();
-
-        // prevents the button from stealing focus from the input
-        e.preventDefault();
-
-        clickAndRepeat(e);
-      }}
-      onMouseUp={clearCurrentTimeout}
-      // for when the mouse leaves the button while pressed down
-      onMouseLeave={clearCurrentTimeout}
+      onMouseDown={handleInteractionStart}
+      onMouseUp={handleInteractionEnd}
+      onMouseLeave={handleInteractionEnd}
+      // touch events are needed because mobile deices only fire virtual mouse
+      // events for short taps and not long touches
+      onTouchStart={handleInteractionStart}
+      onTouchEnd={handleInteractionEnd}
+      onTouchMove={handleInteractionEnd}
       tabIndex={-1}
     >
       <NumberInputArrowButtonIcon

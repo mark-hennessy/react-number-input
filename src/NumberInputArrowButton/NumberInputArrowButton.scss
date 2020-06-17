@@ -12,6 +12,10 @@
   color: inherit;
   background: none;
 
+  // to fix the following console warning in chrome dev tools when emulating a mobile device:
+  // "Unable to preventDefault inside passive event listener due to target being treated as passive."
+  touch-action: none;
+
   &.disabled {
     cursor: auto;
   }
