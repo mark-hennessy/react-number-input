@@ -33,6 +33,24 @@ const NumberInput = ({
 
   const suffix = currency ? ` ${currencySymbol}` : '';
 
+  const parse = (numberOrString, bound) => {
+    return bound
+      ? parseValue(numberOrString, precision, min, max, decimalSeparator)
+      : parseValue(numberOrString, precision, null, null, decimalSeparator);
+  };
+
+  const format = numberOrString => {
+    return formatValue(
+      numberOrString,
+      precision,
+      // bounding to min/max will happen onBlur
+      null,
+      null,
+      decimalSeparator,
+      suffix,
+    );
+  };
+
   const getInput = () => {
     return inputRef.current;
   };
@@ -41,27 +59,12 @@ const NumberInput = ({
     return getInput().value;
   };
 
-  const setInputValue = value => {
+  const setInputValueWithoutTriggeringOnChange = value => {
     getInput().value = value;
   };
 
-  const parse = numberOrString => {
-    return parseValue(numberOrString, precision, min, max, decimalSeparator);
-  };
-
-  const format = numberOrString => {
-    return formatValue(
-      numberOrString,
-      precision,
-      min,
-      max,
-      decimalSeparator,
-      suffix,
-    );
-  };
-
-  const getInputNumberValue = () => {
-    return parse(getInputValue());
+  const getInputNumberValue = bound => {
+    return parse(getInputValue(), bound);
   };
 
   const getSelectionState = () => {
@@ -99,21 +102,21 @@ const NumberInput = ({
 
   const setValue = number => {
     snapshotSelectionState();
-    onChange(number, getInput());
+    onChange(number, getInput().name);
   };
 
-  const forceInputValueToNumber = () => {
-    // if inputValue is not parsable to a number, then set it to null so it doesn't get
-    // converted to 0. The input wouldn't be clearable otherwise.
+  const forceInputValueToNumber = bound => {
+    // if inputValue is not parsable to a number, then set it to null so it
+    // doesn't get converted to 0. The input wouldn't be clearable otherwise.
     const number = containsNumber(getInputValue(), decimalSeparator)
-      ? getInputNumberValue()
+      ? getInputNumberValue(bound)
       : null;
 
     setValue(number);
   };
 
   const onChangeWrapper = () => {
-    forceInputValueToNumber();
+    forceInputValueToNumber(false);
   };
 
   const calculateStepMultiplier = e => {
@@ -129,7 +132,16 @@ const NumberInput = ({
     const stepMultiplier = calculateStepMultiplier(e);
     const minStepSize = precision > 0 ? precision / 10 : 1;
     const stepSize = Math.max(step * stepMultiplier, minStepSize);
-    setValue(parse(getInputNumberValue() + direction * stepSize));
+    const newNumberValue = getInputNumberValue(true) + stepSize * direction;
+    const newBoundNumberValue = parse(newNumberValue, true);
+
+    // move the cursor to the end
+    const predictedValue = format(newBoundNumberValue);
+    setInputValueWithoutTriggeringOnChange(predictedValue);
+    setCursorPosition(predictedValue.replace(suffix, '').length);
+
+    // to trigger onChange
+    setValue(newBoundNumberValue);
   };
 
   const onStepUp = e => {
@@ -194,7 +206,7 @@ const NumberInput = ({
     // allow the user to type '-' into an empty input
     if (key === '-' && (!inputValue.length || isAllTextSelected())) {
       e.preventDefault();
-      setInputValue('-');
+      setInputValueWithoutTriggeringOnChange('-');
     }
     // convert -0 to 0 or 0,00 € depending on formatting
     else if (
@@ -203,7 +215,7 @@ const NumberInput = ({
       key === '0'
     ) {
       e.preventDefault();
-      setInputValue(format(0));
+      setInputValueWithoutTriggeringOnChange(format(0));
       setCursorPosition(1);
     }
   };
@@ -242,7 +254,7 @@ const NumberInput = ({
   const onBlurWrapper = e => {
     hasFocusRef.current = false;
 
-    forceInputValueToNumber();
+    forceInputValueToNumber(true);
 
     if (onBlur) {
       onBlur(e);

@@ -26,8 +26,8 @@ const DemoForm = ({ formName, blue, className }) => {
     return {
       name: inputName,
       value: state[inputName],
-      onChange: (value, input) => {
-        setState({ ...state, [input.name]: value });
+      onChange: (value, name) => {
+        setState({ ...state, [name]: value });
       },
       placeholder: 'value',
       blue: !blue,
