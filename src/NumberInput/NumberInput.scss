@@ -13,7 +13,7 @@
   &__input {
     width: 100%;
     padding: 0.69rem 1rem;
-    border: 0;
+    border: 1px solid transparent;
     font-size: 1rem;
     line-height: 1.21428571em;
     font-family: "Nunito", sans-serif;
@@ -44,6 +44,11 @@
   &.blue &__input {
     // also applies to disabled background color
     background: #ebf9fd;
+
+    &:focus {
+      box-shadow: none;
+      border: 1px solid #07a9ef;
+    }
   }
 
   &.disabled &__input {
