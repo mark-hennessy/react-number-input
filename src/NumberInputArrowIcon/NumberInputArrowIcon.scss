@@ -1,6 +1,6 @@
-.number-input-arrow-button-icon {
+.number-input-arrow-icon {
   width: 100%;
-  fill: rgba(0, 0, 0, 0.7);
+  fill: #4C4C4C;
 
   &.down {
     transform: rotate(180deg);
@@ -11,6 +11,7 @@
   }
 
   &.disabled {
-    opacity: 0.5;
+    // matches disabled input color
+    fill: #7F7F7F;
   }
 }

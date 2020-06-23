@@ -1,11 +1,11 @@
 import React from 'react';
 import cn from 'classnames';
 
-import './NumberInputArrowButtonIcon.scss';
+import './NumberInputArrowIcon.scss';
 
-const CID = 'number-input-arrow-button-icon';
+const CID = 'number-input-arrow-icon';
 
-const NumberInputArrowButtonIcon = ({
+const NumberInputArrowIcon = ({
   direction,
   blue,
   disabled,
@@ -21,4 +21,4 @@ const NumberInputArrowButtonIcon = ({
   );
 };
 
-export default NumberInputArrowButtonIcon;
+export default NumberInputArrowIcon;

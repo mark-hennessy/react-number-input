@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import cn from 'classnames';
-import NumberInputArrowButtonIcon from '../NumberInputArrowButtonIcon/NumberInputArrowButtonIcon';
+import NumberInputArrowIcon from '../NumberInputArrowIcon/NumberInputArrowIcon';
 
 import './NumberInputArrowButton.scss';
 
@@ -66,7 +66,7 @@ const NumberInputArrowButton = ({
       onTouchMove={handleInteractionEnd}
       tabIndex={-1}
     >
-      <NumberInputArrowButtonIcon
+      <NumberInputArrowIcon
         direction={direction}
         blue={blue}
         disabled={disabled}

@@ -4,6 +4,7 @@ import { containsNumber, formatValue, parseValue } from './numberInputHelpers';
 import NumberInputArrowButton from '../NumberInputArrowButton/NumberInputArrowButton';
 import { buildDataCyString } from '../utils/cypressUtils';
 import './NumberInput.scss';
+import StandardInput from '../StandardInput/StandardInput';
 
 const CID = 'number-input';
 
@@ -201,7 +202,7 @@ const NumberInput = ({
       e.preventDefault();
       setCursorPosition(cursorPosition + 1);
     }
-    // Delete should delete the character to the right of the cursor or move
+      // Delete should delete the character to the right of the cursor or move
     // the cursor to the right if the character can't be deleted
     else if (
       key === 'Delete' &&
@@ -324,15 +325,16 @@ const NumberInput = ({
   });
 
   return (
-    <div className={cn(CID, { blue, disabled }, className)}>
-      <input
+    <div className={cn(CID, className)}>
+      <StandardInput
         ref={inputRef}
         className={`${CID}__input`}
-        data-cy={buildDataCyString(`${name}-number-input`)}
+        dataCy={buildDataCyString(`${name}-number-input`)}
         type='text'
         name={name}
         value={format(value)}
         placeholder={placeholder}
+        blue={blue}
         disabled={disabled}
         onChange={onChangeWrapper}
         onKeyDown={onKeyDownWrapper}

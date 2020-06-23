@@ -2,59 +2,6 @@
   display: inline-block;
   position: relative;
 
-  // so opacity can be set on the input when disabled
-  background: white;
-
-  &,
-  &__input {
-    border-radius: 4px;
-  }
-
-  &__input {
-    width: 100%;
-    padding: 0.69rem 1rem;
-    border: 1px solid transparent;
-    font-size: 1rem;
-    line-height: 1.21428571em;
-    font-family: "Nunito", sans-serif;
-    color: black;
-
-    // also applies to disabled background color
-    background: white;
-
-    &:focus {
-      color: #07a9ef;
-      box-shadow: 0px 2px 20px rgba(0, 0, 0, 0.1);
-      outline: 0;
-    }
-
-    &::placeholder {
-      color: #a9a9a9;
-
-      // prevent Firefox from setting a lower opacity
-      opacity: 1;
-    }
-
-    &::-ms-clear {
-      // prevent Edge from showing an 'x' clear button
-      display: none;
-    }
-  }
-
-  &.blue &__input {
-    // also applies to disabled background color
-    background: #ebf9fd;
-
-    &:focus {
-      box-shadow: none;
-      border: 1px solid #07a9ef;
-    }
-  }
-
-  &.disabled &__input {
-    opacity: 0.5;
-  }
-
   &__arrow-buttons {
     position: absolute;
     top: 2px;
