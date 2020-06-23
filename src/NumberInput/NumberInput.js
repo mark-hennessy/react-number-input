@@ -24,6 +24,7 @@ const NumberInput = ({
   disabled,
   ignoreEnterKey,
   onChange,
+  onValueChange,
   onKeyDown,
   onFocus,
   onBlur,
@@ -102,23 +103,31 @@ const NumberInput = ({
     return selectionLength === getInputValue().length;
   };
 
-  const setValue = number => {
+  const setValue = (e, number) => {
     snapshotSelectionState();
-    onChange(number, getInput().name);
+    e.target.value = number;
+
+    if (onChange) {
+      onChange(e);
+    }
+
+    if (onValueChange) {
+      onValueChange(number, getInput().name);
+    }
   };
 
-  const forceInputValueToNumber = bound => {
+  const forceInputValueToNumber = (e, bound) => {
     // if inputValue is not parsable to a number, then set it to null so it
     // doesn't get converted to 0. The input wouldn't be clearable otherwise.
     const number = containsNumber(getInputValue(), decimalSeparator)
       ? getInputNumberValue(bound)
       : null;
 
-    setValue(number);
+    setValue(e, number);
   };
 
-  const onChangeWrapper = () => {
-    forceInputValueToNumber(false);
+  const onChangeWrapper = e => {
+    forceInputValueToNumber(e, false);
   };
 
   const calculateStepMultiplier = e => {
@@ -145,7 +154,7 @@ const NumberInput = ({
     setCursorPosition(newInputValue.replace(suffix, '').length);
 
     // to trigger onChange
-    setValue(newNumberValue);
+    setValue(e, newNumberValue);
   };
 
   const onStepUp = e => {
@@ -235,7 +244,7 @@ const NumberInput = ({
       }
 
       // to trigger onChange
-      setValue(newNumberValue);
+      setValue(e, newNumberValue);
     }
     // Backspace from "0|,00" should clear the input
     else if (
@@ -245,7 +254,7 @@ const NumberInput = ({
       parse(inputValue.substring(1, inputValue.length), false) === 0
     ) {
       e.preventDefault();
-      setValue(null);
+      setValue(e, null);
     }
   };
 
@@ -309,7 +318,7 @@ const NumberInput = ({
 
     // this is needed to clear invalid values such as '-' without a number
     // after it, and to bound valid values to min/max if specified
-    forceInputValueToNumber(true);
+    forceInputValueToNumber(e, true);
 
     if (onBlur) {
       onBlur(e);

@@ -4,6 +4,7 @@ import Panel from '../Panel/Panel';
 import NumberInput from '../NumberInput/NumberInput';
 import Label from '../Label/Label';
 import './DemoForm.scss';
+import StandardInput from '../StandardInput/StandardInput';
 
 const CID = 'demo-form';
 
@@ -20,13 +21,15 @@ const DemoForm = ({ formName, blue, className }) => {
     [getInputName(inputCounter++)]: 1.6,
     [getInputName(inputCounter++)]: 12.34,
     [getInputName(inputCounter++)]: 12.34,
+    [getInputName(inputCounter++)]: 12.34,
+    [getInputName(inputCounter++)]: 'text',
   });
 
   const connectToState = inputName => {
     return {
       name: inputName,
       value: state[inputName],
-      onChange: (value, name) => {
+      onValueChange: (value, name) => {
         setState({ ...state, [name]: value });
       },
       placeholder: 'value',
@@ -78,6 +81,11 @@ const DemoForm = ({ formName, blue, className }) => {
           precision={2}
           currency
           error
+        />
+        <Label>Text Input (ALL CAPS)</Label>
+        <StandardInput
+          {...connectToState(getInputName(inputCounter++))}
+          valueTransform={v => v.toUpperCase()}
         />
 
         <div className={`${CID}__form-state`}>

@@ -9,12 +9,13 @@ const StandardInput = ({
   type,
   name,
   value,
+  valueTransform,
   placeholder,
   blue,
   error,
   disabled,
-  ignoreEnterKey,
   onChange,
+  onValueChange,
   onKeyDown,
   onFocus,
   onBlur,
@@ -22,6 +23,24 @@ const StandardInput = ({
   className,
   dataCy,
 }, ref) => {
+  const transform = valueTransform || (v => v);
+  const stringValue = value !== undefined && value !== null ? `${value}` : '';
+  const transformedValue = transform(stringValue);
+
+  const onChangeWrapper = e => {
+    const { name, value } = e.target;
+    const newValue = transform(value);
+    e.target.value = newValue;
+
+    if (onChange) {
+      onChange(e);
+    }
+
+    if (onValueChange) {
+      onValueChange(newValue, name);
+    }
+  };
+
   return (
     <input
       ref={ref}
@@ -29,14 +48,15 @@ const StandardInput = ({
       data-cy={dataCy || buildDataCyString(`${name}-input`)}
       type={type || 'text'}
       name={name}
-      value={value}
+      value={transformedValue}
       placeholder={placeholder}
       disabled={disabled}
-      onChange={onChange}
+      onChange={onChangeWrapper}
       onKeyDown={onKeyDown}
       onFocus={onFocus}
       onBlur={onBlur}
       onSelect={onSelect}
+      spellCheck='false'
     />
   );
 };
