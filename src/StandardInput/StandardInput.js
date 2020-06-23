@@ -13,6 +13,7 @@ const StandardInput = ({
   blue,
   error,
   disabled,
+  bold,
   centeredText,
   allCaps,
   onChange,
@@ -53,7 +54,7 @@ const StandardInput = ({
   return (
     <input
       ref={ref}
-      className={cn(CID, { blue, error, disabled, centeredText }, className)}
+      className={cn(CID, { blue, error, disabled, bold, centeredText }, className)}
       data-cy={dataCy || buildDataCyString(`${name}-input`)}
       type={type || 'text'}
       name={name}
