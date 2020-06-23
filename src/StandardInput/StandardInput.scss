@@ -6,7 +6,6 @@
   font-family: "Nunito", sans-serif;
   font-size: 1rem;
   line-height: 1.21428571em;
-  color: black;
 
   &:focus {
     color: #07a9ef;
@@ -37,6 +36,17 @@
     &:focus {
       box-shadow: none;
       border: 1px solid #07a9ef;
+    }
+  }
+
+  &.error {
+    background: #fff6f6;
+    color: #f2486a;
+    border: 1px solid #f2486a;
+
+    &:focus {
+      box-shadow: none;
+      border: 1px solid #f2486a;
     }
   }
 

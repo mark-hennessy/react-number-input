@@ -9,6 +9,7 @@ const CID = 'number-input-arrow-button';
 const NumberInputArrowButton = ({
   direction,
   blue,
+  error,
   disabled,
   onClick,
   className,
@@ -69,6 +70,7 @@ const NumberInputArrowButton = ({
       <NumberInputArrowIcon
         direction={direction}
         blue={blue}
+        error={error}
         disabled={disabled}
       />
     </button>

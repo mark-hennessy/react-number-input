@@ -10,6 +10,10 @@
     fill: #2d9cdb;
   }
 
+  &.error {
+    fill: #f2486a;
+  }
+
   &.disabled {
     // matches disabled input color
     fill: #7F7F7F;

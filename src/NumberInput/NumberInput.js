@@ -16,10 +16,11 @@ const NumberInput = ({
   step = 1,
   min,
   max,
-  blue,
   decimalSeparator = ',',
   currency,
   currencySymbol = '€',
+  blue,
+  error,
   disabled,
   ignoreEnterKey,
   onChange,
@@ -335,6 +336,7 @@ const NumberInput = ({
         value={format(value)}
         placeholder={placeholder}
         blue={blue}
+        error={error}
         disabled={disabled}
         onChange={onChangeWrapper}
         onKeyDown={onKeyDownWrapper}
@@ -346,12 +348,14 @@ const NumberInput = ({
         <NumberInputArrowButton
           direction='up'
           blue={blue}
+          error={error}
           disabled={disabled}
           onClick={onStepUp}
         />
         <NumberInputArrowButton
           direction='down'
           blue={blue}
+          error={error}
           disabled={disabled}
           onClick={onStepDown}
         />

@@ -72,6 +72,13 @@ const DemoForm = ({ formName, blue, className }) => {
           currency
           disabled
         />
+        <Label>Decimal Number, Currency, Error</Label>
+        <NumberInput
+          {...connectToState(getInputName(inputCounter++))}
+          precision={2}
+          currency
+          error
+        />
 
         <div className={`${CID}__form-state`}>
           {JSON.stringify(state, undefined, 2)}
