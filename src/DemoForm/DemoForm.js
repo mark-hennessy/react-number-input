@@ -85,7 +85,7 @@ const DemoForm = ({ formName, blue, className }) => {
         <Label>Text Input (ALL CAPS)</Label>
         <StandardInput
           {...connectToState(getInputName(inputCounter++))}
-          valueTransform={v => v.toUpperCase()}
+          allCaps
         />
 
         <div className={`${CID}__form-state`}>

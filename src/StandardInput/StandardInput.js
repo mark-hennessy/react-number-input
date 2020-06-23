@@ -9,11 +9,11 @@ const StandardInput = ({
   type,
   name,
   value,
-  valueTransform,
   placeholder,
   blue,
   error,
   disabled,
+  allCaps,
   onChange,
   onValueChange,
   onKeyDown,
@@ -23,13 +23,21 @@ const StandardInput = ({
   className,
   dataCy,
 }, ref) => {
-  const transform = valueTransform || (v => v);
-  const stringValue = value !== undefined && value !== null ? `${value}` : '';
-  const transformedValue = transform(stringValue);
+  const transformValue = rawValue => {
+    // convert undefined and null to ''
+    // convert 5 to '5'
+    let newValue = rawValue !== undefined && rawValue !== null ? `${rawValue}` : '';
+
+    if (allCaps) {
+      newValue = rawValue.toUpperCase();
+    }
+
+    return newValue;
+  };
 
   const onChangeWrapper = e => {
     const { name, value } = e.target;
-    const newValue = transform(value);
+    const newValue = transformValue(value);
     e.target.value = newValue;
 
     if (onChange) {
@@ -48,7 +56,7 @@ const StandardInput = ({
       data-cy={dataCy || buildDataCyString(`${name}-input`)}
       type={type || 'text'}
       name={name}
-      value={transformedValue}
+      value={transformValue(value)}
       placeholder={placeholder}
       disabled={disabled}
       onChange={onChangeWrapper}
