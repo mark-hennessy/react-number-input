@@ -5,12 +5,19 @@
   border-radius: 4px;
   font-family: 'Nunito', sans-serif;
   font-size: 1rem;
-  line-height: 1.21428571em;
+  line-height: 1.188rem;
+
+  // so a white input looks good on a white background even though the border is hidden/transparent
+  box-shadow: 0px 2px 20px rgba(0, 0, 0, 0.1);
 
   &:focus {
     color: #07a9ef;
-    box-shadow: 0px 2px 20px rgba(0, 0, 0, 0.1);
     outline: 0;
+
+    &::placeholder {
+      // make the placeholder 20% darker when focused
+      color: #767676;
+    }
   }
 
   &::placeholder {
@@ -27,30 +34,29 @@
 
   &.blue {
     background: #ebf9fd;
+    box-shadow: none;
 
     &.disabled {
       background: #ebf9fd;
     }
 
     &:focus {
-      box-shadow: none;
       border: 1px solid #07a9ef;
     }
   }
 
   &.error {
     background: #fff6f6;
+    box-shadow: none;
     color: #f2486a;
-    border: 1px solid #f2486a;
 
     &:focus {
-      box-shadow: none;
       border: 1px solid #f2486a;
     }
   }
 
   &.disabled {
     background: white;
-    color: #7F7F7F;
+    color: #7f7f7f;
   }
 }
