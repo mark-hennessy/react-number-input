@@ -3,7 +3,7 @@
   padding: 0.69rem 1rem;
   border: 1px solid transparent;
   border-radius: 4px;
-  font-family: "Nunito", sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 1rem;
   line-height: 1.21428571em;
 
@@ -26,7 +26,6 @@
   }
 
   &.blue {
-    // also applies to disabled background color
     background: #ebf9fd;
 
     &.disabled {
