@@ -14,7 +14,11 @@ const NumberInputArrowIcon = ({
 }) => {
   return (
     <svg
-      className={cn(CID, { [direction]: direction, blue, error, disabled }, className)}
+      className={cn(
+        CID,
+        { [direction]: direction, blue, error, disabled },
+        className,
+      )}
       viewBox='0 0 2 1'
     >
       <polygon points='0,1 2,1 1,0' />

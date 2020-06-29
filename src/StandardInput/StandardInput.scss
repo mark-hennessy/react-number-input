@@ -1,51 +1,63 @@
-.standard-input {
+$CID: '.standard-input';
+
+#{$CID} {
+  display: inline-block;
+  position: relative;
   width: 100%;
-  padding: 0.69rem 1rem;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 1rem;
-  line-height: 1.188rem;
 
-  // so a white input looks good on a white background even though the border is hidden/transparent
-  box-shadow: 0px 2px 20px rgba(0, 0, 0, 0.1);
+  #{$CID}__input {
+    width: 100%;
+    padding: 0.69rem 1rem;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    line-height: 1.188rem;
 
-  &:focus {
-    color: #07a9ef;
-    outline: 0;
+    // so a white input looks good on a white background even though the border is hidden/transparent
+    box-shadow: 0px 2px 20px rgba(0, 0, 0, 0.1);
+
+    &:focus {
+      color: #07a9ef;
+      outline: 0;
+    }
 
     &::placeholder {
+      color: #a9a9a9;
+
+      // prevent Firefox from setting a lower opacity
+      opacity: 1;
+    }
+
+    &:focus::placeholder {
       // make the placeholder 20% darker when focused
       color: #767676;
     }
+
+    &::-ms-clear {
+      // prevent Edge from showing an 'x' clear button
+      display: none;
+    }
   }
 
-  &::placeholder {
-    color: #a9a9a9;
-
-    // prevent Firefox from setting a lower opacity
-    opacity: 1;
+  &.has-icon-content #{$CID}__input {
+    padding-right: 1.75rem;
   }
 
-  &::-ms-clear {
-    // prevent Edge from showing an 'x' clear button
-    display: none;
-  }
-
-  &.blue {
+  &.blue #{$CID}__input {
     background: #ebf9fd;
     box-shadow: none;
-
-    &.disabled {
-      background: #ebf9fd;
-    }
 
     &:focus {
       border: 1px solid #07a9ef;
     }
   }
 
-  &.error {
+  &.blue.disabled #{$CID}__input {
+    background: #ebf9fd;
+  }
+
+  &.error #{$CID}__input {
     background: #fff6f6;
     box-shadow: none;
     color: #f2486a;
@@ -55,8 +67,18 @@
     }
   }
 
-  &.disabled {
+  &.disabled #{$CID}__input {
     background: white;
     color: #7f7f7f;
+  }
+
+  #{$CID}__icon-container {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    bottom: 2px;
+
+    display: flex;
+    align-items: center;
   }
 }

@@ -42,7 +42,7 @@ const DemoForm = ({ formName, blue, className }) => {
   return (
     <form name={formName}>
       <Panel className={cn(CID, className)} blue={blue}>
-        <Label>Whole Number</Label>
+        <Label>Whole Number, No Submit on Enter</Label>
         <NumberInput
           {...connectToState(getInputName(inputCounter++))}
           ignoreEnterKey

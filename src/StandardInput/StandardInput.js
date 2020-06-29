@@ -6,24 +6,28 @@ import createInputTransformationProps from '../utils/createInputTransformationPr
 
 const CID = 'standard-input';
 
-const StandardInput = ({
-  type,
-  name,
-  value,
-  placeholder,
-  blue,
-  error,
-  disabled,
-  allCaps,
-  onChange,
-  onValueChange,
-  onKeyDown,
-  onFocus,
-  onBlur,
-  onSelect,
-  className,
-  dataCy,
-}, ref) => {
+const StandardInput = (
+  {
+    type,
+    name,
+    value,
+    placeholder,
+    iconContent,
+    blue,
+    error,
+    disabled,
+    allCaps,
+    onChange,
+    onValueChange,
+    onKeyDown,
+    onFocus,
+    onBlur,
+    onSelect,
+    className,
+    dataCy,
+  },
+  ref,
+) => {
   const { transformedValue, onChangeWrapper } = createInputTransformationProps({
     value,
     allCaps,
@@ -32,22 +36,33 @@ const StandardInput = ({
   });
 
   return (
-    <input
-      ref={ref}
-      className={cn(CID, { blue, error, disabled }, className)}
-      data-cy={dataCy || buildDataCyString(`${name}-input`)}
-      type={type || 'text'}
-      name={name}
-      value={transformedValue}
-      placeholder={placeholder}
-      disabled={disabled}
-      onChange={onChangeWrapper}
-      onKeyDown={onKeyDown}
-      onFocus={onFocus}
-      onBlur={onBlur}
-      onSelect={onSelect}
-      spellCheck='false'
-    />
+    <div
+      className={cn(
+        CID,
+        { 'has-icon-content': !!iconContent, blue, error, disabled },
+        className,
+      )}
+      data-cy={dataCy || buildDataCyString(name, 'input')}
+    >
+      <input
+        ref={ref}
+        className={`${CID}__input`}
+        type={type || 'text'}
+        name={name}
+        value={transformedValue}
+        placeholder={placeholder}
+        disabled={disabled}
+        onChange={onChangeWrapper}
+        onKeyDown={onKeyDown}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        onSelect={onSelect}
+        spellCheck='false'
+      />
+      {iconContent && (
+        <div className={`${CID}__icon-container`}>{iconContent}</div>
+      )}
+    </div>
   );
 };
 

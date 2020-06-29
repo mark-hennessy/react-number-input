@@ -1,10 +1,9 @@
 import React, { useLayoutEffect, useRef } from 'react';
 import cn from 'classnames';
 import { containsNumber, formatValue, parseValue } from './numberInputHelpers';
-import NumberInputArrowButton from '../NumberInputArrowButton/NumberInputArrowButton';
 import { buildDataCyString } from '../utils/cypressUtils';
-import './NumberInput.scss';
 import StandardInput from '../StandardInput/StandardInput';
+import NumberInputArrowButtons from '../NumberInputArrowButtons/NumberInputArrowButtons';
 
 const CID = 'number-input';
 
@@ -29,6 +28,7 @@ const NumberInput = ({
   onFocus,
   onBlur,
   className,
+  dataCy,
 }) => {
   const inputRef = useRef(null);
   const hasFocusRef = useRef(false);
@@ -212,7 +212,7 @@ const NumberInput = ({
       e.preventDefault();
       setCursorPosition(cursorPosition + 1);
     }
-      // Delete should delete the character to the right of the cursor or move
+    // Delete should delete the character to the right of the cursor or move
     // the cursor to the right if the character can't be deleted
     else if (
       key === 'Delete' &&
@@ -335,41 +335,32 @@ const NumberInput = ({
   });
 
   return (
-    <div className={cn(CID, className)}>
-      <StandardInput
-        ref={inputRef}
-        className={`${CID}__input`}
-        dataCy={buildDataCyString(`${name}-number-input`)}
-        type='text'
-        name={name}
-        value={format(value)}
-        placeholder={placeholder}
-        blue={blue}
-        error={error}
-        disabled={disabled}
-        onChange={onChangeWrapper}
-        onKeyDown={onKeyDownWrapper}
-        onFocus={onFocusWrapper}
-        onBlur={onBlurWrapper}
-        onSelect={snapshotSelectionState}
-      />
-      <div className={`${CID}__arrow-buttons`}>
-        <NumberInputArrowButton
-          direction='up'
+    <StandardInput
+      ref={inputRef}
+      className={cn(CID, className)}
+      dataCy={dataCy || buildDataCyString(name, 'number-input')}
+      type='text'
+      name={name}
+      value={format(value)}
+      placeholder={placeholder}
+      iconContent={
+        <NumberInputArrowButtons
           blue={blue}
           error={error}
           disabled={disabled}
-          onClick={onStepUp}
+          onStepUp={onStepUp}
+          onStepDown={onStepDown}
         />
-        <NumberInputArrowButton
-          direction='down'
-          blue={blue}
-          error={error}
-          disabled={disabled}
-          onClick={onStepDown}
-        />
-      </div>
-    </div>
+      }
+      blue={blue}
+      error={error}
+      disabled={disabled}
+      onChange={onChangeWrapper}
+      onKeyDown={onKeyDownWrapper}
+      onFocus={onFocusWrapper}
+      onBlur={onBlurWrapper}
+      onSelect={snapshotSelectionState}
+    />
   );
 };
 
