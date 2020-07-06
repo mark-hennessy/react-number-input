@@ -1,5 +1,7 @@
 import {
   containsNumber,
+  findCharAdditions,
+  findKeyFromDiff,
   formatValue,
   parseToNumber,
   parseValue,
@@ -221,6 +223,67 @@ describe('numberInputHelpers', () => {
 
     it('supports suffix', () => {
       expect(formatValue(12.5, 2, null, null, ',', ' €')).toBe('12,50 €');
+    });
+  });
+
+  describe('findCharAdditions', () => {
+    it('finds additions', () => {
+      expect(findCharAdditions('', '')).toEqual([]);
+      expect(findCharAdditions('12', '12')).toEqual([]);
+
+      expect(findCharAdditions('', '12')).toEqual(['1', '2']);
+      expect(findCharAdditions('12', '123')).toEqual(['3']);
+      expect(findCharAdditions('12', '132')).toEqual(['3']);
+      expect(findCharAdditions('12', '312')).toEqual(['3']);
+
+      expect(findCharAdditions('123', '323')).toEqual(['3', '2', '3']);
+      expect(findCharAdditions('323', '123')).toEqual(['1', '2']);
+    });
+  });
+
+  describe('findKeyFromDiff', () => {
+    it('handles invalid input', () => {
+      expect(findKeyFromDiff(null, null)).toBe('');
+      expect(findKeyFromDiff(null, '')).toBe('');
+      expect(findKeyFromDiff('', null)).toBe('');
+    });
+
+    it('ignores input with no changes', () => {
+      expect(findKeyFromDiff('', '')).toBe('');
+      expect(findKeyFromDiff('12', '12')).toBe('');
+    });
+
+    it('ignores input with multiple changes', () => {
+      // multiple added
+      expect(findKeyFromDiff('12', '1234')).toBe('');
+
+      // multiple removed
+      expect(findKeyFromDiff('1234', '12')).toBe('');
+
+      // copy/paste entirely different value
+      expect(findKeyFromDiff('12', '3')).toBe('');
+      expect(findKeyFromDiff('12', '34')).toBe('');
+      expect(findKeyFromDiff('12', '345')).toBe('');
+    });
+
+    it('supports additions', () => {
+      expect(findKeyFromDiff('', '-')).toEqual('-');
+      expect(findKeyFromDiff('', ' ')).toEqual(' ');
+      expect(findKeyFromDiff('', '1')).toEqual('1');
+      expect(findKeyFromDiff('1', '12')).toEqual('2');
+      expect(findKeyFromDiff('12', '123')).toEqual('3');
+      expect(findKeyFromDiff('12', '132')).toEqual('3');
+      expect(findKeyFromDiff('12', '312')).toEqual('3');
+    });
+
+    it('supports removals', () => {
+      expect(findKeyFromDiff('-', '')).toEqual('Backspace');
+      expect(findKeyFromDiff(' ', '')).toEqual('Backspace');
+      expect(findKeyFromDiff('1', '')).toEqual('Backspace');
+      expect(findKeyFromDiff('12', '1')).toEqual('Backspace');
+      expect(findKeyFromDiff('123', '12')).toEqual('Backspace');
+      expect(findKeyFromDiff('132', '12')).toEqual('Backspace');
+      expect(findKeyFromDiff('312', '12')).toEqual('Backspace');
     });
   });
 });

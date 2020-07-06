@@ -1,6 +1,11 @@
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import cn from 'classnames';
-import { containsNumber, formatValue, parseValue } from './numberInputHelpers';
+import {
+  containsNumber,
+  findKeyFromDiff,
+  formatValue,
+  parseValue,
+} from './numberInputHelpers';
 import { buildDataCyString } from '../utils/cypressUtils';
 import StandardInput from '../StandardInput/StandardInput';
 import NumberInputArrowButtons from '../NumberInputArrowButtons/NumberInputArrowButtons';
@@ -24,15 +29,16 @@ const NumberInput = ({
   ignoreEnterKey,
   onChange,
   onValueChange,
-  onKeyDown,
   onFocus,
   onBlur,
   className,
   dataCy,
 }) => {
+  const [valueOverride, setValueOverride] = useState(null);
   const inputRef = useRef(null);
   const hasFocusRef = useRef(false);
-  const selectionStateSnapshotRef = useRef([]);
+  const selectionStateSnapshotRef = useRef({});
+  const previousInputValueRef = useRef(null);
 
   const suffix = currency ? ` ${currencySymbol}` : '';
 
@@ -62,72 +68,104 @@ const NumberInput = ({
     return getInput().value;
   };
 
-  const setInputValueWithoutTriggeringOnChange = value => {
-    getInput().value = value;
-  };
+  const setInputValue = inputValue => {
+    // The input is a controlled component, and thus requires the value to be
+    // set via a state change (either by setNumberValue or setValueOverride).
+    //
+    // React uses a timer internally to reset the value if it is not followed
+    // by a state change. The onKeyDown-preventDefault combo can be used to set
+    // the input's value without changing state, but it is not a viable
+    // solution for mobile because mobile relies on onInput for key detection.
+    //
+    // Setting the value without state in addition to with state is needed so
+    // that a cursor position can be set in-sync with the new value.
+    getInput().value = inputValue;
 
-  const getInputNumberValue = bound => {
-    return parse(getInputValue(), bound);
+    // It's common and intended for this to get set and then immediately
+    // cleared by setNumberValue in the same render. The override is only used
+    // as a fallback in case setNumberValue ends up not getting called. The
+    // override value is useful for temporarily rendering non-numeric values.
+    setValueOverride(inputValue);
   };
 
   const getSelectionState = () => {
-    const input = getInput();
-    return [input.selectionStart, input.selectionEnd, input.selectionDirection];
+    const inputValue = getInputValue();
+
+    const { selectionStart, selectionEnd, selectionDirection } = getInput();
+    const isRangeSelected = selectionStart !== selectionEnd;
+    const selectedRangeLength = selectionEnd - selectionStart;
+    const isAllTextSelected =
+      isRangeSelected && selectedRangeLength === inputValue.length;
+
+    return {
+      selectionStart,
+      selectionEnd,
+      selectionDirection,
+      isRangeSelected,
+      selectedRangeLength,
+      isAllTextSelected,
+    };
   };
 
   const snapshotSelectionState = () => {
     selectionStateSnapshotRef.current = getSelectionState();
   };
 
+  const setSelectionState = selectionState => {
+    const { selectionStart, selectionEnd, selectionDirection } = selectionState;
+
+    getInput().setSelectionRange(
+      selectionStart,
+      selectionEnd,
+      selectionDirection,
+    );
+
+    // This is important because setSelectionRange will trigger onSelect and
+    // snapshotSelectionState as a result if called from onKeyDown, but not if
+    // called from onInput.
+    snapshotSelectionState();
+  };
+
   const setCursorPosition = position => {
-    getInput().setSelectionRange(position, position);
+    setSelectionState({ selectionStart: position, selectionEnd: position });
   };
 
   const restoreSelectionState = () => {
-    const selectionState = selectionStateSnapshotRef.current;
-    if (!selectionState || selectionState.length < 2) {
-      return;
-    }
-
-    getInput().setSelectionRange(...selectionState);
+    setSelectionState(selectionStateSnapshotRef.current);
   };
 
-  const isRangeSelected = () => {
-    const [selectionStart, selectionEnd] = getSelectionState();
-    return selectionStart !== selectionEnd;
-  };
+  const setNumberValue = number => {
+    // Clear the value override so the actual value will show next render.
+    setValueOverride(null);
 
-  const isAllTextSelected = () => {
-    const [selectionStart, selectionEnd] = getSelectionState();
-    const selectionLength = selectionEnd - selectionStart;
-    return selectionLength === getInputValue().length;
-  };
-
-  const setValue = (e, number) => {
-    snapshotSelectionState();
-    e.target.value = number;
+    const { name } = getInput();
 
     if (onChange) {
+      const e = {
+        target: {
+          name,
+          value: number,
+        },
+      };
+
       onChange(e);
     }
 
     if (onValueChange) {
-      onValueChange(number, getInput().name);
+      onValueChange(number, name);
     }
   };
 
-  const forceInputValueToNumber = (e, bound) => {
+  const forceInputValueToNumber = bound => {
+    const inputValue = getInputValue();
+
     // if inputValue is not parsable to a number, then set it to null so it
     // doesn't get converted to 0. The input wouldn't be clearable otherwise.
-    const number = containsNumber(getInputValue(), decimalSeparator)
-      ? getInputNumberValue(bound)
+    const number = containsNumber(inputValue, decimalSeparator)
+      ? parse(inputValue, bound)
       : null;
 
-    setValue(e, number);
-  };
-
-  const onChangeWrapper = e => {
-    forceInputValueToNumber(e, false);
+    setNumberValue(number);
   };
 
   const calculateStepMultiplier = e => {
@@ -143,18 +181,20 @@ const NumberInput = ({
     const stepMultiplier = calculateStepMultiplier(e);
     const minStepSize = precision > 0 ? precision / 10 : 1;
     const stepSize = Math.max(step * stepMultiplier, minStepSize);
-    const newUnboundNumberValue =
-      getInputNumberValue(true) + stepSize * direction;
-
-    const newNumberValue = parse(newUnboundNumberValue, true);
+    const inputValue = getInputValue();
+    const inputNumberValue = parse(inputValue, true);
+    const newNumberValue = parse(inputNumberValue + stepSize * direction, true);
     const newInputValue = format(newNumberValue);
 
     // move the cursor to the end
-    setInputValueWithoutTriggeringOnChange(newInputValue);
+    setInputValue(newInputValue);
     setCursorPosition(newInputValue.replace(suffix, '').length);
 
-    // to trigger onChange
-    setValue(e, newNumberValue);
+    // trigger onChange
+    setNumberValue(newNumberValue);
+
+    // to prevent up/down arrow keys from opening the auto-complete dropdown
+    e.preventDefault();
   };
 
   const onStepUp = e => {
@@ -165,69 +205,52 @@ const NumberInput = ({
     onStep(e, -1);
   };
 
-  const checkForUpDownArrowKey = e => {
-    const { key } = e;
-
-    if (key === 'ArrowUp') {
-      e.preventDefault();
-      onStepUp(e);
-    } else if (key === 'ArrowDown') {
-      e.preventDefault();
-      onStepDown(e);
-    }
-  };
-
-  const checkForEnterKey = e => {
-    const { key } = e;
-
+  const checkForEnterKey = (e, key) => {
     // Enter should not submit the form if ignoreEnterKey is specified
     if (key === 'Enter' && ignoreEnterKey) {
       e.preventDefault();
     }
   };
 
-  const checkForBackspaceOrDeleteKey = e => {
-    const { key } = e;
+  const checkForUpDownArrowKey = (e, key) => {
+    if (key === 'ArrowUp') {
+      onStepUp(e);
+    } else if (key === 'ArrowDown') {
+      onStepDown(e);
+    }
+  };
 
+  const checkForDeleteKey = (e, key) => {
     const inputValue = getInputValue();
-    const [cursorPosition] = getSelectionState();
-    const charLeftOfCursor = inputValue.charAt(cursorPosition - 1);
+    const selectionState = getSelectionState();
+    const { selectionStart: cursorPosition, isRangeSelected } = selectionState;
     const charRightOfCursor = inputValue.charAt(cursorPosition);
 
-    // Backspace should skip the decimal separator
-    if (
-      key === 'Backspace' &&
-      !isRangeSelected() &&
-      charLeftOfCursor === decimalSeparator
-    ) {
-      e.preventDefault();
-      setCursorPosition(cursorPosition - 1);
-    }
     // Delete should skip the decimal separator
-    else if (
+    if (
       key === 'Delete' &&
-      !isRangeSelected() &&
+      !isRangeSelected &&
       charRightOfCursor === decimalSeparator
     ) {
-      e.preventDefault();
+      setInputValue(inputValue);
       setCursorPosition(cursorPosition + 1);
+      e.preventDefault();
     }
     // Delete should delete the character to the right of the cursor or move
     // the cursor to the right if the character can't be deleted
     else if (
       key === 'Delete' &&
-      !isRangeSelected() &&
+      !isRangeSelected &&
       charRightOfCursor !== decimalSeparator
     ) {
-      e.preventDefault();
       const textAfterDelete =
         inputValue.slice(0, cursorPosition) +
         inputValue.slice(cursorPosition + 1);
 
       const newNumberValue = parse(textAfterDelete, false);
       const newInputValue = format(newNumberValue);
+      setInputValue(newInputValue);
 
-      setInputValueWithoutTriggeringOnChange(newInputValue);
       if (
         // Delete from "|0,12" should move the cursor to the right
         (cursorPosition < inputValue.indexOf(decimalSeparator) &&
@@ -243,65 +266,98 @@ const NumberInput = ({
         setCursorPosition(cursorPosition);
       }
 
-      // to trigger onChange
-      setValue(e, newNumberValue);
+      // trigger onChange
+      setNumberValue(newNumberValue);
+      e.preventDefault();
+    }
+  };
+
+  const checkForBackspaceKey = (e, key, inputValue, selectionState) => {
+    const { selectionStart: cursorPosition, isRangeSelected } = selectionState;
+    const charLeftOfCursor = inputValue.charAt(cursorPosition - 1);
+
+    // Backspace should skip the decimal separator
+    if (
+      key === 'Backspace' &&
+      !isRangeSelected &&
+      charLeftOfCursor === decimalSeparator
+    ) {
+      setInputValue(inputValue);
+      setCursorPosition(cursorPosition - 1);
+      e.preventDefault();
     }
     // Backspace from "0|,00" should clear the input
     else if (
       key === 'Backspace' &&
-      !isRangeSelected() &&
+      !isRangeSelected &&
       cursorPosition === 1 &&
       parse(inputValue.substring(1, inputValue.length), false) === 0
     ) {
+      setNumberValue(null);
       e.preventDefault();
-      setValue(e, null);
     }
   };
 
-  const checkForMinusKey = e => {
-    const { key } = e;
-    const inputValue = getInputValue();
+  const checkForSpaceKey = (e, key, inputValue, selectionState) => {
+    const { selectionStart: cursorPosition, isRangeSelected } = selectionState;
 
-    // '-' should be valid in an empty input
-    if (key === '-' && (!inputValue.length || isAllTextSelected())) {
+    // Space should move the cursor forward without adding a space
+    if (key === ' ' && !isRangeSelected) {
+      setInputValue(inputValue);
+      setCursorPosition(cursorPosition + 1);
       e.preventDefault();
-      setInputValueWithoutTriggeringOnChange('-');
+    }
+  };
+
+  const checkForMinusKey = (e, key, inputValue) => {
+    // '-' should be valid in an empty input
+    if (key === '-' && !inputValue.length) {
+      setInputValue('-');
+      setCursorPosition(1);
+      e.preventDefault();
     }
     // -0 should be converted to 0 or 0,00 € depending on formatting
-    else if (
-      inputValue.startsWith('-') &&
-      inputValue.length === 1 &&
-      key === '0'
-    ) {
-      e.preventDefault();
-      setInputValueWithoutTriggeringOnChange(format(0));
+    else if (inputValue === '-' && key === '0') {
+      setInputValue('0');
       setCursorPosition(1);
-    }
-  };
-
-  const checkForSpaceKey = e => {
-    const { key } = e;
-
-    const [cursorPosition] = getSelectionState();
-
-    // Space should be ignored but move the cursor forward
-    if (key === ' ' && !isRangeSelected()) {
+      setNumberValue(0);
       e.preventDefault();
-      setCursorPosition(cursorPosition + 1);
     }
   };
 
-  const onKeyDownWrapper = e => {
-    e.persist();
+  const onKeyDown = e => {
+    const inputValue = getInputValue();
+    previousInputValueRef.current = inputValue;
+    const key = e.key;
 
-    checkForUpDownArrowKey(e);
-    checkForEnterKey(e);
-    checkForBackspaceOrDeleteKey(e);
-    checkForMinusKey(e);
-    checkForSpaceKey(e);
+    // Desktop-only key logic
+    // For Mobile, Enter behaves differently and Up/Down/Delete don't exist.
+    checkForEnterKey(e, key);
+    checkForUpDownArrowKey(e, key);
+    checkForDeleteKey(e, key);
+  };
 
-    if (onKeyDown) {
-      onKeyDown(e);
+  const onInput = e => {
+    const previousInputValue = previousInputValueRef.current;
+    const previousSelectionState = selectionStateSnapshotRef.current;
+    const inputValue = getInputValue();
+
+    // Mobile key handling is difficult because mobile on-screen keyboards
+    // report 'e.keyCode' as 229 and 'e.key' as 'Unidentified' in onKeyDown.
+    // onKeyPress is deprecated, and onInput does not report keys at all.
+    // The alternative is to record the old input value in onKeyDown and
+    // compare it with the new input value in onInput to determine which
+    // key was pressed.
+    const key = findKeyFromDiff(previousInputValue, inputValue);
+
+    // Desktop & Mobile key logic
+    checkForBackspaceKey(e, key, previousInputValue, previousSelectionState);
+    checkForSpaceKey(e, key, previousInputValue, previousSelectionState);
+    checkForMinusKey(e, key, previousInputValue, previousSelectionState);
+
+    if (!e.isDefaultPrevented()) {
+      snapshotSelectionState();
+      forceInputValueToNumber(false);
     }
   };
 
@@ -317,8 +373,8 @@ const NumberInput = ({
     hasFocusRef.current = false;
 
     // this is needed to clear invalid values such as '-' without a number
-    // after it, and to bound valid values to min/max if specified
-    forceInputValueToNumber(e, true);
+    // after it, and to bound valid values to the min/max if specified
+    forceInputValueToNumber(true);
 
     if (onBlur) {
       onBlur(e);
@@ -330,6 +386,8 @@ const NumberInput = ({
   useLayoutEffect(() => {
     if (hasFocusRef.current) {
       getInput().focus();
+
+      // needed for up/down arrow keys
       restoreSelectionState();
     }
   });
@@ -341,7 +399,7 @@ const NumberInput = ({
       dataCy={dataCy || buildDataCyString(name, 'number-input')}
       type='text'
       name={name}
-      value={format(value)}
+      value={valueOverride || format(value)}
       placeholder={placeholder}
       iconContent={
         <NumberInputArrowButtons
@@ -355,8 +413,8 @@ const NumberInput = ({
       blue={blue}
       error={error}
       disabled={disabled}
-      onChange={onChangeWrapper}
-      onKeyDown={onKeyDownWrapper}
+      onKeyDown={onKeyDown}
+      onInput={onInput}
       onFocus={onFocusWrapper}
       onBlur={onBlurWrapper}
       onSelect={snapshotSelectionState}

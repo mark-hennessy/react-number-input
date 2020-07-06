@@ -14,7 +14,7 @@ const NumberInputArrowButton = ({
   onClick,
   className,
 }) => {
-  const timeoutRef = useRef();
+  const timeoutRef = useRef(NaN);
 
   const clearCurrentTimeout = () => {
     clearTimeout(timeoutRef.current);
@@ -35,10 +35,14 @@ const NumberInputArrowButton = ({
   };
 
   const handleInteractionStart = e => {
-    // needed because this React synthetic event is reused in timeout callbacks
+    if (disabled) {
+      return;
+    }
+
+    // needed because the event is reused in timeout callbacks
     e.persist();
 
-    // prevents the button from stealing focus from the input and prevents
+    // prevents the button from stealing focus from the input, and prevents
     // mobile devices from creating a virtual onMouseDown after onTouchStart
     e.preventDefault();
 
@@ -46,6 +50,10 @@ const NumberInputArrowButton = ({
   };
 
   const handleInteractionEnd = e => {
+    if (disabled) {
+      return;
+    }
+
     // prevents mobile devices from creating a virtual onMouseUp after onTouchEnd
     e.preventDefault();
 

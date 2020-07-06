@@ -63,3 +63,40 @@ export const formatValue = (
 
   return formattedString;
 };
+
+export const findCharAdditions = (previousString, currentString) => {
+  const changes = [];
+
+  const charQueue = previousString.split('');
+  for (const c of currentString) {
+    const p = charQueue[0];
+    if (p !== c) {
+      changes.push(c);
+    } else {
+      charQueue.shift();
+    }
+  }
+
+  return changes;
+};
+
+export const findKeyFromDiff = (previousString, currentString) => {
+  let key = '';
+
+  if (typeof previousString === 'string' && typeof currentString === 'string') {
+    const lengthDifference = currentString.length - previousString.length;
+    if (lengthDifference === 1) {
+      const additions = findCharAdditions(previousString, currentString);
+      if (additions.length === 1) {
+        key = additions[0];
+      }
+    } else if (lengthDifference === -1) {
+      const removals = findCharAdditions(currentString, previousString);
+      if (removals.length === 1) {
+        key = 'Backspace';
+      }
+    }
+  }
+
+  return key;
+};

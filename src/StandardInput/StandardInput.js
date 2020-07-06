@@ -20,10 +20,12 @@ const StandardInput = (
     onChange,
     onValueChange,
     onKeyDown,
+    onInput,
     onFocus,
     onBlur,
     onSelect,
     className,
+    inputClassName,
     dataCy,
   },
   ref,
@@ -46,7 +48,7 @@ const StandardInput = (
     >
       <input
         ref={ref}
-        className={`${CID}__input`}
+        className={cn(`${CID}__input`, inputClassName)}
         type={type || 'text'}
         name={name}
         value={transformedValue}
@@ -54,6 +56,7 @@ const StandardInput = (
         disabled={disabled}
         onChange={onChangeWrapper}
         onKeyDown={onKeyDown}
+        onInput={onInput}
         onFocus={onFocus}
         onBlur={onBlur}
         onSelect={onSelect}
