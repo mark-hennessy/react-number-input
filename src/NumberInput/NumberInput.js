@@ -32,6 +32,7 @@ const NumberInput = ({
   onFocus,
   onBlur,
   className,
+  inputClassName,
   dataCy,
 }) => {
   const [valueOverride, setValueOverride] = useState(null);
@@ -220,11 +221,18 @@ const NumberInput = ({
     }
   };
 
-  const checkForDeleteKey = (e, key) => {
-    const inputValue = getInputValue();
-    const selectionState = getSelectionState();
-    const { selectionStart: cursorPosition, isRangeSelected } = selectionState;
-    const charRightOfCursor = inputValue.charAt(cursorPosition);
+  const checkForDeleteKey = (
+    e,
+    key,
+    previousInputValue,
+    previousSelectionState,
+  ) => {
+    const {
+      selectionStart: cursorPosition,
+      isRangeSelected,
+    } = previousSelectionState;
+
+    const charRightOfCursor = previousInputValue.charAt(cursorPosition);
 
     // Delete should skip the decimal separator
     if (
@@ -232,7 +240,7 @@ const NumberInput = ({
       !isRangeSelected &&
       charRightOfCursor === decimalSeparator
     ) {
-      setInputValue(inputValue);
+      setInputValue(previousInputValue);
       setCursorPosition(cursorPosition + 1);
       e.preventDefault();
     }
@@ -244,8 +252,8 @@ const NumberInput = ({
       charRightOfCursor !== decimalSeparator
     ) {
       const textAfterDelete =
-        inputValue.slice(0, cursorPosition) +
-        inputValue.slice(cursorPosition + 1);
+        previousInputValue.slice(0, cursorPosition) +
+        previousInputValue.slice(cursorPosition + 1);
 
       const newNumberValue = parse(textAfterDelete, false);
       const newInputValue = format(newNumberValue);
@@ -253,13 +261,13 @@ const NumberInput = ({
 
       if (
         // Delete from "|0,12" should move the cursor to the right
-        (cursorPosition < inputValue.indexOf(decimalSeparator) &&
+        (cursorPosition < previousInputValue.indexOf(decimalSeparator) &&
           // the value will change, but length should not
-          newInputValue.length === inputValue.length) ||
+          newInputValue.length === previousInputValue.length) ||
         // Delete from "0,|00" should move the cursor to the right
-        (cursorPosition > inputValue.indexOf(decimalSeparator) &&
+        (cursorPosition > previousInputValue.indexOf(decimalSeparator) &&
           // the value and length should be the same
-          newInputValue === inputValue)
+          newInputValue === previousInputValue)
       ) {
         setCursorPosition(cursorPosition + 1);
       } else {
@@ -272,9 +280,18 @@ const NumberInput = ({
     }
   };
 
-  const checkForBackspaceKey = (e, key, inputValue, selectionState) => {
-    const { selectionStart: cursorPosition, isRangeSelected } = selectionState;
-    const charLeftOfCursor = inputValue.charAt(cursorPosition - 1);
+  const checkForBackspaceKey = (
+    e,
+    key,
+    previousInputValue,
+    previousSelectionState,
+  ) => {
+    const {
+      selectionStart: cursorPosition,
+      isRangeSelected,
+    } = previousSelectionState;
+
+    const charLeftOfCursor = previousInputValue.charAt(cursorPosition - 1);
 
     // Backspace should skip the decimal separator
     if (
@@ -282,7 +299,7 @@ const NumberInput = ({
       !isRangeSelected &&
       charLeftOfCursor === decimalSeparator
     ) {
-      setInputValue(inputValue);
+      setInputValue(previousInputValue);
       setCursorPosition(cursorPosition - 1);
       e.preventDefault();
     }
@@ -291,33 +308,61 @@ const NumberInput = ({
       key === 'Backspace' &&
       !isRangeSelected &&
       cursorPosition === 1 &&
-      parse(inputValue.substring(1, inputValue.length), false) === 0
+      // AND the value without the first character parses to 0
+      // Examples (the | shows the cursor position):
+      // 3|,34 will parse to 0
+      // 1|0 will parse to 0
+      // 4|3 will parse to 3
+      parse(
+        previousInputValue.substring(1, previousInputValue.length),
+        false,
+      ) === 0
     ) {
       setNumberValue(null);
       e.preventDefault();
     }
   };
 
-  const checkForSpaceKey = (e, key, inputValue, selectionState) => {
-    const { selectionStart: cursorPosition, isRangeSelected } = selectionState;
+  const checkForSpaceKey = (e, key, newInputValue, newSelectionState) => {
+    const { selectionStart: cursorPosition } = newSelectionState;
 
-    // Space should move the cursor forward without adding a space
-    if (key === ' ' && !isRangeSelected) {
-      setInputValue(inputValue);
-      setCursorPosition(cursorPosition + 1);
+    const valueWithoutSuffix = newInputValue.replace(suffix, '');
+    const valueWithoutSuffixAndSpaces = valueWithoutSuffix.replace(/\s/g, '');
+    const valueWithoutSpaces = valueWithoutSuffixAndSpaces + suffix;
+
+    const numberOfSpacesRemoved =
+      valueWithoutSuffix.length - valueWithoutSuffixAndSpaces.length;
+
+    if (numberOfSpacesRemoved > 0) {
+      setInputValue(valueWithoutSpaces);
+
+      // Space should move the cursor forward without adding a space
+      if (key === ' ') {
+        setCursorPosition(cursorPosition);
+      }
+      // Otherwise assume range selection or copy/paste and keep the cursor
+      // where it is but account for the spaces removed.
+      else {
+        setCursorPosition(cursorPosition - numberOfSpacesRemoved);
+      }
+
+      // bounding will happen on blur so the user can type impartial numbers
+      // without interference.
+      forceInputValueToNumber(false);
+
       e.preventDefault();
     }
   };
 
-  const checkForMinusKey = (e, key, inputValue) => {
-    // '-' should be valid in an empty input
-    if (key === '-' && !inputValue.length) {
+  const checkForMinusKey = (e, key, newInputValue) => {
+    // '-' should be allowed even though it's not a number
+    if (newInputValue === '-') {
       setInputValue('-');
       setCursorPosition(1);
       e.preventDefault();
     }
-    // -0 should be converted to 0 or 0,00 € depending on formatting
-    else if (inputValue === '-' && key === '0') {
+    // -0 should be converted to 0
+    else if (newInputValue === '-0') {
       setInputValue('0');
       setCursorPosition(1);
       setNumberValue(0);
@@ -326,21 +371,24 @@ const NumberInput = ({
   };
 
   const onKeyDown = e => {
-    const inputValue = getInputValue();
-    previousInputValueRef.current = inputValue;
+    const previousInputValue = getInputValue();
+    previousInputValueRef.current = previousInputValue;
+
     const key = e.key;
+    const previousSelectionState = getSelectionState();
 
     // Desktop-only key logic
-    // For Mobile, Enter behaves differently and Up/Down/Delete don't exist.
-    checkForEnterKey(e, key);
-    checkForUpDownArrowKey(e, key);
-    checkForDeleteKey(e, key);
+    // For Mobile, Enter behaves differently, and Up/Down/Delete don't exist.
+    checkForEnterKey(e, key, previousInputValue, previousSelectionState);
+    checkForUpDownArrowKey(e, key, previousInputValue, previousSelectionState);
+    checkForDeleteKey(e, key, previousInputValue, previousSelectionState);
   };
 
   const onInput = e => {
     const previousInputValue = previousInputValueRef.current;
     const previousSelectionState = selectionStateSnapshotRef.current;
-    const inputValue = getInputValue();
+    const newInputValue = getInputValue();
+    const newSelectionState = getSelectionState();
 
     // Mobile key handling is difficult because mobile on-screen keyboards
     // report 'e.keyCode' as 229 and 'e.key' as 'Unidentified' in onKeyDown.
@@ -348,15 +396,22 @@ const NumberInput = ({
     // The alternative is to record the old input value in onKeyDown and
     // compare it with the new input value in onInput to determine which
     // key was pressed.
-    const key = findKeyFromDiff(previousInputValue, inputValue);
+    const key = findKeyFromDiff(previousInputValue, newInputValue);
 
     // Desktop & Mobile key logic
+    // checkForBackspaceKey uses previous values to match checkForDeleteKey
     checkForBackspaceKey(e, key, previousInputValue, previousSelectionState);
-    checkForSpaceKey(e, key, previousInputValue, previousSelectionState);
-    checkForMinusKey(e, key, previousInputValue, previousSelectionState);
+
+    // these use the new values for simplicity
+    checkForSpaceKey(e, key, newInputValue, newSelectionState);
+    checkForMinusKey(e, key, newInputValue, newSelectionState);
 
     if (!e.isDefaultPrevented()) {
+      // cursor position moved due to input, so snapshot it.
       snapshotSelectionState();
+
+      // bounding will happen on blur so the user can type impartial numbers
+      // without interference.
       forceInputValueToNumber(false);
     }
   };
@@ -382,7 +437,8 @@ const NumberInput = ({
   };
 
   // runs after each render
-  // useLayoutEffect avoids flashing because it runs before the browser has a chance to paint
+  // useLayoutEffect avoids flashing because it runs before the browser has a
+  // chance to paint
   useLayoutEffect(() => {
     if (hasFocusRef.current) {
       getInput().focus();
@@ -392,14 +448,18 @@ const NumberInput = ({
     }
   });
 
+  // valueOverride may be an empty string
+  const valueToDisplay = valueOverride !== null ? valueOverride : format(value);
+
   return (
     <StandardInput
       ref={inputRef}
       className={cn(CID, className)}
+      inputClassName={cn(`${CID}__input`, inputClassName)}
       dataCy={dataCy || buildDataCyString(name, 'number-input')}
       type='text'
       name={name}
-      value={valueOverride || format(value)}
+      value={valueToDisplay}
       placeholder={placeholder}
       iconContent={
         <NumberInputArrowButtons
