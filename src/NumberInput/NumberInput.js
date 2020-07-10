@@ -9,7 +9,6 @@ import {
 import { buildDataCyString } from '../utils/cypressUtils';
 import StandardInput from '../StandardInput/StandardInput';
 import NumberInputArrowButtons from '../NumberInputArrowButtons/NumberInputArrowButtons';
-import useForceRender from '../utils/useForceRender';
 
 const CID = 'number-input';
 
@@ -41,7 +40,6 @@ const NumberInput = ({
   const selectionStateRef = useRef({});
   const previousInputValueRef = useRef(null);
   const [valueOverride, setValueOverride] = useState(null);
-  const forceRender = useForceRender();
 
   const suffix = currency ? ` ${currencySymbol}` : '';
 
@@ -89,11 +87,6 @@ const NumberInput = ({
     // as a fallback in case setNumberValue ends up not getting called. The
     // override value is useful for temporarily rendering non-numeric values.
     setValueOverride(inputValue);
-
-    // setValueOverride will only trigger a new render if its string value
-    // changed. It's important to force a render to update cursor position,
-    // which is stored as a ref.
-    forceRender();
   };
 
   const getSelectionState = () => {
