@@ -38,7 +38,7 @@ const NumberInput = ({
   const [valueOverride, setValueOverride] = useState(null);
   const inputRef = useRef(null);
   const hasFocusRef = useRef(false);
-  const selectionStateSnapshotRef = useRef({});
+  const selectionStateRef = useRef({});
   const previousInputValueRef = useRef(null);
 
   const suffix = currency ? ` ${currencySymbol}` : '';
@@ -109,7 +109,7 @@ const NumberInput = ({
   };
 
   const snapshotSelectionState = () => {
-    selectionStateSnapshotRef.current = getSelectionState();
+    selectionStateRef.current = getSelectionState();
   };
 
   const setSelectionState = selectionState => {
@@ -132,7 +132,7 @@ const NumberInput = ({
   };
 
   const restoreSelectionState = () => {
-    setSelectionState(selectionStateSnapshotRef.current);
+    setSelectionState(selectionStateRef.current);
   };
 
   const setNumberValue = number => {
@@ -390,7 +390,7 @@ const NumberInput = ({
 
   const onInput = e => {
     const previousInputValue = previousInputValueRef.current;
-    const previousSelectionState = selectionStateSnapshotRef.current;
+    const previousSelectionState = selectionStateRef.current;
     const newInputValue = getInputValue();
     const newSelectionState = getSelectionState();
 
