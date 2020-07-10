@@ -371,10 +371,8 @@ const NumberInput = ({
   };
 
   const onKeyDown = e => {
-    const previousInputValue = getInputValue();
-    previousInputValueRef.current = previousInputValue;
-
     const key = e.key;
+    const previousInputValue = getInputValue();
     const previousSelectionState = getSelectionState();
 
     // Desktop-only key logic
@@ -440,10 +438,11 @@ const NumberInput = ({
   // useLayoutEffect avoids flashing because it runs before the browser has a
   // chance to paint
   useLayoutEffect(() => {
+    const previousInputValue = getInputValue();
+    previousInputValueRef.current = previousInputValue;
+
     if (hasFocusRef.current) {
       getInput().focus();
-
-      // needed for up/down arrow keys
       restoreSelectionState();
     }
   });
