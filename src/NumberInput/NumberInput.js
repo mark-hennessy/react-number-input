@@ -326,11 +326,10 @@ const NumberInput = ({
   const checkForSpaceKey = (e, key, newInputValue, newSelectionState) => {
     const { selectionStart: cursorPosition } = newSelectionState;
 
-    // trimEnd is needed in case the suffix has space but is not matched by
-    // replace because part of the suffix got deleted by Backspace.
-    // trimEnd is safe because space at the end is not relevant for space key
-    // forward navigation.
-    const valueWithoutSuffix = newInputValue.replace(suffix, '').trimEnd();
+    // Remove 1 or more non-digit characters at the end of the value, so the
+    // suffix is removed even if it was partially deleted by Backspace.
+    const valueWithoutSuffix = newInputValue.replace(/\D+$/, '');
+
     const valueWithoutSuffixAndSpaces = valueWithoutSuffix.replace(/\s/g, '');
     const valueWithoutSpaces = valueWithoutSuffixAndSpaces + suffix;
 
@@ -350,7 +349,9 @@ const NumberInput = ({
         setCursorPosition(cursorPosition - numberOfSpacesRemoved);
       }
 
-      // bounding will happen on blur so the user can type impartial numbers
+      // Force the value to a number in case it was copy/pasted.
+      // onChange listeners would not be informed of the new value without this.
+      // Bounding will happen on blur so the user can type impartial numbers
       // without interference.
       forceInputValueToNumber(false);
 
