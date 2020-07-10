@@ -299,6 +299,7 @@ const NumberInput = ({
     } = previousSelectionState;
 
     const charLeftOfCursor = previousInputValue.charAt(cursorPosition - 1);
+    const charRightOfCursor = previousInputValue.charAt(cursorPosition);
 
     // Backspace should skip the decimal separator
     if (
@@ -310,22 +311,28 @@ const NumberInput = ({
       setCursorPosition(cursorPosition - 1);
       e.preventDefault();
     }
-    // Backspace from "0|,00" should clear the input
+    // Backspace from "0|,00" or "3|,34"
     else if (
       key === 'Backspace' &&
       !isRangeSelected &&
       cursorPosition === 1 &&
-      // AND the value without the first character parses to 0
-      // Examples (the | shows the cursor position):
-      // 3|,34 will parse to 0
-      // 1|0 will parse to 0
-      // 4|3 will parse to 3
-      parse(
-        previousInputValue.substring(1, previousInputValue.length),
-        false,
-      ) === 0
+      charRightOfCursor === decimalSeparator
     ) {
-      setNumberValue(null);
+      const newInputValue = previousInputValue.substring(
+        1,
+        previousInputValue.length,
+      );
+
+      // Backspace from "0|,00" should clear the input
+      if (parse(newInputValue, false) === 0) {
+        setNumberValue(null);
+      }
+      // Backspace from "3|,34" should set the input value to ",34"
+      else {
+        setInputValue(newInputValue);
+      }
+
+      setCursorPosition(0);
       e.preventDefault();
     }
   };
