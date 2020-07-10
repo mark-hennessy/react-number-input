@@ -76,7 +76,7 @@ const NumberInput = ({
     // React uses a timer internally to reset the value if it is not followed
     // by a state change. The onKeyDown-preventDefault combo can be used to set
     // the input's value without changing state, but it is not a viable
-    // solution for mobile because mobile relies on onInput for key detection.
+    // solution for mobile because mobile relies on onInput.
     //
     // Setting the value without state in addition to with state is needed so
     // that a cursor position can be set in-sync with the new value.
@@ -326,7 +326,11 @@ const NumberInput = ({
   const checkForSpaceKey = (e, key, newInputValue, newSelectionState) => {
     const { selectionStart: cursorPosition } = newSelectionState;
 
-    const valueWithoutSuffix = newInputValue.replace(suffix, '');
+    // trimEnd is needed in case the suffix has space but is not matched by
+    // replace because part of the suffix got deleted by Backspace.
+    // trimEnd is safe because space at the end is not relevant for space key
+    // forward navigation.
+    const valueWithoutSuffix = newInputValue.replace(suffix, '').trimEnd();
     const valueWithoutSuffixAndSpaces = valueWithoutSuffix.replace(/\s/g, '');
     const valueWithoutSpaces = valueWithoutSuffixAndSpaces + suffix;
 
@@ -377,6 +381,8 @@ const NumberInput = ({
 
     // Desktop-only key logic
     // For Mobile, Enter behaves differently, and Up/Down/Delete don't exist.
+    // Mobile browsers don't report the key correctly, and Firefox Mobile
+    // doesn't even fire onKeyDown for most keys.
     checkForEnterKey(e, key, previousInputValue, previousSelectionState);
     checkForUpDownArrowKey(e, key, previousInputValue, previousSelectionState);
     checkForDeleteKey(e, key, previousInputValue, previousSelectionState);
@@ -391,9 +397,8 @@ const NumberInput = ({
     // Mobile key handling is difficult because mobile on-screen keyboards
     // report 'e.keyCode' as 229 and 'e.key' as 'Unidentified' in onKeyDown.
     // onKeyPress is deprecated, and onInput does not report keys at all.
-    // The alternative is to record the old input value in onKeyDown and
-    // compare it with the new input value in onInput to determine which
-    // key was pressed.
+    // The alternative is to record the input value on render and compare it
+    // with the new input value in onInput to determine which key was pressed.
     const key = findKeyFromDiff(previousInputValue, newInputValue);
 
     // Desktop & Mobile key logic
