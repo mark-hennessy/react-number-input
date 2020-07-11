@@ -73,10 +73,10 @@ const NumberInput = ({
     // The input is a controlled component, and thus requires the value to be
     // set via a state change (either by setNumberValue or setValueOverride).
     //
-    // React uses a timer internally to reset the value if it is not followed
+    // React uses a timer internally to reset the value if it's not followed
     // by a state change. The onKeyDown-preventDefault combo can be used to set
-    // the input's value without changing state, but it is not a viable
-    // solution for mobile because mobile relies on onInput.
+    // the input's value without changing state, but it's not a viable solution
+    // for Mobile because Mobile relies on the onInput event.
     //
     // Setting the value without state in addition to with state is needed so
     // that a cursor position can be set in-sync with the new value.
@@ -402,9 +402,9 @@ const NumberInput = ({
     const newInputValue = getInputValue();
     const newSelectionState = getSelectionState();
 
-    // Mobile key handling is difficult because mobile on-screen keyboards
-    // report 'e.keyCode' as 229 and 'e.key' as 'Unidentified' in onKeyDown.
-    // onKeyPress is deprecated, and onInput does not report keys at all.
+    // Mobile key handling is difficult because on-screen keyboards report
+    // 'e.keyCode' as 229 and 'e.key' as 'Unidentified' in onKeyDown. Also,
+    // onKeyPress is deprecated and onInput does not report keys.
     // The alternative is to record the input value on render and compare it
     // with the new input value in onInput to determine which key was pressed.
     const key = findKeyFromDiff(previousInputValue, newInputValue);
@@ -460,16 +460,22 @@ const NumberInput = ({
     }
   });
 
-  // valueOverride may be an empty string
+  // the empty string should be allowed as an override even though it's falsy
   const valueToDisplay = valueOverride !== null ? valueOverride : format(value);
 
+  // type 'tel' is important for Mobile for two reasons:
+  // 1) It forces Mobile browsers to show the number pad.
+  // 2) It fixes a Firefox Mobile bug that causes Backspace to glitch the
+  // input when Backspace moves the cursor to the left without changing the
+  // input's value. For example when trying to delete the currency suffix, or
+  // when trying to delete ',00' in an input with precision={2}
   return (
     <StandardInput
       ref={inputRef}
       className={cn(CID, className)}
       inputClassName={cn(`${CID}__input`, inputClassName)}
       dataCy={dataCy || buildDataCyString(name, 'number-input')}
-      type='text'
+      type='tel'
       name={name}
       value={valueToDisplay}
       placeholder={placeholder}
