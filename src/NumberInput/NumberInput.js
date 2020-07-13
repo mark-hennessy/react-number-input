@@ -1,5 +1,6 @@
 import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import cn from 'classnames';
+import shortid from 'shortid';
 import {
   containsNumber,
   findKeyFromDiff,
@@ -9,7 +10,6 @@ import {
 import { buildDataCyString } from '../utils/cypressUtils';
 import StandardInput from '../StandardInput/StandardInput';
 import NumberInputArrowButtons from '../NumberInputArrowButtons/NumberInputArrowButtons';
-import shortid from 'shortid';
 
 const CID = 'number-input';
 
@@ -221,9 +221,14 @@ const NumberInput = ({
   };
 
   const checkForEnterKey = (e, key) => {
-    // Enter should not submit the form if ignoreEnterKey is specified
-    if (key === 'Enter' && ignoreEnterKey) {
-      e.preventDefault();
+    if (key === 'Enter') {
+      // force the value to a number before form submission.
+      forceInputValueToNumber(true);
+
+      if (ignoreEnterKey) {
+        // prevent form submission on Enter
+        e.preventDefault();
+      }
     }
   };
 
@@ -344,6 +349,43 @@ const NumberInput = ({
     }
   };
 
+  const checkForDecimalSeparator = (
+    e,
+    key,
+    newInputValue,
+    newSelectionState,
+  ) => {
+    const { selectionStart: cursorPosition } = newSelectionState;
+
+    const separators = `[.${decimalSeparator}]`;
+
+    // match a period or the custom separator
+    const separatorPattern = new RegExp(separators);
+
+    // match 2 periods, 2 custom custom separators, or a combination of both
+    const separatorTwicePattern = new RegExp(`${separators}{2}`);
+
+    const newValueWithoutDuplicateSeparators = newInputValue.replace(
+      separatorTwicePattern,
+      decimalSeparator,
+    );
+
+    const numberRemoved =
+      newInputValue.length - newValueWithoutDuplicateSeparators.length;
+
+    if (numberRemoved) {
+      setInputValue(newValueWithoutDuplicateSeparators);
+
+      const adjustedPosition = cursorPosition - numberRemoved;
+      const nextChar = newValueWithoutDuplicateSeparators[adjustedPosition];
+      const separatorToTheRight = separatorPattern.test(nextChar);
+      const forwardMovement = separatorToTheRight ? 1 : 0;
+      setCursorPosition(adjustedPosition + forwardMovement);
+
+      e.preventDefault();
+    }
+  };
+
   const checkForSpaceKey = (e, key, newInputValue, newSelectionState) => {
     const { selectionStart: cursorPosition } = newSelectionState;
 
@@ -354,10 +396,10 @@ const NumberInput = ({
     const valueWithoutSuffixAndSpaces = valueWithoutSuffix.replace(/\s/g, '');
     const valueWithoutSpaces = valueWithoutSuffixAndSpaces + suffix;
 
-    const numberOfSpacesRemoved =
+    const numberRemoved =
       valueWithoutSuffix.length - valueWithoutSuffixAndSpaces.length;
 
-    if (numberOfSpacesRemoved > 0) {
+    if (numberRemoved > 0) {
       setInputValue(valueWithoutSpaces);
 
       // Space should move the cursor forward without adding a space
@@ -367,7 +409,7 @@ const NumberInput = ({
       // Otherwise assume range selection or copy/paste and keep the cursor
       // where it is but account for the spaces removed.
       else {
-        setCursorPosition(cursorPosition - numberOfSpacesRemoved);
+        setCursorPosition(cursorPosition - numberRemoved);
       }
 
       // Force the value to a number in case it was copy/pasted.
@@ -428,6 +470,7 @@ const NumberInput = ({
     checkForBackspaceKey(e, key, previousInputValue, previousSelectionState);
 
     // these use the new values for simplicity
+    checkForDecimalSeparator(e, key, newInputValue, newSelectionState);
     checkForSpaceKey(e, key, newInputValue, newSelectionState);
     checkForMinusKey(e, key, newInputValue, newSelectionState);
 
@@ -452,16 +495,9 @@ const NumberInput = ({
   const onBlurWrapper = e => {
     hasFocusRef.current = false;
 
-    // setTimeout is needed so that generating a new 'key' prop each render
-    // does not break 'Tab' key navigation. Otherwise, Tab would cause a blur
-    // and the resulting forceInputValueToNumber would cause a new input
-    // instance to render which would lose focus before the next input in the
-    // Tab cycle has a chance to receive focus.
-    setTimeout(() => {
-      // this is needed to clear invalid values such as '-' without a number
-      // after it, and to bound valid values to the min/max if specified
-      forceInputValueToNumber(true);
-    });
+    // This is needed to clear invalid values such as '-' without a number
+    // after it, and to bound valid values to the min/max if specified.
+    forceInputValueToNumber(true);
 
     if (onBlur) {
       onBlur(e);
@@ -485,12 +521,14 @@ const NumberInput = ({
   const valueToDisplay = valueOverride !== null ? valueOverride : format(value);
 
   // Things to note:
-  // - Mobile Firefox and iOS inputs glitch when user input does not result in
-  // a change to the input's value, which is the case when the user tries to
+  // - type 'tel' forces Mobile browsers to show the number pad.
+  // - Inputs in Mobile Firefox and iOS 'glitch' when user input does not result
+  // in a change to the input's value, which is the case when the user tries to
   // delete the currency suffix or delete ',00' in an input with precision={2}.
   // The fix is to generate a new 'inputKey' each render to force React to
   // create a new input instance.
-  // - Type 'tel' forces Mobile browsers to show the number pad.
+  // - type 'tel' fixes the above input 'glitch' in Firefox but not in iOS, so
+  // the 'inputKey' fix is still needed.
   return (
     <StandardInput
       inputKey={shortid.generate()}

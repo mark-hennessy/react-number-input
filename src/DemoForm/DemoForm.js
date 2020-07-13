@@ -21,6 +21,10 @@ const DemoForm = ({ formName, blue }) => {
     [getInputName(inputCounter++)]: 'text',
   });
 
+  const getStateAsJson = () => {
+    return JSON.stringify(state, undefined, 2);
+  };
+
   const connectToState = inputName => {
     return {
       name: inputName,
@@ -99,14 +103,13 @@ const DemoForm = ({ formName, blue }) => {
           />
         </div>
 
-        <div style={{ whiteSpace: 'pre' }}>
-          {JSON.stringify(state, undefined, 2)}
-        </div>
+        <div style={{ whiteSpace: 'pre' }}>{getStateAsJson()}</div>
         <button
           style={{ justifySelf: 'start' }}
           type='submit'
           onClick={() => {
-            alert(`${formName} Submitted`);
+            alert(`${formName} Submitted
+${getStateAsJson()}`);
           }}
         >
           Submit
