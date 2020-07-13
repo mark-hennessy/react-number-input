@@ -4,6 +4,7 @@ $CID: '.standard-input';
   display: inline-block;
   position: relative;
   width: 100%;
+  min-width: 8rem;
 
   #{$CID}__input {
     width: 100%;
