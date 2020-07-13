@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import cn from 'classnames';
 import {
   containsNumber,
@@ -43,6 +43,7 @@ const NumberInput = ({
   const [valueOverride, setValueOverride] = useState(null);
 
   const suffix = currency ? ` ${currencySymbol}` : '';
+  const isMobile = useMemo(() => /Mobi/.test(navigator.userAgent), []);
 
   const parse = (numberOrString, bound) => {
     return bound
@@ -490,13 +491,15 @@ const NumberInput = ({
       value={valueToDisplay}
       placeholder={placeholder}
       iconContent={
-        <NumberInputArrowButtons
-          blue={blue}
-          error={error}
-          disabled={disabled}
-          onStepUp={onStepUp}
-          onStepDown={onStepDown}
-        />
+        !isMobile && (
+          <NumberInputArrowButtons
+            blue={blue}
+            error={error}
+            disabled={disabled}
+            onStepUp={onStepUp}
+            onStepDown={onStepDown}
+          />
+        )
       }
       blue={blue}
       error={error}
