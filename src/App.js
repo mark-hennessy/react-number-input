@@ -1,6 +1,5 @@
 import React from 'react';
 import DemoForm from './DemoForm/DemoForm';
-import Label from './Label/Label';
 
 export default function App() {
   return (
@@ -10,12 +9,16 @@ export default function App() {
         gridGap: '1rem',
       }}
     >
-      <Label large>Form 1, White Inputs</Label>
-      <DemoForm formName='f1' blue />
-      <Label large>
-        Form 2, Blue Inputs, Duplicate of Form 1 (no need to test)
-      </Label>
-      <DemoForm formName='f2' />
+      <div>
+        <h2 style={{ marginBottom: '0.5rem' }}>Form 1, White Inputs</h2>
+        <DemoForm formName='f1' blue />
+      </div>
+      <div>
+        <h2 style={{ marginBottom: '0.5rem' }}>
+          Form 2, Blue Inputs, Duplicate of Form 1 (no need to test)
+        </h2>
+        <DemoForm formName='f2' />
+      </div>
     </div>
   );
 }

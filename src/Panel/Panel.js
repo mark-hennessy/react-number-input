@@ -5,7 +5,7 @@ const Panel = ({ blue, children }) => {
     <div
       style={{
         display: 'grid',
-        gridGap: '0.5rem',
+        gridGap: '1rem',
         padding: '0.5rem',
         border: '1px solid lightblue',
         background: blue ? '#ebf9fd' : 'white',

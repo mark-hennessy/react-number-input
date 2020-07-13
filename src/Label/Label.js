@@ -1,12 +1,17 @@
 import React from 'react';
-import cn from 'classnames';
 
-import './Label.scss';
-
-const CID = 'label';
-
-const Label = ({ large, className, children }) => {
-  return <div className={cn(CID, { large }, className)}>{children}</div>;
+const Label = ({ large, children }) => {
+  return (
+    <div
+      style={{
+        fontWeight: 'bold',
+        marginBottom: '0.25rem',
+        fontSize: large ? '1.5rem' : '1rem',
+      }}
+    >
+      {children}
+    </div>
+  );
 };
 
 export default Label;

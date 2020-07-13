@@ -39,51 +39,65 @@ const DemoForm = ({ formName, blue }) => {
   return (
     <form name={formName}>
       <Panel blue={blue}>
-        <Label>Whole Number, No Submit on Enter</Label>
-        <NumberInput
-          {...connectToState(getInputName(inputCounter++))}
-          ignoreEnterKey
-        />
-        <Label>Whole Number, 100 min, 200 max</Label>
-        <NumberInput
-          {...connectToState(getInputName(inputCounter++))}
-          min={100}
-          max={200}
-        />
-        <Label>German School Grade</Label>
-        <NumberInput
-          {...connectToState(getInputName(inputCounter++))}
-          placeholder='1,3'
-          step={0.1}
-          precision={1}
-          min={1}
-          max={6}
-        />
-        <Label>Decimal Number, Currency</Label>
-        <NumberInput
-          {...connectToState(getInputName(inputCounter++))}
-          precision={2}
-          currency
-        />
-        <Label>Decimal Number, Currency, Disabled</Label>
-        <NumberInput
-          {...connectToState(getInputName(inputCounter++))}
-          precision={2}
-          currency
-          disabled
-        />
-        <Label>Decimal Number, Currency, Error</Label>
-        <NumberInput
-          {...connectToState(getInputName(inputCounter++))}
-          precision={2}
-          currency
-          error
-        />
-        <Label>Text Input (ALL CAPS)</Label>
-        <StandardInput
-          {...connectToState(getInputName(inputCounter++))}
-          allCaps
-        />
+        <div>
+          <Label>Whole Number, No Submit on Enter</Label>
+          <NumberInput
+            {...connectToState(getInputName(inputCounter++))}
+            ignoreEnterKey
+          />
+        </div>
+        <div>
+          <Label>Whole Number, 100 min, 200 max</Label>
+          <NumberInput
+            {...connectToState(getInputName(inputCounter++))}
+            min={100}
+            max={200}
+          />
+        </div>
+        <div>
+          <Label>German School Grade</Label>
+          <NumberInput
+            {...connectToState(getInputName(inputCounter++))}
+            placeholder='1,3'
+            step={0.1}
+            precision={1}
+            min={1}
+            max={6}
+          />
+        </div>
+        <div>
+          <Label>Decimal Number, Currency</Label>
+          <NumberInput
+            {...connectToState(getInputName(inputCounter++))}
+            precision={2}
+            currency
+          />
+        </div>
+        <div>
+          <Label>Decimal Number, Currency, Disabled</Label>
+          <NumberInput
+            {...connectToState(getInputName(inputCounter++))}
+            precision={2}
+            currency
+            disabled
+          />
+        </div>
+        <div>
+          <Label>Decimal Number, Currency, Error</Label>
+          <NumberInput
+            {...connectToState(getInputName(inputCounter++))}
+            precision={2}
+            currency
+            error
+          />
+        </div>
+        <div>
+          <Label>Text Input (ALL CAPS)</Label>
+          <StandardInput
+            {...connectToState(getInputName(inputCounter++))}
+            allCaps
+          />
+        </div>
 
         <div style={{ whiteSpace: 'pre' }}>
           {JSON.stringify(state, undefined, 2)}
