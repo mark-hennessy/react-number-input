@@ -27,6 +27,7 @@ const NumberInput = ({
   blue,
   error,
   disabled,
+  alwaysShowShadow,
   ignoreEnterKey,
   onChange,
   onValueChange,
@@ -504,6 +505,7 @@ const NumberInput = ({
       blue={blue}
       error={error}
       disabled={disabled}
+      alwaysShowShadow={alwaysShowShadow}
       onKeyDown={onKeyDown}
       onInput={onInput}
       onFocus={onFocusWrapper}

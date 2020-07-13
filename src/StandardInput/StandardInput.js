@@ -16,6 +16,7 @@ const StandardInput = (
     blue,
     error,
     disabled,
+    alwaysShowShadow,
     allCaps,
     onChange,
     onValueChange,
@@ -42,7 +43,13 @@ const StandardInput = (
     <div
       className={cn(
         CID,
-        { 'has-right-icon': !!rightIcon, blue, error, disabled },
+        {
+          blue,
+          error,
+          disabled,
+          alwaysShowShadow,
+          'has-right-icon': !!rightIcon,
+        },
         className,
       )}
       data-cy={dataCy || buildDataCyString(name, 'input')}
