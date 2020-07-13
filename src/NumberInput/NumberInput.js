@@ -441,10 +441,10 @@ const NumberInput = ({
     hasFocusRef.current = false;
 
     // setTimeout is needed so that generating a new 'key' prop each render
-    // doesn't break 'Tab' key navigation. Otherwise, Tab would cause a blur,
-    // and forceInputValueToNumber would cause a new input instance to render
-    // and lose focus before the next input in the Tab cycle has a chance to
-    // receive focus.
+    // doesn't break 'Tab' key navigation. Otherwise, Tab would cause a blur
+    // and the resulting forceInputValueToNumber would cause a new input
+    // instance to render which would lose focus before the next input in the
+    // Tab cycle has a chance to receive focus.
     setTimeout(() => {
       // this is needed to clear invalid values such as '-' without a number
       // after it, and to bound valid values to the min/max if specified
