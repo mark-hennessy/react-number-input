@@ -178,8 +178,14 @@ const NumberInput = ({
   };
 
   const calculateStepMultiplier = e => {
-    if (e.ctrlKey || e.metaKey) return 0.1;
-    if (e.shiftKey) return 10;
+    if (e.ctrlKey || e.metaKey) {
+      return 0.1;
+    }
+
+    if (e.shiftKey) {
+      return 10;
+    }
+
     return 1;
   };
 
@@ -391,7 +397,7 @@ const NumberInput = ({
   };
 
   const onKeyDown = e => {
-    const key = e.key;
+    const { key } = e;
     const previousInputValue = getInputValue();
     const previousSelectionState = getSelectionState();
 
