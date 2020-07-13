@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import cn from 'classnames';
 import NumberInputArrowIcon from '../NumberInputArrowIcon/NumberInputArrowIcon';
 
@@ -59,6 +59,11 @@ const NumberInputArrowButton = ({
 
     clearCurrentTimeout();
   };
+
+  useEffect(() => {
+    // onUnmount
+    return clearCurrentTimeout;
+  }, []);
 
   return (
     <button

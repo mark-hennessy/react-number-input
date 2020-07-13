@@ -9,6 +9,7 @@ import {
 import { buildDataCyString } from '../utils/cypressUtils';
 import StandardInput from '../StandardInput/StandardInput';
 import NumberInputArrowButtons from '../NumberInputArrowButtons/NumberInputArrowButtons';
+import shortid from 'shortid';
 
 const CID = 'number-input';
 
@@ -404,7 +405,7 @@ const NumberInput = ({
 
     // Mobile key handling is difficult because on-screen keyboards report
     // 'e.keyCode' as 229 and 'e.key' as 'Unidentified' in onKeyDown. Also,
-    // onKeyPress is deprecated and onInput does not report keys.
+    // onKeyPress is deprecated and onInput doesn't report keys.
     // The alternative is to record the input value on render and compare it
     // with the new input value in onInput to determine which key was pressed.
     const key = findKeyFromDiff(previousInputValue, newInputValue);
@@ -438,9 +439,16 @@ const NumberInput = ({
   const onBlurWrapper = e => {
     hasFocusRef.current = false;
 
-    // this is needed to clear invalid values such as '-' without a number
-    // after it, and to bound valid values to the min/max if specified
-    forceInputValueToNumber(true);
+    // setTimeout is needed so that generating a new 'key' prop each render
+    // doesn't break 'Tab' key navigation. Otherwise, Tab would cause a blur,
+    // and forceInputValueToNumber would cause a new input instance to render
+    // and lose focus before the next input in the Tab cycle has a chance to
+    // receive focus.
+    setTimeout(() => {
+      // this is needed to clear invalid values such as '-' without a number
+      // after it, and to bound valid values to the min/max if specified
+      forceInputValueToNumber(true);
+    });
 
     if (onBlur) {
       onBlur(e);
@@ -463,14 +471,16 @@ const NumberInput = ({
   // the empty string should be allowed as an override even though it's falsy
   const valueToDisplay = valueOverride !== null ? valueOverride : format(value);
 
-  // type 'tel' is important for Mobile for two reasons:
-  // 1) It forces Mobile browsers to show the number pad.
-  // 2) It fixes a Firefox Mobile bug that causes Backspace to glitch the
-  // input when Backspace moves the cursor to the left without changing the
-  // input's value. For example when trying to delete the currency suffix, or
-  // when trying to delete ',00' in an input with precision={2}
+  // Things to note:
+  // - Mobile Firefox and iOS inputs glitch when user input doesn't result in
+  // a change to the input's value, which is the case when the user tries to
+  // delete the currency suffix or delete ',00' in an input with precision={2}.
+  // The fix is to generate a new 'inputKey' each render to force React to
+  // create a new input instance.
+  // - Type 'tel' forces Mobile browsers to show the number pad.
   return (
     <StandardInput
+      inputKey={shortid.generate()}
       ref={inputRef}
       className={cn(CID, className)}
       inputClassName={cn(`${CID}__input`, inputClassName)}

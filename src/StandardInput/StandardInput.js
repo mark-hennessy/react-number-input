@@ -27,6 +27,7 @@ const StandardInput = (
     className,
     inputClassName,
     dataCy,
+    inputKey,
   },
   ref,
 ) => {
@@ -47,6 +48,7 @@ const StandardInput = (
       data-cy={dataCy || buildDataCyString(name, 'input')}
     >
       <input
+        key={inputKey}
         ref={ref}
         className={cn(`${CID}__input`, inputClassName)}
         type={type || 'text'}
