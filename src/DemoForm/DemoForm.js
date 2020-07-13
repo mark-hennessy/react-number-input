@@ -37,6 +37,7 @@ const DemoForm = ({ formName, blue, className }) => {
     };
   };
 
+  // reset the counter so it can be reused
   inputCounter = 1;
 
   return (
