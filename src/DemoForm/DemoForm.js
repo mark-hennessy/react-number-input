@@ -1,14 +1,10 @@
 import React, { useState } from 'react';
-import cn from 'classnames';
 import Panel from '../Panel/Panel';
 import NumberInput from '../NumberInput/NumberInput';
 import Label from '../Label/Label';
-import './DemoForm.scss';
 import StandardInput from '../StandardInput/StandardInput';
 
-const CID = 'demo-form';
-
-const DemoForm = ({ formName, blue, className }) => {
+const DemoForm = ({ formName, blue }) => {
   const getInputName = inputNum => {
     return `${formName}_v${inputNum}`;
   };
@@ -42,7 +38,7 @@ const DemoForm = ({ formName, blue, className }) => {
 
   return (
     <form name={formName}>
-      <Panel className={cn(CID, className)} blue={blue}>
+      <Panel blue={blue}>
         <Label>Whole Number, No Submit on Enter</Label>
         <NumberInput
           {...connectToState(getInputName(inputCounter++))}
@@ -89,11 +85,11 @@ const DemoForm = ({ formName, blue, className }) => {
           allCaps
         />
 
-        <div className={`${CID}__form-state`}>
+        <div style={{ whiteSpace: 'pre' }}>
           {JSON.stringify(state, undefined, 2)}
         </div>
         <button
-          className={`${CID}__submit-button`}
+          style={{ justifySelf: 'start' }}
           type='submit'
           onClick={() => {
             alert(`${formName} Submitted`);

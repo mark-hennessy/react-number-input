@@ -1,12 +1,19 @@
 import React from 'react';
-import cn from 'classnames';
 
-import './Panel.scss';
-
-const CID = 'panel';
-
-const Panel = ({ blue, className, children }) => {
-  return <div className={cn(CID, { blue }, className)}>{children}</div>;
+const Panel = ({ blue, children }) => {
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridGap: '0.5rem',
+        padding: '0.5rem',
+        border: '1px solid lightblue',
+        background: blue ? '#ebf9fd' : 'white',
+      }}
+    >
+      {children}
+    </div>
+  );
 };
 
 export default Panel;
