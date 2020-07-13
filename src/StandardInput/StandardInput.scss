@@ -40,8 +40,8 @@ $shadow: 0px 2px 20px rgba(0, 0, 0, 0.1);
     }
   }
 
-  &.has-right-icon #{$CID}__input {
-    padding-right: 1.75rem;
+  &.hasRightIcon #{$CID}__input {
+    padding-right: 2rem;
   }
 
   &.blue #{$CID}__input {

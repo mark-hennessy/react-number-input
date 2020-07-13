@@ -48,7 +48,7 @@ const StandardInput = (
           error,
           disabled,
           alwaysShowShadow,
-          'has-right-icon': !!rightIcon,
+          hasRightIcon: !!rightIcon,
         },
         className,
       )}
