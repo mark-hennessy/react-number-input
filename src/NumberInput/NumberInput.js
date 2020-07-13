@@ -118,14 +118,19 @@ const NumberInput = ({
   const setSelectionState = selectionState => {
     const { selectionStart, selectionEnd, selectionDirection } = selectionState;
 
+    // ignore selection state if not initialized
+    if (selectionStart === undefined) {
+      return;
+    }
+
     getInput().setSelectionRange(
       selectionStart,
       selectionEnd,
       selectionDirection,
     );
 
-    // This is important because setSelectionRange will trigger onSelect and
-    // snapshotSelectionState as a result if called from onKeyDown, but not if
+    // This is important because setSelectionRange will trigger onSelect (and
+    // snapshotSelectionState as a result) if called from onKeyDown, but not if
     // called from onInput.
     snapshotSelectionState();
   };
@@ -164,7 +169,7 @@ const NumberInput = ({
     const inputValue = getInputValue();
 
     // if inputValue is not parsable to a number, then set it to null so it
-    // doesn't get converted to 0. The input wouldn't be clearable otherwise.
+    // does not get converted to 0. The input would not be clearable otherwise.
     const number = containsNumber(inputValue, decimalSeparator)
       ? parse(inputValue, bound)
       : null;
@@ -248,7 +253,7 @@ const NumberInput = ({
       e.preventDefault();
     }
     // Delete should delete the character to the right of the cursor or move
-    // the cursor to the right if the character can't be deleted
+    // the cursor to the right if the character cannot be deleted
     else if (
       key === 'Delete' &&
       !isRangeSelected &&
@@ -391,9 +396,9 @@ const NumberInput = ({
     const previousSelectionState = getSelectionState();
 
     // Desktop-only key logic
-    // For Mobile, Enter behaves differently, and Up/Down/Delete don't exist.
-    // Mobile browsers don't report the key correctly, and Firefox Mobile
-    // doesn't even fire onKeyDown for most keys.
+    // For Mobile, Enter behaves differently, and Up/Down/Delete do not exist.
+    // Mobile browsers do not report the key correctly, and Firefox Mobile
+    // does not even fire onKeyDown for most keys.
     checkForEnterKey(e, key, previousInputValue, previousSelectionState);
     checkForUpDownArrowKey(e, key, previousInputValue, previousSelectionState);
     checkForDeleteKey(e, key, previousInputValue, previousSelectionState);
@@ -407,7 +412,7 @@ const NumberInput = ({
 
     // Mobile key handling is difficult because on-screen keyboards report
     // 'e.keyCode' as 229 and 'e.key' as 'Unidentified' in onKeyDown. Also,
-    // onKeyPress is deprecated and onInput doesn't report keys.
+    // onKeyPress is deprecated and onInput does not report keys.
     // The alternative is to record the input value on render and compare it
     // with the new input value in onInput to determine which key was pressed.
     const key = findKeyFromDiff(previousInputValue, newInputValue);
@@ -442,7 +447,7 @@ const NumberInput = ({
     hasFocusRef.current = false;
 
     // setTimeout is needed so that generating a new 'key' prop each render
-    // doesn't break 'Tab' key navigation. Otherwise, Tab would cause a blur
+    // does not break 'Tab' key navigation. Otherwise, Tab would cause a blur
     // and the resulting forceInputValueToNumber would cause a new input
     // instance to render which would lose focus before the next input in the
     // Tab cycle has a chance to receive focus.
@@ -474,7 +479,7 @@ const NumberInput = ({
   const valueToDisplay = valueOverride !== null ? valueOverride : format(value);
 
   // Things to note:
-  // - Mobile Firefox and iOS inputs glitch when user input doesn't result in
+  // - Mobile Firefox and iOS inputs glitch when user input does not result in
   // a change to the input's value, which is the case when the user tries to
   // delete the currency suffix or delete ',00' in an input with precision={2}.
   // The fix is to generate a new 'inputKey' each render to force React to
