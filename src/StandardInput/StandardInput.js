@@ -12,7 +12,7 @@ const StandardInput = (
     name,
     value,
     placeholder,
-    iconContent,
+    rightIcon,
     blue,
     error,
     disabled,
@@ -42,7 +42,7 @@ const StandardInput = (
     <div
       className={cn(
         CID,
-        { 'has-icon-content': !!iconContent, blue, error, disabled },
+        { 'has-right-icon': !!rightIcon, blue, error, disabled },
         className,
       )}
       data-cy={dataCy || buildDataCyString(name, 'input')}
@@ -64,8 +64,8 @@ const StandardInput = (
         onSelect={onSelect}
         spellCheck='false'
       />
-      {iconContent && (
-        <div className={`${CID}__icon-container`}>{iconContent}</div>
+      {rightIcon && (
+        <div className={`${CID}__right-icon-container`}>{rightIcon}</div>
       )}
     </div>
   );

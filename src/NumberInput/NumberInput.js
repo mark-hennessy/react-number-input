@@ -490,7 +490,7 @@ const NumberInput = ({
       name={name}
       value={valueToDisplay}
       placeholder={placeholder}
-      iconContent={
+      rightIcon={
         !isMobile && (
           <NumberInputArrowButtons
             blue={blue}

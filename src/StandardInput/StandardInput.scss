@@ -40,7 +40,7 @@ $CID: '.standard-input';
     }
   }
 
-  &.has-icon-content #{$CID}__input {
+  &.has-right-icon #{$CID}__input {
     padding-right: 1.75rem;
   }
 
@@ -72,7 +72,7 @@ $CID: '.standard-input';
     color: #7f7f7f;
   }
 
-  #{$CID}__icon-container {
+  #{$CID}__right-icon-container {
     position: absolute;
     top: 2px;
     right: 2px;
