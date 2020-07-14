@@ -43,6 +43,7 @@ const NumberInput = ({
   const [valueOverride, setValueOverride] = useState(null);
 
   const suffix = currency ? ` ${currencySymbol}` : '';
+  const zeroWidthSpaceCharacter = '\u200B';
   const isMobile = useMemo(() => /Mobi/.test(navigator.userAgent), []);
 
   const parse = (numberOrString, bound) => {
@@ -199,10 +200,11 @@ const NumberInput = ({
     const inputNumberValue = parse(inputValue, true);
     const newNumberValue = parse(inputNumberValue + stepSize * direction, true);
     const newInputValue = format(newNumberValue);
+    const newInputValueWithoutSuffix = newInputValue.replace(suffix, '');
 
     // move the cursor to the end
     setInputValue(newInputValue);
-    setCursorPosition(newInputValue.replace(suffix, '').length);
+    setCursorPosition(newInputValueWithoutSuffix.length);
 
     // trigger onChange
     setNumberValue(newNumberValue);
@@ -503,6 +505,26 @@ const NumberInput = ({
     }
   };
 
+  const onSelect = () => {
+    const inputValue = getInputValue();
+    const visibleValue = inputValue.replace(zeroWidthSpaceCharacter, '');
+    const lastVisibleCursorPosition = visibleValue.length;
+
+    const {
+      selectionStart,
+      selectionEnd,
+      selectionDirection,
+    } = getSelectionState();
+
+    setSelectionState({
+      selectionStart: Math.min(selectionStart, lastVisibleCursorPosition),
+      selectionEnd: Math.min(selectionEnd, lastVisibleCursorPosition),
+      selectionDirection,
+    });
+
+    snapshotSelectionState();
+  };
+
   // runs after each render
   // useLayoutEffect avoids flashing because it runs before the browser has a
   // chance to paint
@@ -523,10 +545,9 @@ const NumberInput = ({
   // Firefox and iOS issue that happens when user input does not result in a
   // change to the input's value. This is the case when the user presses the
   // space bar, tries to delete the currency suffix, tries to delete ',00' in
-  // an input with precision={2}, etc.
+  // an input with precision={2}, and so on.
   const previousValue = previousInputValueRef.current;
   if (previousValue) {
-    const zeroWidthSpaceCharacter = '\u200B';
     if (!previousValue.includes(zeroWidthSpaceCharacter)) {
       valueToDisplay = `${valueToDisplay}${zeroWidthSpaceCharacter}`;
     } else {
@@ -564,7 +585,7 @@ const NumberInput = ({
       onInput={onInput}
       onFocus={onFocusWrapper}
       onBlur={onBlurWrapper}
-      onSelect={snapshotSelectionState}
+      onSelect={onSelect}
     />
   );
 };
