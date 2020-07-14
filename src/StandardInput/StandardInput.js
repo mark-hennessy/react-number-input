@@ -56,7 +56,7 @@ const StandardInput = (
       <input
         ref={ref}
         className={cn(`${CID}__input`, inputClassName)}
-        type={type}
+        type={type || 'text'}
         name={name}
         value={transformedValue}
         placeholder={placeholder}
