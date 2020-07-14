@@ -107,9 +107,12 @@ const DemoForm = ({ formName, blue }) => {
         <button
           style={{ justifySelf: 'start' }}
           type='submit'
-          onClick={() => {
+          onClick={e => {
             alert(`${formName} Submitted
 ${getStateAsJson()}`);
+
+            // don't actually submit the form
+            e.preventDefault();
           }}
         >
           Submit
