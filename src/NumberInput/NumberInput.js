@@ -377,8 +377,8 @@ const NumberInput = ({
 
       const adjustedPosition = cursorPosition - numberRemoved;
       const nextChar = newValueWithoutDuplicateSeparators[adjustedPosition];
-      const separatorToTheRight = separatorPattern.test(nextChar);
-      const forwardMovement = separatorToTheRight ? 1 : 0;
+      const isSeparatorToTheRight = separatorPattern.test(nextChar);
+      const forwardMovement = isSeparatorToTheRight ? 1 : 0;
       setCursorPosition(adjustedPosition + forwardMovement);
 
       e.preventDefault();
