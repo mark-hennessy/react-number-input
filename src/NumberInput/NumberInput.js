@@ -517,20 +517,30 @@ const NumberInput = ({
   });
 
   // the empty string should be allowed as an override even though it's falsy
-  const valueToDisplay = valueOverride !== null ? valueOverride : format(value);
+  let valueToDisplay = valueOverride !== null ? valueOverride : format(value);
 
-  // Things to note:
-  // - type 'tel' forces Mobile browsers to show the number pad.
-  // - Inputs in Mobile Firefox and iOS 'glitch' when user input does not result
-  // in a change to the input's value, which is the case when the user tries to
-  // delete the currency suffix or delete ',00' in an input with precision={2}.
-  // Luckily, type 'tel' fixes this issue as well.
+  // Ensure that the new value is never equal to the old value to fix a Mobile
+  // Firefox and iOS issue that happens when user input does not result in a
+  // change to the input's value. This is the case when the user presses the
+  // space bar, tries to delete the currency suffix, tries to delete ',00' in
+  // an input with precision={2}, etc.
+  const previousValue = previousInputValueRef.current;
+  if (previousValue) {
+    const zeroWidthSpaceCharacter = '\u200B';
+    if (!previousValue.includes(zeroWidthSpaceCharacter)) {
+      valueToDisplay = `${valueToDisplay}${zeroWidthSpaceCharacter}`;
+    } else {
+      valueToDisplay = valueToDisplay.replace(zeroWidthSpaceCharacter, '');
+    }
+  }
+
   return (
     <StandardInput
       ref={inputRef}
       className={cn(CID, className)}
       inputClassName={cn(`${CID}__input`, inputClassName)}
       dataCy={dataCy || buildDataCyString(name, 'number-input')}
+      // type 'tel' forces Mobile browsers to show the number pad.
       type='tel'
       name={name}
       value={valueToDisplay}
