@@ -1,6 +1,5 @@
 import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import cn from 'classnames';
-import shortid from 'shortid';
 import {
   containsNumber,
   findKeyFromDiff,
@@ -525,13 +524,9 @@ const NumberInput = ({
   // - Inputs in Mobile Firefox and iOS 'glitch' when user input does not result
   // in a change to the input's value, which is the case when the user tries to
   // delete the currency suffix or delete ',00' in an input with precision={2}.
-  // The fix is to generate a new 'inputKey' each render to force React to
-  // create a new input instance.
-  // - type 'tel' fixes the above input 'glitch' in Firefox but not in iOS, so
-  // the 'inputKey' fix is still needed.
+  // Luckily, type 'tel' fixes this issue as well.
   return (
     <StandardInput
-      inputKey={shortid.generate()}
       ref={inputRef}
       className={cn(CID, className)}
       inputClassName={cn(`${CID}__input`, inputClassName)}
