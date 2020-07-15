@@ -447,7 +447,7 @@ const NumberInput = ({
         setCursorPosition(cursorPosition);
       }
       // Otherwise assume range selection or copy/paste and keep the cursor
-      // where it is but account for the spaces removed.
+      // where it is but account for the removed spaces.
       else {
         setCursorPosition(cursorPosition - numberRemoved);
       }
@@ -557,7 +557,7 @@ const NumberInput = ({
   // useLayoutEffect avoids flashing because it runs before the browser has a
   // chance to paint
   useLayoutEffect(() => {
-    // Get the value directly from the ref to preserve the zeroWidthCharacter.
+    // get the value directly from the ref to preserve the zeroWidthCharacter
     previousInputValueRef.current = inputRef.current.value;
 
     if (hasFocusRef.current) {
@@ -572,7 +572,7 @@ const NumberInput = ({
   let valueToDisplay =
     inputValueOverride !== null ? inputValueOverride : format(value);
 
-  // Get the value directly from the ref to preserve the zeroWidthCharacter.
+  // get the value directly from the ref to preserve the zeroWidthCharacter
   const previousValue = previousInputValueRef.current;
 
   // Ensure that the new value is never equal to the old value to fix a Mobile
