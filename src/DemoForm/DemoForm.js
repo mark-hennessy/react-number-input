@@ -48,6 +48,7 @@ const DemoForm = ({ formName, blue }) => {
           <NumberInput
             {...connectToState(getInputName(inputCounter++))}
             ignoreEnterKey
+            centerAlign
           />
         </div>
         <div>

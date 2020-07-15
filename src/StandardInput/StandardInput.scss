@@ -75,6 +75,10 @@ $shadow: 0px 2px 20px rgba(0, 0, 0, 0.1);
     box-shadow: $shadow;
   }
 
+  &.centerAlign #{$CID}__input {
+    text-align: center;
+  }
+
   #{$CID}__right-icon-container {
     position: absolute;
     top: 2px;
