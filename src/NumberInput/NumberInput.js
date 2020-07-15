@@ -486,7 +486,7 @@ const NumberInput = ({
     const previousInputValue = getInputValue();
     const previousSelectionState = getSelectionState();
 
-    //// Desktop-only key logic ////
+    /// Desktop-only key logic ///
 
     // For Mobile, Enter behaves differently, and Up/Down/Delete do not exist.
     // Mobile browsers do not report the key correctly, and Firefox Mobile
@@ -509,7 +509,7 @@ const NumberInput = ({
     // with the new input value in onInput to determine which key was pressed.
     const key = findKeyFromDiff(previousInputValue, newInputValue);
 
-    //// Desktop & Mobile key logic ////
+    /// Desktop & Mobile key logic ///
 
     // checkForBackspaceKey uses previous values to match checkForDeleteKey
     checkForBackspaceKey(e, key, previousInputValue, previousSelectionState);
