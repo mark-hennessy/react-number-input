@@ -36,14 +36,17 @@ const NumberInput = ({
   inputClassName,
   dataCy,
 }) => {
+  const [overrides, setOverrides] = useState({
+    inputValue: null,
+  });
+
   const inputRef = useRef(null);
-  const hasFocusRef = useRef(false);
-  const selectionStateRef = useRef({});
   const previousInputValueRef = useRef(null);
-  const [valueOverride, setValueOverride] = useState(null);
+  const previousSelectionStateRef = useRef({});
+  const hasFocusRef = useRef(false);
 
   const suffix = currency ? ` ${currencySymbol}` : '';
-  const zeroWidthSpaceCharacter = '\u200B';
+  const zeroWidthCharacter = '\u200B';
   const isMobile = useMemo(() => /Mobi/.test(navigator.userAgent), []);
 
   const parse = (numberOrString, bound) => {
@@ -64,17 +67,25 @@ const NumberInput = ({
     );
   };
 
+  const getValueWithoutZeroWidthCharacter = inputValue => {
+    return inputValue.replace(zeroWidthCharacter, '');
+  };
+
   const getInput = () => {
     return inputRef.current;
   };
 
   const getInputValue = () => {
-    return getInput().value;
+    return getValueWithoutZeroWidthCharacter(getInput().value);
+  };
+
+  const getPreviousInputValue = () => {
+    return getValueWithoutZeroWidthCharacter(previousInputValueRef.current);
   };
 
   const setInputValue = inputValue => {
     // The input is a controlled component, and thus requires the value to be
-    // set via a state change (either by setNumberValue or setValueOverride).
+    // set via a state change (setNumberValue or setInputValueOverride).
     //
     // React uses a timer internally to reset the value if it's not followed
     // by a state change. The onKeyDown-preventDefault combo can be used to set
@@ -89,17 +100,41 @@ const NumberInput = ({
     // cleared by setNumberValue in the same render. The override is only used
     // as a fallback in case setNumberValue ends up not getting called. The
     // override value is useful for temporarily rendering non-numeric values.
-    setValueOverride(inputValue);
+    setInputValueOverride(inputValue);
+  };
+
+  const getInputValueOverride = () => {
+    return overrides.inputValue;
+  };
+
+  const setInputValueOverride = inputValue => {
+    // inputValueOverride state is wrapped in an object to ensure a new render
+    // when set even if the override value does not change. This is needed
+    // because React requires user input to result in a new render even if the
+    // displayed value does not change.
+    setOverrides({
+      ...overrides,
+      inputValue,
+    });
   };
 
   const getSelectionState = () => {
-    const inputValue = getInputValue();
+    const {
+      selectionStart: originalSelectionStart,
+      selectionEnd: originalSelectionEnd,
+      selectionDirection,
+    } = getInput();
 
-    const { selectionStart, selectionEnd, selectionDirection } = getInput();
+    const { length } = getInputValue();
+
+    // selectionStart and selectionEnd need to be adjusted because
+    // getInputValue removes the zeroWidthCharacter if present
+    const selectionStart = Math.min(originalSelectionStart, length);
+    const selectionEnd = Math.min(originalSelectionEnd, length);
+
     const isRangeSelected = selectionStart !== selectionEnd;
     const selectedRangeLength = selectionEnd - selectionStart;
-    const isAllTextSelected =
-      isRangeSelected && selectedRangeLength === inputValue.length;
+    const isAllTextSelected = isRangeSelected && selectedRangeLength === length;
 
     return {
       selectionStart,
@@ -111,8 +146,12 @@ const NumberInput = ({
     };
   };
 
+  const getPreviousSelectionState = () => {
+    return previousSelectionStateRef.current;
+  };
+
   const snapshotSelectionState = () => {
-    selectionStateRef.current = getSelectionState();
+    previousSelectionStateRef.current = getSelectionState();
   };
 
   const setSelectionState = selectionState => {
@@ -140,12 +179,12 @@ const NumberInput = ({
   };
 
   const restoreSelectionState = () => {
-    setSelectionState(selectionStateRef.current);
+    setSelectionState(getPreviousSelectionState());
   };
 
   const setNumberValue = number => {
     // Clear the value override so the actual value will show next render.
-    setValueOverride(null);
+    setInputValueOverride(null);
 
     const { name } = getInput();
 
@@ -441,10 +480,14 @@ const NumberInput = ({
 
   const onKeyDown = e => {
     const { key } = e;
+
+    // The previous state is actually the current state because the input has
+    // not been updated yet.
     const previousInputValue = getInputValue();
     const previousSelectionState = getSelectionState();
 
-    // Desktop-only key logic
+    //// Desktop-only key logic ////
+
     // For Mobile, Enter behaves differently, and Up/Down/Delete do not exist.
     // Mobile browsers do not report the key correctly, and Firefox Mobile
     // does not even fire onKeyDown for most keys.
@@ -454,8 +497,8 @@ const NumberInput = ({
   };
 
   const onInput = e => {
-    const previousInputValue = previousInputValueRef.current;
-    const previousSelectionState = selectionStateRef.current;
+    const previousInputValue = getPreviousInputValue();
+    const previousSelectionState = getPreviousSelectionState();
     const newInputValue = getInputValue();
     const newSelectionState = getSelectionState();
 
@@ -466,7 +509,8 @@ const NumberInput = ({
     // with the new input value in onInput to determine which key was pressed.
     const key = findKeyFromDiff(previousInputValue, newInputValue);
 
-    // Desktop & Mobile key logic
+    //// Desktop & Mobile key logic ////
+
     // checkForBackspaceKey uses previous values to match checkForDeleteKey
     checkForBackspaceKey(e, key, previousInputValue, previousSelectionState);
 
@@ -506,22 +550,6 @@ const NumberInput = ({
   };
 
   const onSelect = () => {
-    const inputValue = getInputValue();
-    const visibleValue = inputValue.replace(zeroWidthSpaceCharacter, '');
-    const lastVisibleCursorPosition = visibleValue.length;
-
-    const {
-      selectionStart,
-      selectionEnd,
-      selectionDirection,
-    } = getSelectionState();
-
-    setSelectionState({
-      selectionStart: Math.min(selectionStart, lastVisibleCursorPosition),
-      selectionEnd: Math.min(selectionEnd, lastVisibleCursorPosition),
-      selectionDirection,
-    });
-
     snapshotSelectionState();
   };
 
@@ -529,8 +557,8 @@ const NumberInput = ({
   // useLayoutEffect avoids flashing because it runs before the browser has a
   // chance to paint
   useLayoutEffect(() => {
-    const previousInputValue = getInputValue();
-    previousInputValueRef.current = previousInputValue;
+    // Get the value directly from the ref to preserve the zeroWidthCharacter.
+    previousInputValueRef.current = inputRef.current.value;
 
     if (hasFocusRef.current) {
       getInput().focus();
@@ -538,20 +566,25 @@ const NumberInput = ({
     }
   });
 
+  const inputValueOverride = getInputValueOverride();
+
   // the empty string should be allowed as an override even though it's falsy
-  let valueToDisplay = valueOverride !== null ? valueOverride : format(value);
+  let valueToDisplay =
+    inputValueOverride !== null ? inputValueOverride : format(value);
+
+  // Get the value directly from the ref to preserve the zeroWidthCharacter.
+  const previousValue = previousInputValueRef.current;
 
   // Ensure that the new value is never equal to the old value to fix a Mobile
   // Firefox and iOS issue that happens when user input does not result in a
   // change to the input's value. This is the case when the user presses the
   // space bar, tries to delete the currency suffix, tries to delete ',00' in
   // an input with precision={2}, and so on.
-  const previousValue = previousInputValueRef.current;
   if (previousValue) {
-    if (!previousValue.includes(zeroWidthSpaceCharacter)) {
-      valueToDisplay = `${valueToDisplay}${zeroWidthSpaceCharacter}`;
-    } else {
-      valueToDisplay = valueToDisplay.replace(zeroWidthSpaceCharacter, '');
+    if (previousValue.includes(zeroWidthCharacter)) {
+      valueToDisplay = getValueWithoutZeroWidthCharacter(valueToDisplay);
+    } else if (previousValue === valueToDisplay) {
+      valueToDisplay = `${valueToDisplay}${zeroWidthCharacter}`;
     }
   }
 
