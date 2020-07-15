@@ -47,8 +47,7 @@ const DemoForm = ({ formName, blue }) => {
           <Label>Whole Number, No Submit on Enter</Label>
           <NumberInput
             {...connectToState(getInputName(inputCounter++))}
-            ignoreEnterKey
-            centerAlign
+            preventSubmitOnEnter
           />
         </div>
         <div>

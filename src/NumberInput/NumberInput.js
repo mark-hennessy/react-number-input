@@ -28,7 +28,7 @@ const NumberInput = ({
   disabled,
   alwaysShowShadow,
   centerAlign,
-  ignoreEnterKey,
+  preventSubmitOnEnter,
   onChange,
   onValueChange,
   onFocus,
@@ -266,8 +266,7 @@ const NumberInput = ({
       // force the value to a number before form submission.
       forceInputValueToNumber(true);
 
-      if (ignoreEnterKey) {
-        // prevent form submission on Enter
+      if (preventSubmitOnEnter) {
         e.preventDefault();
       }
     }
