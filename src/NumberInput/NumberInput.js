@@ -68,6 +68,21 @@ const NumberInput = ({
     );
   };
 
+  const getInputValueOverride = () => {
+    return overrides.inputValue;
+  };
+
+  const setInputValueOverride = inputValue => {
+    // inputValueOverride state is wrapped in an object to ensure a new render
+    // when set even if the override value does not change. This is needed
+    // because React requires user input to result in a new render even if the
+    // displayed value does not change.
+    setOverrides({
+      ...overrides,
+      inputValue,
+    });
+  };
+
   const getValueWithoutZeroWidthCharacter = inputValue => {
     return inputValue.replace(zeroWidthCharacter, '');
   };
@@ -102,21 +117,6 @@ const NumberInput = ({
     // as a fallback in case setNumberValue ends up not getting called. The
     // override value is useful for temporarily rendering non-numeric values.
     setInputValueOverride(inputValue);
-  };
-
-  const getInputValueOverride = () => {
-    return overrides.inputValue;
-  };
-
-  const setInputValueOverride = inputValue => {
-    // inputValueOverride state is wrapped in an object to ensure a new render
-    // when set even if the override value does not change. This is needed
-    // because React requires user input to result in a new render even if the
-    // displayed value does not change.
-    setOverrides({
-      ...overrides,
-      inputValue,
-    });
   };
 
   const getSelectionState = () => {
