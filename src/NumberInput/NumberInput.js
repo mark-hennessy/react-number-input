@@ -169,9 +169,8 @@ const NumberInput = ({
       selectionDirection,
     );
 
-    // This is important because setSelectionRange will trigger onSelect (and
-    // snapshotSelectionState as a result) if called from onKeyDown, but not if
-    // called from onInput.
+    // this is important because setSelectionRange will not trigger onSelect
+    // if called from onInput
     snapshotSelectionState();
   };
 
@@ -316,6 +315,8 @@ const NumberInput = ({
 
       const newNumberValue = parse(textAfterDelete, false);
       const newInputValue = format(newNumberValue);
+
+      // so cursor position can be set in sync with the new value
       setInputValue(newInputValue);
 
       if (
@@ -551,6 +552,13 @@ const NumberInput = ({
 
   const onSelect = () => {
     snapshotSelectionState();
+
+    // selectionEnd may be greater than the length of the value returned by
+    // getInputValue if the zeroWidthCharacter was added. If this is the case,
+    // then restore selection state to the already adjusted snapshot state.
+    if (getInput().selectionEnd > getInputValue().length) {
+      restoreSelectionState();
+    }
   };
 
   // runs after each render
