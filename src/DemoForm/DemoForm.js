@@ -44,14 +44,14 @@ const DemoForm = ({ formName, blue }) => {
     <form name={formName}>
       <Panel blue={blue}>
         <div>
-          <Label>Whole Number, No Submit on Enter</Label>
+          <Label>Whole Number, Min 0, No Submit on Enter</Label>
           <NumberInput
             {...connectToState(getInputName(inputCounter++))}
             preventSubmitOnEnter
           />
         </div>
         <div>
-          <Label>Whole Number, 100 min, 200 max</Label>
+          <Label>Whole Number, Min 100, Max 200</Label>
           <NumberInput
             {...connectToState(getInputName(inputCounter++))}
             min={100}
@@ -74,6 +74,7 @@ const DemoForm = ({ formName, blue }) => {
           <NumberInput
             {...connectToState(getInputName(inputCounter++))}
             precision={2}
+            min={null}
             currency
           />
         </div>
@@ -82,6 +83,7 @@ const DemoForm = ({ formName, blue }) => {
           <NumberInput
             {...connectToState(getInputName(inputCounter++))}
             precision={2}
+            min={null}
             currency
             disabled
           />
@@ -91,6 +93,7 @@ const DemoForm = ({ formName, blue }) => {
           <NumberInput
             {...connectToState(getInputName(inputCounter++))}
             precision={2}
+            min={null}
             currency
             error
           />
