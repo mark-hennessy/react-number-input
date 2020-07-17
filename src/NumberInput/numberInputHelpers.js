@@ -69,7 +69,7 @@ export const findCharAdditions = (previousString, currentString) => {
 
   const charQueue = previousString.split('');
   for (const c of currentString) {
-    const p = charQueue[0];
+    const [p] = charQueue;
     if (p !== c) {
       changes.push(c);
     } else {
@@ -88,7 +88,7 @@ export const findKeyFromDiff = (previousString, currentString) => {
     if (lengthDifference === 1) {
       const additions = findCharAdditions(previousString, currentString);
       if (additions.length === 1) {
-        key = additions[0];
+        [key] = additions;
       }
     } else if (lengthDifference === -1) {
       const removals = findCharAdditions(currentString, previousString);
