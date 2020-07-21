@@ -5,8 +5,8 @@ const createInputTransformationProps = ({
   onValueChange,
 }) => {
   const transformValue = rawValue => {
-    // convert undefined and null to ''
     // convert 5 to '5'
+    // convert undefined and null to ''
     let newValue =
       rawValue !== undefined && rawValue !== null ? `${rawValue}` : '';
 
