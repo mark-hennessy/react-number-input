@@ -53,11 +53,11 @@ const StandardInput = (
         },
         className,
       )}
-      data-cy={dataCy || buildDataCyString(name, 'input')}
     >
       <input
         ref={ref}
         className={cn(`${CID}__input`, inputClassName)}
+        data-cy={dataCy || buildDataCyString(name, 'input')}
         type={type || 'text'}
         name={name}
         value={transformedValue}
