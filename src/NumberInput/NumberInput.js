@@ -188,11 +188,15 @@ const NumberInput = ({
 
     const { name } = getInput();
 
+    // Use the empty string instead of null to represent an empty input in case
+    // there are apps that repopulate the input with a default value when null.
+    const value = number !== null ? number : '';
+
     if (onChange) {
       const e = {
         target: {
           name,
-          value: number,
+          value,
         },
       };
 
@@ -200,7 +204,7 @@ const NumberInput = ({
     }
 
     if (onValueChange) {
-      onValueChange(number, name);
+      onValueChange(value, name);
     }
   };
 
