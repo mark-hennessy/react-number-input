@@ -29,6 +29,7 @@ const StandardInput = (
     inputClassName,
     dataCy,
     type = 'text',
+    inputMode,
   },
   ref,
 ) => {
@@ -59,17 +60,18 @@ const StandardInput = (
         className={cn(`${CID}__input`, inputClassName)}
         data-cy={dataCy || buildDataCyString(name, 'input')}
         type={type}
+        inputMode={inputMode}
         name={name}
         value={transformedValue}
         placeholder={placeholder}
         disabled={disabled}
+        spellCheck='false'
         onChange={onChangeWrapper}
         onKeyDown={onKeyDown}
         onInput={onInput}
         onFocus={onFocus}
         onBlur={onBlur}
         onSelect={onSelect}
-        spellCheck='false'
       />
       {rightIcon && (
         <div className={`${CID}__right-icon-container`}>{rightIcon}</div>

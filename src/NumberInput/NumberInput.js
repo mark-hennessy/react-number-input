@@ -36,9 +36,6 @@ const NumberInput = ({
   className,
   inputClassName,
   dataCy,
-  // 'tel' forces Mobile browsers to show the number pad, but may not allow the
-  // decimal separator on some devices. Use 'text' if decimals are needed.
-  type = 'tel',
 }) => {
   const [overrides, setOverrides] = useState({
     inputValue: null,
@@ -609,7 +606,9 @@ const NumberInput = ({
       className={cn(CID, className)}
       inputClassName={cn(`${CID}__input`, inputClassName)}
       dataCy={dataCy || buildDataCyString(name, 'number-input')}
-      type={type}
+      type='text'
+      // ask Mobile browsers that support inputMode to show the number pad
+      inputMode='decimal'
       name={name}
       value={valueToDisplay}
       placeholder={placeholder}
