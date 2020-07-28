@@ -595,7 +595,7 @@ const NumberInput = ({
   if (previousValue) {
     if (previousValue.includes(zeroWidthCharacter)) {
       valueToDisplay = getValueWithoutZeroWidthCharacter(valueToDisplay);
-    } else if (previousValue === valueToDisplay) {
+    } else if (previousValue === valueToDisplay && hasFocusRef.current) {
       valueToDisplay = `${valueToDisplay}${zeroWidthCharacter}`;
     }
   }
