@@ -47,7 +47,6 @@ const NumberInput = ({
   const hasFocusRef = useRef(false);
 
   const suffix = currency ? ` ${currencySymbol}` : '';
-  const zeroWidthCharacter = '\u200B';
   const isMobile = useMemo(() => /Mobi/.test(navigator.userAgent), []);
 
   const parse = (numberOrString, bound) => {
@@ -83,20 +82,16 @@ const NumberInput = ({
     });
   };
 
-  const getValueWithoutZeroWidthCharacter = inputValue => {
-    return inputValue.replace(zeroWidthCharacter, '');
-  };
-
   const getInput = () => {
     return inputRef.current;
   };
 
   const getInputValue = () => {
-    return getValueWithoutZeroWidthCharacter(getInput().value);
+    return getInput().value;
   };
 
   const getPreviousInputValue = () => {
-    return getValueWithoutZeroWidthCharacter(previousInputValueRef.current);
+    return previousInputValueRef.current;
   };
 
   const setInputValue = inputValue => {
@@ -120,18 +115,9 @@ const NumberInput = ({
   };
 
   const getSelectionState = () => {
-    const {
-      selectionStart: originalSelectionStart,
-      selectionEnd: originalSelectionEnd,
-      selectionDirection,
-    } = getInput();
+    const { selectionStart, selectionEnd, selectionDirection } = getInput();
 
     const { length } = getInputValue();
-
-    // selectionStart and selectionEnd need to be adjusted because
-    // getInputValue removes the zeroWidthCharacter if present
-    const selectionStart = Math.min(originalSelectionStart, length);
-    const selectionEnd = Math.min(originalSelectionEnd, length);
 
     const isRangeSelected = selectionStart !== selectionEnd;
     const selectedRangeLength = selectionEnd - selectionStart;
@@ -556,21 +542,13 @@ const NumberInput = ({
 
   const onSelect = () => {
     snapshotSelectionState();
-
-    // selectionEnd may be greater than the length of the value returned by
-    // getInputValue if the zeroWidthCharacter was added. If this is the case,
-    // then restore selection state to the already adjusted snapshot state.
-    if (getInput().selectionEnd > getInputValue().length) {
-      restoreSelectionState();
-    }
   };
 
   // runs after each render
   // useLayoutEffect avoids flashing because it runs before the browser has a
   // chance to paint
   useLayoutEffect(() => {
-    // get the value directly from the ref to preserve the zeroWidthCharacter
-    previousInputValueRef.current = inputRef.current.value;
+    previousInputValueRef.current = getInputValue();
 
     if (hasFocusRef.current) {
       getInput().focus();
@@ -581,24 +559,8 @@ const NumberInput = ({
   const inputValueOverride = getInputValueOverride();
 
   // the empty string should be allowed as an override even though it's falsy
-  let valueToDisplay =
+  const valueToDisplay =
     inputValueOverride !== null ? inputValueOverride : format(value);
-
-  // get the value directly from the ref to preserve the zeroWidthCharacter
-  const previousValue = previousInputValueRef.current;
-
-  // Ensure that the new value is never equal to the old value to fix a Mobile
-  // Firefox and iOS issue that happens when user input does not result in a
-  // change to the input's value. This is the case when the user presses the
-  // space bar, tries to delete the currency suffix, tries to delete ',00' in
-  // an input with precision={2}, and so on.
-  if (previousValue) {
-    if (previousValue.includes(zeroWidthCharacter)) {
-      valueToDisplay = getValueWithoutZeroWidthCharacter(valueToDisplay);
-    } else if (previousValue === valueToDisplay && hasFocusRef.current) {
-      valueToDisplay = `${valueToDisplay}${zeroWidthCharacter}`;
-    }
-  }
 
   return (
     <StandardInput
