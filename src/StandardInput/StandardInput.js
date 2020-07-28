@@ -8,7 +8,6 @@ const CID = 'standard-input';
 
 const StandardInput = (
   {
-    type,
     name,
     value,
     placeholder,
@@ -29,6 +28,7 @@ const StandardInput = (
     className,
     inputClassName,
     dataCy,
+    type = 'text',
   },
   ref,
 ) => {
@@ -58,7 +58,7 @@ const StandardInput = (
         ref={ref}
         className={cn(`${CID}__input`, inputClassName)}
         data-cy={dataCy || buildDataCyString(name, 'input')}
-        type={type || 'text'}
+        type={type}
         name={name}
         value={transformedValue}
         placeholder={placeholder}

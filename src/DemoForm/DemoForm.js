@@ -67,6 +67,8 @@ const DemoForm = ({ formName, blue }) => {
             precision={1}
             min={1}
             max={6}
+            // 'text' is needed so users on old phones can type the decimal separator
+            type='text'
           />
         </div>
         <div>
