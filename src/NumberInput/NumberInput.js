@@ -9,6 +9,7 @@ import {
 import { buildDataCyString } from '../utils/cypressUtils';
 import StandardInput from '../StandardInput/StandardInput';
 import NumberInputArrowButtons from '../NumberInputArrowButtons/NumberInputArrowButtons';
+import shortid from 'shortid';
 
 const CID = 'number-input';
 
@@ -45,6 +46,9 @@ const NumberInput = ({
   const previousInputValueRef = useRef(null);
   const previousSelectionStateRef = useRef({});
   const hasFocusRef = useRef(false);
+
+  // undefined is important since null is a valid key value
+  const inputKeyRef = useRef(undefined);
 
   const suffix = currency ? ` ${currencySymbol}` : '';
   const isMobile = useMemo(() => /Mobi/.test(navigator.userAgent), []);
@@ -562,10 +566,24 @@ const NumberInput = ({
   const valueToDisplay =
     inputValueOverride !== null ? inputValueOverride : format(value);
 
+  const previousValue = getPreviousInputValue();
+
+  // Create a new input when the new value matches the old to fix a Firefox
+  // Mobile and iOS issue that happens when user input does not result in a
+  // change to the input's value. This is the case when the user presses the
+  // space bar, tries to delete the currency suffix, tries to delete ',00' in
+  // an input with precision={2}, and so on.
+  // Only create a new input if the input has not just blurred to avoid
+  // breaking keyboard Tab and Shift Tab navigation.
+  if (valueToDisplay === previousValue && hasFocusRef.current) {
+    inputKeyRef.current = shortid.generate();
+  }
+
   return (
     <StandardInput
       ref={inputRef}
       className={cn(CID, className)}
+      inputKey={inputKeyRef.current}
       inputClassName={cn(`${CID}__input`, inputClassName)}
       dataCy={dataCy || buildDataCyString(name, 'number-input')}
       type='text'

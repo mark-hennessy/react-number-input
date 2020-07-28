@@ -26,6 +26,7 @@ const StandardInput = (
     onBlur,
     onSelect,
     className,
+    inputKey,
     inputClassName,
     dataCy,
     type = 'text',
@@ -56,6 +57,7 @@ const StandardInput = (
       )}
     >
       <input
+        key={inputKey}
         ref={ref}
         className={cn(`${CID}__input`, inputClassName)}
         data-cy={dataCy || buildDataCyString(name, 'input')}
