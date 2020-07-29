@@ -10,6 +10,7 @@ import { buildDataCyString } from '../utils/cypressUtils';
 import StandardInput from '../StandardInput/StandardInput';
 import NumberInputArrowButtons from '../NumberInputArrowButtons/NumberInputArrowButtons';
 import shortid from 'shortid';
+import { isNumber } from '../utils/numberUtils';
 
 const CID = 'number-input';
 
@@ -150,7 +151,7 @@ const NumberInput = ({
     const { selectionStart, selectionEnd, selectionDirection } = selectionState;
 
     // ignore selection state if not initialized
-    if (selectionStart === undefined) {
+    if (!isNumber(selectionStart)) {
       return;
     }
 
@@ -459,18 +460,20 @@ const NumberInput = ({
   };
 
   const checkForMinusKey = (e, key, newInputValue) => {
-    // '-' should be allowed even though it's not a number
-    if (newInputValue === '-') {
-      setInputValue('-');
-      setCursorPosition(1);
-      e.preventDefault();
-    }
-    // -0 should be converted to 0
-    else if (newInputValue === '-0') {
-      setInputValue('0');
-      setCursorPosition(1);
-      setNumberValue(0);
-      e.preventDefault();
+    if (!isNumber(min) || min < 0) {
+      // '-' should be allowed even though it's not a number
+      if (newInputValue === '-') {
+        setInputValue('-');
+        setCursorPosition(1);
+        e.preventDefault();
+      }
+      // -0 should be converted to 0
+      else if (newInputValue === '-0') {
+        setInputValue('0');
+        setCursorPosition(1);
+        setNumberValue(0);
+        e.preventDefault();
+      }
     }
   };
 
