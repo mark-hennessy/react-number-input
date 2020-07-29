@@ -100,3 +100,65 @@ export const findKeyFromDiff = (previousString, currentString) => {
 
   return key;
 };
+
+export const removeSuffix = string => {
+  // Remove one or more non-digit characters at the end so the suffix is
+  // removed even if it was partially deleted by Backspace.
+  return string.replace(/\D+$/, '');
+};
+
+export const removeSpaces = string => {
+  return string.replace(/\s/g, '');
+};
+
+export const hasDecimalSeparator = (string, decimalSeparator) => {
+  // match a period or the custom decimal separator
+  return new RegExp(`[.${decimalSeparator}]`).test(string);
+};
+
+export const removeDuplicateDecimalSeparators = (string, decimalSeparator) => {
+  let result = string;
+
+  // replace all '.' with custom decimal separators
+  result = result.replace(/\./g, decimalSeparator);
+
+  if (result.includes(decimalSeparator)) {
+    const lengthUpToAndIncludingFirstSeparator =
+      result.indexOf(decimalSeparator) + 1;
+
+    const valueUpToAndIncludingFirstSeparator = result.substring(
+      0,
+      lengthUpToAndIncludingFirstSeparator,
+    );
+
+    const valueAfterFirstSeparator = result.substring(
+      lengthUpToAndIncludingFirstSeparator,
+      result.length,
+    );
+
+    const valueAfterFirstSeparatorWithSeparatorsRemoved = valueAfterFirstSeparator.replace(
+      new RegExp(`\\${decimalSeparator}`, 'g'),
+      '',
+    );
+
+    result =
+      valueUpToAndIncludingFirstSeparator +
+      valueAfterFirstSeparatorWithSeparatorsRemoved;
+  }
+
+  return result;
+};
+
+export const sanitizeInputValue = (
+  string,
+  decimalSeparator = '.',
+  suffix = '',
+) => {
+  let result = removeDuplicateDecimalSeparators(string, decimalSeparator);
+
+  // remove everything that is not a digit or the decimal separator
+  result = result.replace(new RegExp(`[^\\d${decimalSeparator}]`, 'g'), '');
+
+  // only add the suffix back if the result is not empty
+  return result ? result + suffix : result;
+};

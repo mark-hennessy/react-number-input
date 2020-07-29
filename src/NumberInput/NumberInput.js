@@ -4,7 +4,11 @@ import {
   containsNumber,
   findKeyFromDiff,
   formatValue,
+  hasDecimalSeparator,
   parseValue,
+  removeDuplicateDecimalSeparators,
+  removeSpaces,
+  removeSuffix,
 } from './numberInputHelpers';
 import { buildDataCyString } from '../utils/cypressUtils';
 import StandardInput from '../StandardInput/StandardInput';
@@ -235,7 +239,7 @@ const NumberInput = ({
     const inputNumberValue = parse(inputValue, true);
     const newNumberValue = parse(inputNumberValue + stepSize * direction, true);
     const newInputValue = format(newNumberValue);
-    const newInputValueWithoutSuffix = newInputValue.replace(suffix, '');
+    const newInputValueWithoutSuffix = removeSuffix(newInputValue);
 
     // move the cursor to the end
     setInputValue(newInputValue);
@@ -394,16 +398,8 @@ const NumberInput = ({
   ) => {
     const { selectionStart: cursorPosition } = newSelectionState;
 
-    const separators = `[.${decimalSeparator}]`;
-
-    // match a period or the custom separator
-    const separatorPattern = new RegExp(separators);
-
-    // match 2 periods, 2 custom custom separators, or a combination of both
-    const separatorTwicePattern = new RegExp(`${separators}{2}`);
-
-    const newValueWithoutDuplicateSeparators = newInputValue.replace(
-      separatorTwicePattern,
+    const newValueWithoutDuplicateSeparators = removeDuplicateDecimalSeparators(
+      newInputValue,
       decimalSeparator,
     );
 
@@ -415,7 +411,11 @@ const NumberInput = ({
 
       const adjustedPosition = cursorPosition - numberRemoved;
       const nextChar = newValueWithoutDuplicateSeparators[adjustedPosition];
-      const isSeparatorToTheRight = separatorPattern.test(nextChar);
+      const isSeparatorToTheRight = hasDecimalSeparator(
+        nextChar,
+        decimalSeparator,
+      );
+
       const forwardMovement = isSeparatorToTheRight ? 1 : 0;
       setCursorPosition(adjustedPosition + forwardMovement);
 
@@ -426,13 +426,10 @@ const NumberInput = ({
   const checkForSpaceKey = (e, key, newInputValue, newSelectionState) => {
     const { selectionStart: cursorPosition } = newSelectionState;
 
-    // Remove 1 or more non-digit characters at the end of the value, so the
-    // suffix is removed even if it was partially deleted by Backspace.
-    const valueWithoutSuffix = newInputValue.replace(/\D+$/, '');
+    const valueWithoutSuffix = removeSuffix(newInputValue);
+    const valueWithoutSuffixAndSpaces = removeSpaces(valueWithoutSuffix);
 
-    const valueWithoutSuffixAndSpaces = valueWithoutSuffix.replace(/\s/g, '');
     const valueWithoutSpaces = valueWithoutSuffixAndSpaces + suffix;
-
     const numberRemoved =
       valueWithoutSuffix.length - valueWithoutSuffixAndSpaces.length;
 
@@ -522,7 +519,7 @@ const NumberInput = ({
       // cursor position moved due to input, so snapshot it.
       snapshotSelectionState();
 
-      // bounding will happen on blur so the user can type impartial numbers
+      // bounding will happen on blur so the user can type partial numbers
       // without interference.
       forceInputValueToNumber(false);
     }

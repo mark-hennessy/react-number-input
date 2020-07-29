@@ -3,8 +3,13 @@ import {
   findCharAdditions,
   findKeyFromDiff,
   formatValue,
+  hasDecimalSeparator,
   parseToNumber,
   parseValue,
+  removeDuplicateDecimalSeparators,
+  removeSpaces,
+  removeSuffix,
+  sanitizeInputValue,
 } from './numberInputHelpers';
 
 describe('numberInputHelpers', () => {
@@ -284,6 +289,135 @@ describe('numberInputHelpers', () => {
       expect(findKeyFromDiff('123', '12')).toEqual('Backspace');
       expect(findKeyFromDiff('132', '12')).toEqual('Backspace');
       expect(findKeyFromDiff('312', '12')).toEqual('Backspace');
+    });
+  });
+
+  describe('removeSuffix', () => {
+    it('removes non-digits characters from the end', () => {
+      expect(removeSuffix('')).toBe('');
+      expect(removeSuffix('123')).toBe('123');
+      expect(removeSuffix('12,3')).toBe('12,3');
+      expect(removeSuffix('€ 12,3')).toBe('€ 12,3');
+      expect(removeSuffix('12,3 €')).toBe('12,3');
+      expect(removeSuffix('12,3  €')).toBe('12,3');
+      expect(removeSuffix('12,3 EUR')).toBe('12,3');
+    });
+  });
+
+  describe('removeSpaces', () => {
+    it('removes spaces', () => {
+      expect(removeSpaces('')).toBe('');
+      expect(removeSpaces(' ')).toBe('');
+      expect(removeSpaces('123')).toBe('123');
+      expect(removeSpaces(' 1 2  3 ')).toBe('123');
+      expect(removeSpaces('12,3')).toBe('12,3');
+      expect(removeSpaces('12, 3')).toBe('12,3');
+    });
+  });
+
+  describe('hasDecimalSeparator', () => {
+    it('checks for period or the given separator', () => {
+      const decimalSeparator = ',';
+      expect(hasDecimalSeparator('', decimalSeparator)).toBe(false);
+      expect(hasDecimalSeparator('a', decimalSeparator)).toBe(false);
+      expect(hasDecimalSeparator('1', decimalSeparator)).toBe(false);
+      expect(hasDecimalSeparator('123', decimalSeparator)).toBe(false);
+      expect(hasDecimalSeparator('.', decimalSeparator)).toBe(true);
+      expect(hasDecimalSeparator(',', decimalSeparator)).toBe(true);
+      expect(hasDecimalSeparator('12,3', decimalSeparator)).toBe(true);
+      expect(hasDecimalSeparator('12,,3,', decimalSeparator)).toBe(true);
+      expect(hasDecimalSeparator('12.3', decimalSeparator)).toBe(true);
+      expect(hasDecimalSeparator('12..3.', decimalSeparator)).toBe(true);
+    });
+  });
+
+  describe('removeDuplicateDecimalSeparators', () => {
+    it('only keeps the first decimal separator', () => {
+      const decimalSeparator = ',';
+      expect(removeDuplicateDecimalSeparators('', decimalSeparator)).toBe('');
+      expect(removeDuplicateDecimalSeparators('123', decimalSeparator)).toBe(
+        '123',
+      );
+      expect(removeDuplicateDecimalSeparators('12,3', decimalSeparator)).toBe(
+        '12,3',
+      );
+      expect(removeDuplicateDecimalSeparators('12,,3,', decimalSeparator)).toBe(
+        '12,3',
+      );
+      expect(removeDuplicateDecimalSeparators('12.3', decimalSeparator)).toBe(
+        '12,3',
+      );
+      expect(removeDuplicateDecimalSeparators('12..3.', decimalSeparator)).toBe(
+        '12,3',
+      );
+    });
+  });
+
+  describe('sanitizeInputValue', () => {
+    it('sanitizes without a suffix', () => {
+      const decimalSeparator = ',';
+      const suffix = '';
+      expect(sanitizeInputValue('', decimalSeparator, suffix)).toBe('');
+      expect(sanitizeInputValue(' ', decimalSeparator, suffix)).toBe('');
+      expect(sanitizeInputValue('123', decimalSeparator, suffix)).toBe('123');
+      expect(sanitizeInputValue(' 12 3 ', decimalSeparator, suffix)).toBe(
+        '123',
+      );
+      expect(sanitizeInputValue('12, 3', decimalSeparator, suffix)).toBe(
+        '12,3',
+      );
+      expect(sanitizeInputValue('12,3', decimalSeparator, suffix)).toBe('12,3');
+      expect(sanitizeInputValue('12,,3,', decimalSeparator, suffix)).toBe(
+        '12,3',
+      );
+      expect(sanitizeInputValue('12.3', decimalSeparator, suffix)).toBe('12,3');
+      expect(sanitizeInputValue('12..3.', decimalSeparator, suffix)).toBe(
+        '12,3',
+      );
+      expect(sanitizeInputValue('12abc,3', decimalSeparator, suffix)).toBe(
+        '12,3',
+      );
+      expect(sanitizeInputValue('12,3 €', decimalSeparator, suffix)).toBe(
+        '12,3',
+      );
+      expect(sanitizeInputValue('€ 12,3', decimalSeparator, suffix)).toBe(
+        '12,3',
+      );
+    });
+
+    it('sanitizes with a suffix', () => {
+      const decimalSeparator = ',';
+      const suffix = ' €';
+      expect(sanitizeInputValue('', decimalSeparator, suffix)).toBe('');
+      expect(sanitizeInputValue(' ', decimalSeparator, suffix)).toBe('');
+      expect(sanitizeInputValue('123', decimalSeparator, suffix)).toBe('123 €');
+      expect(sanitizeInputValue(' 12 3 ', decimalSeparator, suffix)).toBe(
+        '123 €',
+      );
+      expect(sanitizeInputValue('12, 3', decimalSeparator, suffix)).toBe(
+        '12,3 €',
+      );
+      expect(sanitizeInputValue('12,3', decimalSeparator, suffix)).toBe(
+        '12,3 €',
+      );
+      expect(sanitizeInputValue('12,,3,', decimalSeparator, suffix)).toBe(
+        '12,3 €',
+      );
+      expect(sanitizeInputValue('12.3', decimalSeparator, suffix)).toBe(
+        '12,3 €',
+      );
+      expect(sanitizeInputValue('12..3.', decimalSeparator, suffix)).toBe(
+        '12,3 €',
+      );
+      expect(sanitizeInputValue('12abc,3', decimalSeparator, suffix)).toBe(
+        '12,3 €',
+      );
+      expect(sanitizeInputValue('12,3 €', decimalSeparator, suffix)).toBe(
+        '12,3 €',
+      );
+      expect(sanitizeInputValue('€ 12,3', decimalSeparator, suffix)).toBe(
+        '12,3 €',
+      );
     });
   });
 });
