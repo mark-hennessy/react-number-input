@@ -52,6 +52,7 @@ const NumberInput = ({
 
   const suffix = currency ? ` ${currencySymbol}` : '';
   const isMobile = useMemo(() => /Mobi/.test(navigator.userAgent), []);
+  const isFirefox = useMemo(() => /Firefox/.test(navigator.userAgent), []);
 
   const parse = (numberOrString, bound) => {
     return bound
@@ -586,7 +587,9 @@ const NumberInput = ({
       inputKey={inputKeyRef.current}
       inputClassName={cn(`${CID}__input`, inputClassName)}
       dataCy={dataCy || buildDataCyString(name, 'number-input')}
-      type='text'
+      // Firefox Mobile doesn't support inputMode, and type 'text' in Firefox
+      // uses an aggressive emoji auto-suggest that glitches the input.
+      type={isFirefox && isMobile ? 'tel' : 'text'}
       // ask Mobile browsers that support inputMode to show the number pad
       inputMode='decimal'
       name={name}
