@@ -292,29 +292,6 @@ describe('numberInputHelpers', () => {
     });
   });
 
-  describe('removeSuffix', () => {
-    it('removes non-digits characters from the end', () => {
-      expect(removeSuffix('')).toBe('');
-      expect(removeSuffix('123')).toBe('123');
-      expect(removeSuffix('12,3')).toBe('12,3');
-      expect(removeSuffix('€ 12,3')).toBe('€ 12,3');
-      expect(removeSuffix('12,3 €')).toBe('12,3');
-      expect(removeSuffix('12,3  €')).toBe('12,3');
-      expect(removeSuffix('12,3 EUR')).toBe('12,3');
-    });
-  });
-
-  describe('removeSpaces', () => {
-    it('removes spaces', () => {
-      expect(removeSpaces('')).toBe('');
-      expect(removeSpaces(' ')).toBe('');
-      expect(removeSpaces('123')).toBe('123');
-      expect(removeSpaces(' 1 2  3 ')).toBe('123');
-      expect(removeSpaces('12,3')).toBe('12,3');
-      expect(removeSpaces('12, 3')).toBe('12,3');
-    });
-  });
-
   describe('hasDecimalSeparator', () => {
     it('checks for period or the given separator', () => {
       const decimalSeparator = ',';
@@ -418,6 +395,31 @@ describe('numberInputHelpers', () => {
       expect(sanitizeInputValue('€ 12,3', decimalSeparator, suffix)).toBe(
         '12,3 €',
       );
+    });
+  });
+
+  describe('removeSuffix', () => {
+    it('removes the suffix', () => {
+      const decimalSeparator = ',';
+      expect(removeSuffix('', decimalSeparator)).toBe('');
+      expect(removeSuffix('123', decimalSeparator)).toBe('123');
+      expect(removeSuffix('12,', decimalSeparator)).toBe('12,');
+      expect(removeSuffix('12.', decimalSeparator)).toBe('12,');
+      expect(removeSuffix('12,3', decimalSeparator)).toBe('12,3');
+      expect(removeSuffix('12,3 €', decimalSeparator)).toBe('12,3');
+      expect(removeSuffix('12,3  €', decimalSeparator)).toBe('12,3');
+      expect(removeSuffix('12,3 EUR', decimalSeparator)).toBe('12,3');
+    });
+  });
+
+  describe('removeSpaces', () => {
+    it('removes spaces', () => {
+      expect(removeSpaces('')).toBe('');
+      expect(removeSpaces(' ')).toBe('');
+      expect(removeSpaces('123')).toBe('123');
+      expect(removeSpaces(' 1 2  3 ')).toBe('123');
+      expect(removeSpaces('12,3')).toBe('12,3');
+      expect(removeSpaces('12, 3')).toBe('12,3');
     });
   });
 });

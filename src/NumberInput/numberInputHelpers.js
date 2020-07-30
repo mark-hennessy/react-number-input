@@ -80,6 +80,12 @@ export const findCharAdditions = (previousString, currentString) => {
   return changes;
 };
 
+// Mobile key handling is difficult because on-screen keyboards report
+// 'e.keyCode' as 229 and 'e.key' as 'Unidentified' in onKeyDown. Firefox
+// Mobile does not even fire onKeyDown for most keys. To make matters worse,
+// onKeyPress is deprecated and onInput does not report keys. The alternative
+// is to record the input value on render and compare it with the new input
+// value in onInput to determine which key was pressed.
 export const findKeyFromDiff = (previousString, currentString) => {
   let key = '';
 
@@ -99,16 +105,6 @@ export const findKeyFromDiff = (previousString, currentString) => {
   }
 
   return key;
-};
-
-export const removeSuffix = string => {
-  // Remove one or more non-digit characters at the end so the suffix is
-  // removed even if it was partially deleted by Backspace.
-  return string.replace(/\D+$/, '');
-};
-
-export const removeSpaces = string => {
-  return string.replace(/\s/g, '');
 };
 
 export const hasDecimalSeparator = (string, decimalSeparator) => {
@@ -161,4 +157,15 @@ export const sanitizeInputValue = (
 
   // only add the suffix back if the result is not empty
   return result ? result + suffix : result;
+};
+
+export const removeSuffix = (string, decimalSeparator) => {
+  // sanitizeInputValue will remove the suffix even if it was partially deleted.
+  // The suffix is not passed to sanitizeInputValue so that it gets removed and
+  // does not get added back again.
+  return sanitizeInputValue(string, decimalSeparator);
+};
+
+export const removeSpaces = string => {
+  return string.replace(/\s/g, '');
 };
