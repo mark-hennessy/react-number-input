@@ -177,15 +177,11 @@ const NumberInput = ({
     setSelectionState(getPreviousSelectionState());
   };
 
-  const setNumberValue = number => {
+  const setNumberValue = value => {
     // clear the value override so the actual value will show next render
     setInputValueOverride(null);
 
     const { name } = getInput();
-
-    // use the empty string instead of null to represent an empty input in case
-    // there are apps that repopulate the input with a default value when null
-    const value = number !== null ? number : '';
 
     if (onChange) {
       const e = {
