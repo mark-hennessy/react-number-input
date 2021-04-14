@@ -11,7 +11,7 @@ const createInputTransformationProps = ({
       rawValue !== undefined && rawValue !== null ? `${rawValue}` : '';
 
     if (allCaps) {
-      newValue = rawValue.toUpperCase();
+      newValue = newValue.toUpperCase();
     }
 
     return newValue;
